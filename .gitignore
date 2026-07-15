@@ -1,0 +1,13 @@
+target/
+*.docx
+*.pdf
+*.md
+
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.iml
+*.log
+Server/

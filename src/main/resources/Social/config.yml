@@ -1,0 +1,9 @@
+# Sit usa un asiento temporal que se elimina al levantarse.
+poses:
+  enabled: true
+
+whereami:
+  enabled: true
+
+sleep-announcements:
+  enabled: true

@@ -1,0 +1,35 @@
+_meta:
+  limit-revision: 1
+
+claims:
+  # Cantidad de regiones que puede tener cada jugador sin permisos especiales.
+  default-limit: 2
+  # Separación mínima entre una región nueva y las regiones de otros jugadores.
+  minimum-distance-blocks: 16
+
+purchases:
+  # /region build compra cupos adicionales; no reclama el terreno automáticamente.
+  enabled: true
+  base-cost-emeralds: 64
+  cost-multiplier: 2
+  maximum-extra-slots: 6
+
+# Cada radio se mide desde el bloque central hacia el norte, sur, este y oeste.
+# Por eso, un radio de 32 protege 65 x 65 bloques: 32 + centro + 32.
+# Para conservar configuraciones antiguas, también se acepta la clave "size".
+upgrades:
+  - radius: 32
+    cost-diamonds: 0
+  - radius: 64
+    cost-diamonds: 20
+  - radius: 128
+    cost-diamonds: 64
+
+view:
+  # Tiempo durante el que /region view dibuja el borde y el centro con partículas.
+  duration-seconds: 10
+  # Distancia entre las partículas de las líneas horizontales del borde.
+  border-spacing-blocks: 2
+  # Distancia entre los pilares verticales que hacen más visible el límite.
+  pillar-spacing-blocks: 8
+  pillar-height-blocks: 6

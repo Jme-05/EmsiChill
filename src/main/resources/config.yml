@@ -1,0 +1,16 @@
+language: es
+prefix: "&8[&5EmsiChill&8] "
+
+modules:
+  homes: true
+  authentication: true
+  skins: true
+  teleport: true
+  player-info: true
+  staff: true
+  regions: true
+  graves: true
+  social: true
+
+audit-log:
+  enabled: false

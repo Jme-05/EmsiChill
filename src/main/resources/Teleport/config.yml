@@ -1,0 +1,35 @@
+homes:
+  default-limit: 1
+  permission-limits:
+    - permission: emsichill.homes.3
+      limit: 3
+    - permission: emsichill.homes.5
+      limit: 5
+
+teleport:
+  default-delay-seconds: 3
+  cancel-on-move: true
+  cancel-on-damage: true
+
+home:
+  delay-seconds: 0
+back:
+  delay-seconds: 0
+  save-death-location: true
+tpa:
+  delay-seconds: 3
+  request-timeout-seconds: 30
+
+rtp:
+  delay-seconds: 3
+  # 30 minutos para jugadores normales. Los OP lo omiten por permiso.
+  cooldown-seconds: 1800
+  minimum-radius: 500
+  maximum-radius: 5000
+  maximum-attempts: 25
+  use-world-border-center: true
+  # En Nether solo se buscan cuevas dentro de esta franja, nunca el techo de bedrock.
+  nether-minimum-y: 8
+  nether-maximum-y: 120
+  # Una lista vacía permite el mundo actual. Agrega nombres para limitarlo.
+  allowed-worlds: []

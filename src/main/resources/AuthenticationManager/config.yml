@@ -1,0 +1,44 @@
+# Usa /emsichill reload para aplicar los cambios.
+settings:
+  login-timeout-seconds: 60
+  max-login-attempts: 5
+  login-lockout-seconds: 30
+  min-password-length: 6
+  max-password-length: 64
+  # Solo afecta a contraseñas nuevas. No se recomienda menos de 210000.
+  password-hash-iterations: 210000
+
+sessions:
+  # Si se activa, permite restaurar temporalmente una sesión válida.
+  enabled: false
+  duration-minutes: 30
+
+visibility:
+  # Oculta del mundo y del TAB a quien todavía no se autenticó.
+  hide-until-authenticated: true
+
+authentication-location:
+  enabled: false
+  world: world
+  x: 0.5
+  y: 100.0
+  z: 0.5
+  yaw: 0.0
+  pitch: 0.0
+
+blocking:
+  movement: true
+  teleport: true
+  chat: true
+  commands: true
+  command-suggestions: true
+  interaction: true
+  inventory: true
+  item-drop: true
+  item-pickup: true
+  damage: true
+  allowed-commands:
+    - login
+    - l
+    - register
+    - reg

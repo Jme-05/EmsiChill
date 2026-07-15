@@ -1,0 +1,11 @@
+staffchat:
+  show-in-console: true
+
+vanish:
+  disable-item-pickup: true
+
+staffmode:
+  game-mode: SPECTATOR
+  enable-vanish: true
+  disable-vanish-on-exit: true
+  inspection-read-only: false

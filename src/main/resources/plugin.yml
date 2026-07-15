@@ -1,0 +1,232 @@
+name: ${name}
+api-version: '26.2'
+description: ${description}
+author: ${author}
+main: ${mainClass}
+version: ${version}
+commands:
+  skin:
+    description: Cambia y guarda la skin de un jugador
+    usage: /skin <name|random|reset>
+    aliases: [skins]
+  login:
+    description: Inicia sesión en el servidor
+    usage: /login <password>
+    aliases: [l]
+  register:
+    description: Registra una cuenta
+    usage: /register <password> <password>
+    aliases: [reg]
+  changepassword:
+    description: Cambia la contraseña de la cuenta
+    usage: /changepassword <current> <new> <new>
+    aliases: [changepass]
+  unregister:
+    description: Elimina el registro de la cuenta
+    usage: /unregister <password>
+  auth:
+    description: Administración del sistema de autenticación
+    usage: /auth <unregister|changepassword|reload>
+  emsichill:
+    description: Información y recarga de EmsiChill
+    usage: /emsichill <help|reload|status|doctor|backup|migrate|rtp cooldown>
+    aliases: [emsi]
+  home:
+    description: Te teletransporta a uno de tus homes
+    usage: /home [name]
+    permission: emsichill.home
+  sethome:
+    description: Guarda un home
+    usage: /sethome [name]
+    permission: emsichill.sethome
+  delhome:
+    description: Elimina un home
+    usage: /delhome <name>
+    permission: emsichill.delhome
+  homes:
+    description: Muestra tus homes
+    usage: /homes
+    permission: emsichill.home
+  tpa:
+    description: Solicita teletransportarte a un jugador
+    usage: /tpa <player>
+    permission: emsichill.tpa
+  tpahere:
+    description: Solicita traer a un jugador
+    usage: /tpahere <player>
+    permission: emsichill.tpa
+  tpaccept:
+    description: Acepta una solicitud de teletransporte
+    permission: emsichill.tpa
+    usage: /tpaccept
+  tpdeny:
+    description: Rechaza una solicitud de teletransporte
+    permission: emsichill.tpa
+    usage: /tpdeny
+  tpcancel:
+    description: Cancela una solicitud enviada
+    permission: emsichill.tpa
+    usage: /tpcancel
+  tptoggle:
+    description: Activa o desactiva solicitudes
+    permission: emsichill.tpa
+    usage: /tptoggle
+  back:
+    description: Vuelve a tu ubicación anterior
+    usage: /back [player]
+    permission: emsichill.back
+  rtp:
+    description: Teletransporte aleatorio seguro
+    permission: emsichill.rtp
+    usage: /rtp
+  playtime:
+    description: Muestra el tiempo jugado
+    usage: /playtime [player]
+    permission: emsichill.playtime
+  playtimetop:
+    description: Clasificación de tiempo jugado
+    usage: /playtimetop
+    permission: emsichill.playtime
+  seen:
+    description: Muestra la última conexión de un jugador
+    usage: /seen [player]
+    permission: emsichill.seen
+  staffchat:
+    description: Chat privado para moderadores
+    usage: /staffchat <message|toggle>
+    aliases: [sc]
+    permission: emsichill.staffchat
+  vanish:
+    description: Oculta un moderador
+    usage: /vanish [player]
+    permission: emsichill.vanish
+  vanishlist:
+    description: Lista jugadores ocultos
+    usage: /vanishlist
+    permission: emsichill.vanish.see
+  staffmode:
+    description: Activa herramientas de moderación
+    usage: /staffmode [player]
+    permission: emsichill.staffmode
+    aliases: [mod]
+  region:
+    description: Reclamos y protección de terrenos
+    usage: /region <claim|build|teleport|view|upgrade|settings|add|owner>
+    permission: emsichill.region.use
+  grave:
+    description: Administra tus tumbas
+    usage: /grave <list|locate|recover>
+    permission: emsichill.grave.use
+  deathcontrol:
+    description: Control administrativo de pérdida de inventario
+    usage: /deathcontrol <player|default> <grave|keep|drop>
+    permission: emsichill.deathcontrol.admin
+  sit:
+    description: Te permite sentarte usando una pose nativa
+    usage: /sit
+    permission: emsichill.pose
+  stand:
+    description: Restablece tu postura normal
+    usage: /stand
+    permission: emsichill.pose
+  whereami:
+    description: Comparte tu dimensión y coordenadas en el chat
+    usage: /whereami
+    permission: emsichill.whereami
+permissions:
+  emsichill.skin:
+    description: Permite usar /skin
+    default: true
+  emsichill.skin.others:
+    description: Permite cambiar la skin de otros jugadores
+    default: op
+  emsichill.skin.bypasscooldown:
+    description: Ignora el tiempo entre cambios de skin
+    default: op
+  emsichill.auth.admin:
+    description: Permite administrar cuentas con /auth
+    default: op
+  emsichill.admin.reload:
+    description: Permite recargar EmsiChill
+    default: op
+  emsichill.admin.maintenance:
+    description: Permite diagnosticar, respaldar y migrar los datos de EmsiChill
+    default: op
+  emsichill.home:
+    default: true
+  emsichill.sethome:
+    default: true
+  emsichill.delhome:
+    default: true
+  emsichill.homes.3:
+    default: false
+  emsichill.homes.5:
+    default: false
+  emsichill.homes.unlimited:
+    default: op
+  emsichill.homes.admin:
+    default: op
+  emsichill.homes.others:
+    description: Permite ver y usar homes de jugadores desconectados
+    default: op
+  emsichill.tpa:
+    default: true
+  emsichill.back:
+    default: true
+  emsichill.back.others:
+    description: Permite ejecutar /back sobre otro jugador
+    default: op
+  emsichill.rtp:
+    default: true
+  emsichill.rtp.bypasscooldown:
+    description: Permite omitir los 30 minutos de espera de /rtp
+    default: op
+  emsichill.rtp.admin:
+    description: Permite cambiar el cooldown de /rtp
+    default: op
+  emsichill.teleport.bypassdelay:
+    description: Omite la espera antes de teletransportarse
+    default: false
+  emsichill.playtime:
+    default: true
+  emsichill.seen:
+    default: true
+  emsichill.staffchat:
+    default: op
+  emsichill.vanish:
+    default: op
+  emsichill.vanish.others:
+    default: op
+  emsichill.vanish.see:
+    default: op
+  emsichill.staffmode:
+    default: op
+  emsichill.staffmode.others:
+    default: op
+  emsichill.skin.favorites.unlimited:
+    default: op
+  emsichill.region.use:
+    default: true
+  emsichill.region.claim:
+    description: Permite reclamar terrenos
+    default: true
+  emsichill.region.admin:
+    description: Permite administrar cualquier región
+    default: op
+  emsichill.region.unlimited:
+    description: Permite reclamar regiones sin límite de cantidad
+    default: op
+  emsichill.grave.use:
+    default: true
+  emsichill.grave.admin:
+    description: Permite recuperar y abrir tumbas ajenas
+    default: op
+  emsichill.deathcontrol.admin:
+    description: Permite configurar la pérdida de inventario
+    default: op
+  emsichill.pose:
+    description: Permite usar /sit y /stand
+    default: true
+  emsichill.whereami:
+    description: Permite compartir la ubicación con /whereami
+    default: true
