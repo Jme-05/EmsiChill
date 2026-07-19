@@ -18,6 +18,8 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 
 <!-- EMSICHILL_COMMANDS_START -->
 
+### 5.0.0
+
 ## Comandos para jugadores
 
 | Comando | Descripción |
@@ -118,21 +120,18 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 
 ### 5.1.0
 
-- Se añadió `/emsichill update check` para comprobar Releases manualmente.
-- Se añadieron `/invsee`, `/enderchestsee` y `/freeze`.
-- Se separaron los permisos para mirar y modificar inventarios.
-- Se dividió el sistema de staff en comandos, eventos, lógica y almacenamiento.
-- La documentación de comandos y permisos pasó a generarse desde `plugin.yml`.
-- Se añadió la comprobación automática de nuevas Releases de GitHub.
-- El servidor avisa en consola y a los administradores con el permiso
-  `emsichill.admin.update` cuando hay una versión nueva.
-- El intervalo y los destinatarios del aviso pueden configurarse en `config.yml`.
-- Se añadió este historial para mantener separados los cambios de cada versión.
+## Comandos para administradores y moderadores
 
-### 5.0.0
-
-- Primera versión de EmsiChill.
-- Incluye autenticación, skins, homes, TPA, RTP, regiones, tumbas y herramientas de staff.
+| Área | Cambio |
+|---|---|
+| Actualizaciones | Se añadió `/emsichill update check` para comprobar Releases manualmente. |
+| Actualizaciones | Se añadió la comprobación automática de nuevas Releases de GitHub. |
+| Notificaciones | El servidor avisa en consola y a los administradores con `emsichill.admin.update` cuando existe una versión nueva. |
+| Configuración | El intervalo y los destinatarios del aviso pueden configurarse en `config.yml`. |
+| Moderación | Se añadieron `/invsee`, `/enderchestsee` y `/freeze`. |
+| Permisos | Se separaron los permisos para mirar y modificar inventarios. |
+| Arquitectura | Se dividió el sistema de staff en comandos, eventos, lógica y almacenamiento. |
+| Documentación | Los comandos y permisos pasaron a generarse desde `plugin.yml`. |
 
 ## Licencia
 
