@@ -52,13 +52,14 @@ public final class Messages {
             this.plugin.getLogger().warning("No se pudieron cargar los mensajes incluidos en EmsiChill.");
         }
         // Las revisiones aplican correcciones importantes una vez y conservan cambios posteriores.
-        if (language.equals("es") && existingTextRevision < 10) {
+        int bundledTextRevision = this.bundledFallback.getInt("_meta.text-revision", 0);
+        if (language.equals("es") && existingTextRevision < bundledTextRevision) {
             for (String key : this.bundledFallback.getKeys(true)) {
                 if (this.bundledFallback.isString(key)) {
                     this.messagesFile.yaml().set(key, this.bundledFallback.getString(key));
                 }
             }
-            this.messagesFile.yaml().set("_meta.text-revision", 10);
+            this.messagesFile.yaml().set("_meta.text-revision", bundledTextRevision);
             this.messagesFile.save();
         }
         boolean updated = false;
@@ -83,6 +84,10 @@ public final class Messages {
         sender.sendMessage(this.component(key, replacements));
     }
 
+    public void sendText(final CommandSender sender, final String text) {
+        sender.sendMessage(SERIALIZER.deserialize(this.prefix + text));
+    }
+
     public Component component(final String key, final String... replacements) {
         String text = this.messagesFile.yaml().getString(key);
         if (text == null) text = this.bundledFallback.getString(key);
@@ -97,5 +102,14 @@ public final class Messages {
             text = text.replace(replacements[index], replacements[index + 1]);
         }
         return SERIALIZER.deserialize(this.prefix + text);
+    }
+
+    public Component unprefixed(final String key, final String... replacements) {
+        String text = this.messagesFile.yaml().getString(key);
+        if (text == null) text = this.bundledFallback.getString(key, key);
+        for (int index = 0; index + 1 < replacements.length; index += 2) {
+            text = text.replace(replacements[index], replacements[index + 1]);
+        }
+        return SERIALIZER.deserialize(text);
     }
 }

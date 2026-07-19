@@ -1,7 +1,6 @@
 target/
 *.docx
 *.pdf
-*.md
 
 .idea/
 .vscode/

@@ -17,16 +17,23 @@ import me.jaime.emsichill.commands.EmsiChillCommand;
 import me.jaime.emsichill.commands.SkinCommand;
 import me.jaime.emsichill.config.ConfigFile;
 import me.jaime.emsichill.config.Messages;
+import me.jaime.emsichill.documentation.CommandDocumentation;
 import me.jaime.emsichill.grave.GraveManager;
 import me.jaime.emsichill.home.HomeManager;
 import me.jaime.emsichill.maintenance.MaintenanceService;
 import me.jaime.emsichill.playerinfo.PlayerInfoManager;
 import me.jaime.emsichill.region.RegionManager;
 import me.jaime.emsichill.social.SocialManager;
-import me.jaime.emsichill.staff.StaffManager;
+import me.jaime.emsichill.staff.FreezeService;
+import me.jaime.emsichill.staff.InspectionService;
+import me.jaime.emsichill.staff.StaffCommand;
+import me.jaime.emsichill.staff.StaffListener;
+import me.jaime.emsichill.staff.StaffService;
 import me.jaime.emsichill.storage.DataStore;
 import me.jaime.emsichill.teleport.TeleportManager;
 import me.jaime.emsichill.util.AuditLogger;
+import me.jaime.emsichill.update.UpdateService;
+import me.jaime.emsichill.update.UpdateNotifier;
 
 /**
  * Punto de entrada de Paper. Construye los módulos y coordina su ciclo de vida sin contener
@@ -42,7 +49,14 @@ public final class Main extends JavaPlugin {
     private TeleportManager teleportManager;
     private HomeManager homeManager;
     private PlayerInfoManager playerInfoManager;
-    private StaffManager staffManager;
+    private StaffService staffService;
+    private StaffCommand staffCommand;
+    private StaffListener staffListener;
+    private InspectionService inspectionService;
+    private FreezeService freezeService;
+    private UpdateService updateService;
+    private UpdateNotifier updateNotifier;
+    private CommandDocumentation commandDocumentation;
     private RegionManager regionManager;
     private GraveManager graveManager;
     private SocialManager socialManager;
@@ -74,7 +88,14 @@ public final class Main extends JavaPlugin {
         this.skinCommand = new SkinCommand(this);
         this.teleportManager = new TeleportManager(this);
         this.homeManager = new HomeManager(this, this.teleportManager);
-        this.staffManager = new StaffManager(this);
+        this.inspectionService = new InspectionService();
+        this.freezeService = new FreezeService();
+        this.staffService = new StaffService(this);
+        this.staffCommand = new StaffCommand(this, this.staffService, this.inspectionService, this.freezeService);
+        this.staffListener = new StaffListener(this, this.staffService, this.inspectionService, this.freezeService);
+        this.updateService = new UpdateService(this);
+        this.updateNotifier = new UpdateNotifier(this, this.updateService);
+        this.commandDocumentation = CommandDocumentation.load(this);
         this.playerInfoManager = new PlayerInfoManager(this);
         this.regionManager = new RegionManager(this);
         this.graveManager = new GraveManager(this);
@@ -91,15 +112,15 @@ public final class Main extends JavaPlugin {
             this.teleportManager, this.teleportManager);
         this.registerAll(List.of("playtime", "seen", "playtimetop"),
             this.playerInfoManager, this.playerInfoManager);
-        this.registerAll(List.of("staffchat", "vanish", "vanishlist", "staffmode"),
-            this.staffManager, this.staffManager);
+        this.registerAll(List.of("staffchat", "vanish", "vanishlist", "staffmode", "invsee", "enderchestsee", "freeze"),
+            this.staffCommand, this.staffCommand);
         this.register("region", this.regionManager, this.regionManager);
         this.registerAll(List.of("grave", "deathcontrol"), this.graveManager, this.graveManager);
         this.registerAll(List.of("sit", "stand", "whereami"), this.socialManager, null);
 
         EmsiChillCommand adminCommand = new EmsiChillCommand(this, maintenance, this.authenticationManager,
-            this.skinCommand, this.teleportManager, this.homeManager, this.playerInfoManager, this.staffManager,
-            this.regionManager, this.graveManager);
+            this.skinCommand, this.teleportManager, this.homeManager, this.playerInfoManager, this.staffService,
+            this.regionManager, this.graveManager, this.updateService, this.commandDocumentation);
         this.register("emsichill", adminCommand, adminCommand);
     }
 
@@ -110,19 +131,21 @@ public final class Main extends JavaPlugin {
         pluginManager.registerEvents(this.skinCommand, this);
         pluginManager.registerEvents(this.teleportManager, this);
         pluginManager.registerEvents(this.playerInfoManager, this);
-        pluginManager.registerEvents(this.staffManager, this);
+        pluginManager.registerEvents(this.staffListener, this);
         pluginManager.registerEvents(this.regionManager, this);
         pluginManager.registerEvents(this.graveManager, this);
         pluginManager.registerEvents(this.socialManager, this);
+        pluginManager.registerEvents(this.updateNotifier, this);
     }
 
     private void startModules() {
         this.authenticationManager.start();
         this.skinCommand.start();
         this.playerInfoManager.start();
-        this.staffManager.start();
+        this.staffService.start();
         this.graveManager.start();
         this.socialManager.start();
+        this.updateNotifier.start();
     }
 
     @Override
@@ -132,10 +155,13 @@ public final class Main extends JavaPlugin {
         if (this.teleportManager != null) this.teleportManager.stop();
         if (this.homeManager != null) this.homeManager.stop();
         if (this.playerInfoManager != null) this.playerInfoManager.stop();
-        if (this.staffManager != null) this.staffManager.stop();
+        if (this.staffService != null) this.staffService.stop();
+        if (this.inspectionService != null) this.inspectionService.clear();
+        if (this.freezeService != null) this.freezeService.clear();
         if (this.regionManager != null) this.regionManager.stop();
         if (this.graveManager != null) this.graveManager.stop();
         if (this.socialManager != null) this.socialManager.stop();
+        if (this.updateNotifier != null) this.updateNotifier.stop();
         if (this.dataStore != null) this.dataStore.close();
         getLogger().info("EmsiChill se ha deshabilitado correctamente.");
     }
@@ -168,11 +194,11 @@ public final class Main extends JavaPlugin {
     }
 
     public boolean isVanished(final Player player) {
-        return this.staffManager != null && this.staffManager.isVanished(player);
+        return this.staffService != null && this.staffService.isVanished(player);
     }
 
     public void refreshStaffVisibility() {
-        if (this.staffManager != null) this.staffManager.refreshVisibility();
+        if (this.staffService != null) this.staffService.refreshVisibility();
     }
 
     public void rememberGraveBackLocation(final Player player, final Location graveLocation) {
@@ -187,9 +213,10 @@ public final class Main extends JavaPlugin {
         this.teleportManager.reloadConfiguration();
         this.homeManager.reloadConfiguration();
         this.playerInfoManager.reloadConfiguration();
-        this.staffManager.reloadConfiguration();
+        this.staffService.reloadConfiguration();
         this.regionManager.reloadConfiguration();
         this.graveManager.reloadConfiguration();
         this.socialManager.reloadConfiguration();
+        this.updateNotifier.reloadConfiguration();
     }
 }

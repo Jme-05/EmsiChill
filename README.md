@@ -1,6 +1,7 @@
 # EmsiChill
 
-Plugin multifunción para servidores encapsulando diferentes plugins como el `/rtp`, `/tpa`. alternativa a `/proteccionstone`, `/home`. `/gravestone`, `/skin`, `/register` y `/login`
+Plugin multifunción para servidores Paper. Reúne autenticación, skins, homes, teletransportes,
+regiones, tumbas y herramientas de moderación en un solo JAR.
 
 ## Requisitos
 
@@ -9,13 +10,15 @@ Plugin multifunción para servidores encapsulando diferentes plugins como el `/r
 
 ## Instalación
 
-1. Descarga `EmsiChill-5.0.0.jar` desde Releases.
+1. Descarga `EmsiChill` desde Releases.
 2. Apaga el servidor.
 3. Coloca el JAR en `plugins/`.
 4. Inicia el servidor.
 5. Configura el plugin desde `plugins/EmsiChill/`.
 
-## Comandos para jugadores defaults
+<!-- EMSICHILL_COMMANDS_START -->
+
+## Comandos para jugadores
 
 | Comando | Descripción |
 |---|---|
@@ -28,7 +31,7 @@ Plugin multifunción para servidores encapsulando diferentes plugins como el `/r
 | `/skin reset` | Restablece la skin. |
 | `/skin save <nombre>` | Guarda una skin como favorita. |
 | `/skin unsave <nombre>` | Elimina una skin de favoritos. |
-| `/skin favorites` | Abre el menú de favoritas. |
+| `/skin favorites` | Abre el menú de skins favoritas. |
 | `/skin history` | Abre el historial de skins. |
 | `/skin clearhistory` | Elimina el historial propio. |
 | `/sethome [nombre]` | Guarda un home. |
@@ -37,8 +40,8 @@ Plugin multifunción para servidores encapsulando diferentes plugins como el `/r
 | `/homes` | Muestra todos los homes propios. |
 | `/tpa <jugador>` | Solicita teletransportarse a otro jugador. |
 | `/tpahere <jugador>` | Solicita que otro jugador vaya hacia ti. |
-| `/tpaccept` | Acepta una solicitud. |
-| `/tpdeny` | Rechaza una solicitud. |
+| `/tpaccept` | Acepta una solicitud de teletransporte. |
+| `/tpdeny` | Rechaza una solicitud de teletransporte. |
 | `/tpcancel` | Cancela una solicitud enviada. |
 | `/tptoggle` | Activa o bloquea las solicitudes. |
 | `/back` | Regresa a la ubicación anterior o a la tumba. |
@@ -73,40 +76,63 @@ Plugin multifunción para servidores encapsulando diferentes plugins como el `/r
 | `/region delete [nombre]` | Elimina permanentemente una región. |
 | `/region help` | Muestra la ayuda de regiones. |
 
-## Comandos para las personas administradoras (op's) del servidor.
+## Comandos para administradores y moderadores
 
 | Comando | Descripción |
 |---|---|
-| `/skin <jugador> <skin>` | Cambia la skin de otro jugador. |
-| `/home <jugador> [home]` | Ve y utiliza homes ajenos, incluso desconectados. |
-| `/back <jugador>` | Envía a otro jugador a su ubicación anterior. |
-| `/auth unregister <jugador>` | Elimina el registro de una cuenta. |
-| `/auth changepassword <jugador> <nueva>` | Cambia una contraseña administrativa. |
-| `/auth reload` | Recarga el módulo de autenticación. |
+| `/invsee <jugador>` | Abre el inventario; modificarlo requiere un permiso adicional. |
+| `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
+| `/freeze <jugador>` | Congela o libera temporalmente a un jugador conectado. |
 | `/staffchat toggle` | Activa o desactiva el chat administrativo. |
 | `/staffchat <mensaje>` | Envía un mensaje al equipo. |
 | `/vanish [jugador]` | Activa o desactiva el modo invisible. |
 | `/vanishlist` | Lista los jugadores invisibles. |
 | `/staffmode [jugador]` | Activa las herramientas de moderación. |
+| `/skin <jugador> <skin>` | Cambia la skin de otro jugador. |
+| `/home <jugador> [home]` | Abre y utiliza homes ajenos, incluso desconectados. |
+| `/back <jugador>` | Envía a otro jugador a su ubicación anterior. |
+| `/auth unregister <jugador>` | Elimina administrativamente el registro de una cuenta. |
+| `/auth changepassword <jugador> <nueva>` | Cambia administrativamente una contraseña. |
 | `/grave admin recover <jugador>` | Recupera administrativamente una tumba. |
-| `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador. |
 
-## Configuración mediante comandos (solo administradores)
+## Configuración mediante comandos administrativos
 
-| Comando | Resultado |
+| Comando | Descripción |
 |---|---|
 | `/emsichill homes limit <cantidad>` | Cambia el límite predeterminado de homes. |
 | `/emsichill rtp cooldown <minutos>` | Cambia el cooldown global de RTP. |
 | `/deathcontrol default <grave\|keep\|drop>` | Cambia el modo de muerte predeterminado. |
+| `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador. |
+| `/auth reload` | Recarga el módulo de autenticación. |
+| `/emsichill update check` | Comprueba si existe una Release nueva sin instalarla. |
 | `/emsichill reload` | Recarga las configuraciones del plugin. |
-| `/emsichill status` | Muestra el estado de todos los módulos. |
+| `/emsichill status` | Muestra el estado de los módulos. |
 | `/emsichill doctor` | Busca problemas en datos y configuración. |
 | `/emsichill backup` | Crea un respaldo de los datos. |
 | `/emsichill migrate` | Guarda y normaliza los datos actuales. |
-| `/emsichill help <categoría>` | Muestra ayuda por categorías. |
+| `/emsichill help <categoría>` | Muestra ayuda generada por categorías. |
 
-Las configuraciones que no tienen comando se pueden modificar en
-`plugins/EmsiChill/` y se aplican con `/emsichill reload`.
+<!-- EMSICHILL_COMMANDS_END -->
+
+## Historial de versiones
+
+### 5.1.0
+
+- Se añadió `/emsichill update check` para comprobar Releases manualmente.
+- Se añadieron `/invsee`, `/enderchestsee` y `/freeze`.
+- Se separaron los permisos para mirar y modificar inventarios.
+- Se dividió el sistema de staff en comandos, eventos, lógica y almacenamiento.
+- La documentación de comandos y permisos pasó a generarse desde `plugin.yml`.
+- Se añadió la comprobación automática de nuevas Releases de GitHub.
+- El servidor avisa en consola y a los administradores con el permiso
+  `emsichill.admin.update` cuando hay una versión nueva.
+- El intervalo y los destinatarios del aviso pueden configurarse en `config.yml`.
+- Se añadió este historial para mantener separados los cambios de cada versión.
+
+### 5.0.0
+
+- Primera versión de EmsiChill.
+- Incluye autenticación, skins, homes, TPA, RTP, regiones, tumbas y herramientas de staff.
 
 ## Licencia
 

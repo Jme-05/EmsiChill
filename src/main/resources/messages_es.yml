@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 10
+  text-revision: 12
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -144,6 +144,28 @@ staff:
   staffmode-off: "&cModo de staff desactivado e inventario restaurado."
   staffmode-other: "&aModo de staff cambiado para {player}."
   staffmode-recovered: "&eSe recuperó el inventario que tenías antes de activar el modo de staff."
+  invsee-usage: "&eUso: /invsee <jugador>."
+  enderchestsee-usage: "&eUso: /enderchestsee <jugador>."
+  inspection-opened-read-only: "&eInspección de {player} abierta en modo de solo lectura."
+  inspection-opened-editable: "&aInspección de {player} abierta con modificación permitida."
+  freeze-usage: "&eUso: /freeze <jugador>."
+  frozen: "&cUn moderador te ha congelado temporalmente."
+  unfrozen: "&aYa puedes moverte con normalidad."
+  freeze-enabled: "&a{player} quedó congelado temporalmente."
+  freeze-disabled: "&a{player} fue liberado."
+  frozen-command: "&cNo puedes usar ese comando mientras estás congelado."
+  random-none: "&eNo hay otro jugador visible al que puedas ir."
+  tool-random: "&bJugador aleatorio"
+  tool-inventory: "&bInspeccionar inventario"
+  tool-ender: "&bInspeccionar cofre de Ender"
+  tool-vanish: "&bAlternar ocultación"
+
+update:
+  checking: "&eComprobando la última Release de EmsiChill..."
+  available: "&aHay una actualización: &f{latest} &7(instalada: {current})&a. {url}"
+  automatic-available: "&dNueva actualización de EmsiChill disponible: &f{latest} &7(instalada: {current})&d. &f{url}"
+  up-to-date: "&aEmsiChill {version} es la versión más reciente publicada."
+  failed: "&cNo se pudo comprobar la actualización. Revisa la consola."
 
 region:
   help: "&eUsa /region help para ver los comandos de protección de terrenos."

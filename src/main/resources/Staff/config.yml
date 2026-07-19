@@ -8,4 +8,3 @@ staffmode:
   game-mode: SPECTATOR
   enable-vanish: true
   disable-vanish-on-exit: true
-  inspection-read-only: false

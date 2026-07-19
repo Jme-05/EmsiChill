@@ -9,7 +9,7 @@
     <!-- Plugin Information -->
     <name>EmsiChill</name>
     <description>Plugin hecho de chill</description>
-    <version>5.0.0</version>
+    <version>5.1.0</version>
 
     <properties>
         <author>Jaime</author>
@@ -44,12 +44,18 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.2</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <!-- Build settings -->
     <build>
         <!-- Name of your compiled artifact -->
-        <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <!-- Directory of .java files -->
         <sourceDirectory>src/main/java</sourceDirectory>
         <!-- Clean old builds and install dependencies before compile -->
@@ -79,6 +85,41 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
+            </plugin>
+
+            <!-- Regenerate public command and permission documentation from plugin.yml. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-documentation</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>me.jaime.emsichill.documentation.ReadmeGenerator</mainClass>
+                            <classpathScope>compile</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/src/main/resources/plugin.yml</argument>
+                                <argument>${project.basedir}/README.md</argument>
+                                <argument>${project.basedir}/docs/PERMISSIONS.md</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>me/jaime/emsichill/documentation/ReadmeGenerator.class</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <!-- Include dependencies inside jar -->

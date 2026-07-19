@@ -16,14 +16,18 @@ import org.bukkit.command.TabCompleter;
 import me.jaime.emsichill.Main;
 import me.jaime.emsichill.auth.AuthenticationManager;
 import me.jaime.emsichill.config.Messages;
+import me.jaime.emsichill.documentation.CommandDoc;
+import me.jaime.emsichill.documentation.CommandDocumentation;
 import me.jaime.emsichill.grave.GraveManager;
 import me.jaime.emsichill.home.HomeManager;
 import me.jaime.emsichill.maintenance.MaintenanceService;
 import me.jaime.emsichill.playerinfo.PlayerInfoManager;
 import me.jaime.emsichill.region.RegionManager;
-import me.jaime.emsichill.staff.StaffManager;
+import me.jaime.emsichill.staff.StaffService;
 import me.jaime.emsichill.storage.DataStore;
 import me.jaime.emsichill.teleport.TeleportManager;
+import me.jaime.emsichill.update.UpdateResult;
+import me.jaime.emsichill.update.UpdateService;
 import me.jaime.emsichill.util.AuditLogger;
 import me.jaime.emsichill.util.CommandSuggestions;
 
@@ -42,9 +46,11 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     private final TeleportManager teleports;
     private final HomeManager homes;
     private final PlayerInfoManager playerInfo;
-    private final StaffManager staff;
+    private final StaffService staff;
     private final RegionManager regions;
     private final GraveManager graves;
+    private final UpdateService updates;
+    private final CommandDocumentation documentation;
 
     public EmsiChillCommand(
         final Main plugin,
@@ -54,9 +60,11 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         final TeleportManager teleports,
         final HomeManager homes,
         final PlayerInfoManager playerInfo,
-        final StaffManager staff,
+        final StaffService staff,
         final RegionManager regions,
-        final GraveManager graves
+        final GraveManager graves,
+        final UpdateService updates,
+        final CommandDocumentation documentation
     ) {
         this.plugin = plugin;
         this.messages = plugin.messages();
@@ -71,6 +79,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.staff = staff;
         this.regions = regions;
         this.graves = graves;
+        this.updates = updates;
+        this.documentation = documentation;
     }
 
     @Override
@@ -80,6 +90,9 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("homes") && args[1].equalsIgnoreCase("limit")) {
             return this.changeHomeLimit(sender, args[2]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("check")) {
+            return this.checkUpdates(sender);
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             return this.reload(sender);
@@ -137,6 +150,35 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.plugin.reloadPlugin();
         this.audit.log("PLUGIN_RELOAD", "actor=" + sender.getName());
         this.messages.send(sender, "general.reloaded");
+        return true;
+    }
+
+    private boolean checkUpdates(final CommandSender sender) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        this.messages.send(sender, "update.checking");
+        this.updates.check().whenComplete((result, failure) -> Bukkit.getScheduler().runTask(this.plugin, () -> {
+            if (failure != null) {
+                this.plugin.getLogger().warning("Falló la comprobación de actualizaciones: " + failure.getMessage());
+                this.messages.send(sender, "update.failed");
+                return;
+            }
+            if (result.status() == UpdateResult.Status.UPDATE_AVAILABLE) {
+                this.messages.send(sender, "update.available",
+                    "{current}", result.currentVersion(),
+                    "{latest}", result.release().tag(),
+                    "{url}", result.release().pageUrl());
+                return;
+            }
+            if (result.status() == UpdateResult.Status.UP_TO_DATE) {
+                this.messages.send(sender, "update.up-to-date", "{version}", result.currentVersion());
+                return;
+            }
+            this.plugin.getLogger().warning("No se pudo comprobar la actualización: " + result.error());
+            this.messages.send(sender, "update.failed");
+        }));
         return true;
     }
 
@@ -217,20 +259,19 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(final CommandSender sender, final String requestedCategory) {
-        String key = switch (requestedCategory.toLowerCase(Locale.ROOT)) {
-            case "categories" -> "help.categories";
-            case "auth" -> "help.account";
-            case "teleport" -> "help.teleports";
-            case "skin" -> "help.skins";
-            case "region" -> "help.regions";
-            case "grave" -> "help.graves";
-            case "social" -> "help.social";
-            case "staff" -> "help.staff";
-            case "admin" -> "help.admin";
-            default -> "help.main";
-        };
+        String category = requestedCategory.toLowerCase(Locale.ROOT);
         this.messages.send(sender, "help.header");
-        this.messages.send(sender, key);
+        if (category.equals("categories")) {
+            this.messages.send(sender, "help.categories");
+            return;
+        }
+        if (!this.documentation.hasCategory(category)) {
+            this.messages.send(sender, "help.main");
+            return;
+        }
+        for (CommandDoc entry : this.documentation.entriesForCategory(category)) {
+            this.messages.sendText(sender, "&e" + entry.command() + " &7- " + entry.description());
+        }
     }
 
     @Override
@@ -248,6 +289,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("emsichill.admin.maintenance")) {
                 actions.addAll(List.of("status", "doctor", "backup", "migrate"));
             }
+            if (sender.hasPermission("emsichill.admin.update")) actions.add("update");
             actions.add("help");
             return CommandSuggestions.filter(actions, args[0]);
         }
@@ -267,6 +309,10 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("help")) {
             return CommandSuggestions.filter(List.of("categories", "auth", "teleport", "skin", "region",
                 "grave", "social", "staff", "admin"), args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("update")
+            && sender.hasPermission("emsichill.admin.update")) {
+            return CommandSuggestions.filter(List.of("check"), args[1]);
         }
         return Collections.emptyList();
     }

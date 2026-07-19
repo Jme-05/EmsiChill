@@ -14,3 +14,13 @@ modules:
 
 audit-log:
   enabled: false
+
+updates:
+  enabled: true
+  repository: Jme-05/EmsiChill
+  timeout-seconds: 6
+  automatic:
+    enabled: true
+    interval-minutes: 30
+    notify-console: true
+    notify-admins: true

@@ -138,6 +138,28 @@ staff:
   staffmode-off: "&cStaff mode disabled and inventory restored."
   staffmode-other: "&aStaff mode changed for {player}."
   staffmode-recovered: "&eYour inventory from before staff mode was recovered."
+  invsee-usage: "&eUsage: /invsee <player>."
+  enderchestsee-usage: "&eUsage: /enderchestsee <player>."
+  inspection-opened-read-only: "&eOpened {player}'s inventory in read-only mode."
+  inspection-opened-editable: "&aOpened {player}'s inventory with editing enabled."
+  freeze-usage: "&eUsage: /freeze <player>."
+  frozen: "&cA moderator temporarily froze you."
+  unfrozen: "&aYou can move normally again."
+  freeze-enabled: "&a{player} is now temporarily frozen."
+  freeze-disabled: "&a{player} was released."
+  frozen-command: "&cYou cannot use that command while frozen."
+  random-none: "&eThere is no other visible player to visit."
+  tool-random: "&bRandom player"
+  tool-inventory: "&bInspect inventory"
+  tool-ender: "&bInspect Ender Chest"
+  tool-vanish: "&bToggle vanish"
+
+update:
+  checking: "&eChecking the latest EmsiChill Release..."
+  available: "&aAn update is available: &f{latest} &7(installed: {current})&a. {url}"
+  automatic-available: "&dA new EmsiChill update is available: &f{latest} &7(installed: {current})&d. &f{url}"
+  up-to-date: "&aEmsiChill {version} is the latest published version."
+  failed: "&cThe update check failed. Check the console."
 
 region:
   help: "&eUse /region help to see the land protection commands."
