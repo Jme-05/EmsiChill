@@ -89,6 +89,10 @@ public final class UpdateService {
             || sameVersion(version, this.plugin.settings().getString("updates.staged-version", ""));
     }
 
+    public boolean matchesVersion(final String first, final String second) {
+        return sameVersion(first, second);
+    }
+
     private void clearResolvedPreferences() {
         String current = this.plugin.getPluginMeta().getVersion();
         boolean changed = this.clearIfResolved("updates.ignored-version", current);

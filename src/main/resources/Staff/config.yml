@@ -8,3 +8,7 @@ staffmode:
   game-mode: SPECTATOR
   enable-vanish: true
   disable-vanish-on-exit: true
+
+moderation:
+  # Conserva las sanciones más recientes de cada jugador sin dejar crecer el archivo sin límite.
+  max-history-per-player: 100

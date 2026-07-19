@@ -25,6 +25,7 @@ Este archivo se genera automáticamente desde `plugin.yml`.
 | `emsichill.homes.unlimited` | `op` | Elimina el límite personal de homes |
 | `emsichill.invsee.modify` | `op` | Permite modificar inventarios abiertos con inspección |
 | `emsichill.invsee.view` | `op` | Permite abrir inventarios ajenos en modo de solo lectura |
+| `emsichill.mute` | `op` | Permite silenciar jugadores |
 | `emsichill.playtime` | `true` | Permite consultar tiempo jugado y clasificación |
 | `emsichill.pose` | `true` | Permite usar /sit y /stand |
 | `emsichill.region.admin` | `op` | Permite administrar cualquier región |
@@ -46,7 +47,10 @@ Este archivo se genera automáticamente desde `plugin.yml`.
 | `emsichill.staffmode.others` | `op` | Permite cambiar el modo de staff de otros jugadores |
 | `emsichill.teleport.bypassdelay` | `false` | Omite la espera antes de teletransportarse |
 | `emsichill.tpa` | `true` | Permite usar solicitudes de teletransporte |
+| `emsichill.unmute` | `op` | Permite retirar silencios activos |
 | `emsichill.vanish` | `op` | Permite alternar el modo invisible propio |
 | `emsichill.vanish.others` | `op` | Permite cambiar el modo invisible de otros jugadores |
 | `emsichill.vanish.see` | `op` | Permite ver y listar jugadores invisibles |
+| `emsichill.warn` | `op` | Permite advertir jugadores y registrar el motivo |
+| `emsichill.warnings` | `op` | Permite consultar historiales de sanciones |
 | `emsichill.whereami` | `true` | Permite compartir la ubicación con /whereami |

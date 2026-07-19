@@ -25,9 +25,11 @@ import me.jaime.emsichill.maintenance.MaintenanceService;
 import me.jaime.emsichill.playerinfo.PlayerInfoManager;
 import me.jaime.emsichill.region.RegionManager;
 import me.jaime.emsichill.staff.StaffService;
+import me.jaime.emsichill.staff.ModerationService;
 import me.jaime.emsichill.storage.DataStore;
 import me.jaime.emsichill.teleport.TeleportManager;
 import me.jaime.emsichill.update.UpdateResult;
+import me.jaime.emsichill.update.ReleaseNotesFormatter;
 import me.jaime.emsichill.update.UpdateInstallResult;
 import me.jaime.emsichill.update.UpdateService;
 import me.jaime.emsichill.util.AuditLogger;
@@ -49,6 +51,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     private final HomeManager homes;
     private final PlayerInfoManager playerInfo;
     private final StaffService staff;
+    private final ModerationService moderation;
     private final RegionManager regions;
     private final GraveManager graves;
     private final UpdateService updates;
@@ -63,6 +66,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         final HomeManager homes,
         final PlayerInfoManager playerInfo,
         final StaffService staff,
+        final ModerationService moderation,
         final RegionManager regions,
         final GraveManager graves,
         final UpdateService updates,
@@ -79,6 +83,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.homes = homes;
         this.playerInfo = playerInfo;
         this.staff = staff;
+        this.moderation = moderation;
         this.regions = regions;
         this.graves = graves;
         this.updates = updates;
@@ -103,6 +108,10 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("update")
             && args[1].equalsIgnoreCase("ignore")) {
             return this.ignoreUpdate(sender, args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("update")
+            && args[1].equalsIgnoreCase("changes")) {
+            return this.showUpdateChanges(sender, args[2]);
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             return this.reload(sender);
@@ -250,6 +259,32 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean showUpdateChanges(final CommandSender sender, final String version) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        this.messages.send(sender, "update.changes-loading", "{version}", version);
+        this.updates.check().whenComplete((result, failure) -> Bukkit.getScheduler().runTask(this.plugin, () -> {
+            if (failure != null || result == null || result.status() == UpdateResult.Status.FAILED) {
+                this.messages.send(sender, "update.failed");
+                return;
+            }
+            if (!this.updates.matchesVersion(version, result.release().tag())) {
+                this.messages.send(sender, "update.version-changed", "{version}", result.release().tag());
+                return;
+            }
+            List<String> notes = ReleaseNotesFormatter.format(result.release().notes());
+            this.messages.send(sender, "update.changes-header", "{version}", result.release().tag());
+            if (notes.isEmpty()) {
+                this.messages.send(sender, "update.changes-empty");
+                return;
+            }
+            notes.forEach(line -> this.messages.sendReleaseLine(sender, line));
+        }));
+        return true;
+    }
+
     private boolean handleMaintenance(final CommandSender sender, final String action) {
         switch (action) {
             case "status" -> this.sendStatus(sender);
@@ -316,6 +351,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.teleports.persistData();
         this.playerInfo.persistData();
         this.staff.persistData();
+        this.moderation.persistData();
         this.regions.persistData();
         this.graves.persistData();
         if (this.dataStore.flush()) {
@@ -380,7 +416,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("update")
             && sender.hasPermission("emsichill.admin.update")) {
-            return CommandSuggestions.filter(List.of("check", "install", "ignore"), args[1]);
+            return CommandSuggestions.filter(List.of("check", "changes", "install", "ignore"), args[1]);
         }
         return Collections.emptyList();
     }

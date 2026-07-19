@@ -29,7 +29,7 @@ commands:
     usage: /auth <unregister|changepassword|reload>
   emsichill:
     description: Información y recarga de EmsiChill
-    usage: /emsichill <help|reload|status|doctor|backup|migrate|update <check|install|ignore>|rtp cooldown>
+    usage: /emsichill <help|reload|status|doctor|backup|migrate|update <check|changes|install|ignore>|rtp cooldown>
     aliases: [emsi]
   home:
     description: Te teletransporta a uno de tus homes
@@ -126,6 +126,22 @@ commands:
     description: Elimina inmediatamente a un jugador conectado
     usage: /slay <player>
     permission: emsichill.slay
+  mute:
+    description: Silencia permanentemente o durante un tiempo a un jugador
+    usage: /mute <player> [time]
+    permission: emsichill.mute
+  unmute:
+    description: Retira el silencio activo de un jugador
+    usage: /unmute <player>
+    permission: emsichill.unmute
+  warn:
+    description: Registra una advertencia con su motivo
+    usage: /warn <player> <reason>
+    permission: emsichill.warn
+  warnings:
+    description: Consulta el historial de sanciones de un jugador
+    usage: /warnings <player>
+    permission: emsichill.warnings
   region:
     description: Reclamos y protección de terrenos
     usage: /region <claim|build|teleport|view|upgrade|settings|add|owner>
@@ -259,6 +275,18 @@ permissions:
   emsichill.slay:
     description: Permite eliminar inmediatamente a jugadores conectados
     default: op
+  emsichill.mute:
+    description: Permite silenciar jugadores
+    default: op
+  emsichill.unmute:
+    description: Permite retirar silencios activos
+    default: op
+  emsichill.warn:
+    description: Permite advertir jugadores y registrar el motivo
+    default: op
+  emsichill.warnings:
+    description: Permite consultar historiales de sanciones
+    default: op
   emsichill.skin.favorites.unlimited:
     description: Elimina el límite de skins favoritas
     default: op
@@ -350,6 +378,10 @@ documentation:
     - {section: staff, category: staff, command: "/enderchestsee <jugador>", description: "Abre el cofre de Ender; modificarlo requiere un permiso adicional."}
     - {section: staff, category: staff, command: "/freeze <jugador> [segundos]", description: "Congela, libera o aplica una congelación con duración definida."}
     - {section: staff, category: staff, command: "/slay <jugador>", description: "Elimina inmediatamente a un jugador conectado."}
+    - {section: staff, category: staff, command: "/mute <jugador> [tiempo]", description: "Silencia permanentemente o durante 30s, 10m, 2h o 1d."}
+    - {section: staff, category: staff, command: "/unmute <jugador>", description: "Retira el silencio activo de un jugador."}
+    - {section: staff, category: staff, command: "/warn <jugador> <motivo>", description: "Registra una advertencia con fecha, moderador y motivo."}
+    - {section: staff, category: staff, command: "/warnings <jugador>", description: "Muestra el historial reciente de sanciones."}
     - {section: staff, category: staff, command: "/staffchat toggle", description: "Activa o desactiva el chat administrativo."}
     - {section: staff, category: staff, command: "/staffchat <mensaje>", description: "Envía un mensaje al equipo."}
     - {section: staff, category: staff, command: "/vanish [jugador]", description: "Activa o desactiva el modo invisible."}
@@ -367,6 +399,7 @@ documentation:
     - {section: configuration, category: admin, command: "/deathcontrol <jugador> <grave|keep|drop>", description: "Cambia el modo de muerte de un jugador."}
     - {section: configuration, category: admin, command: "/auth reload", description: "Recarga el módulo de autenticación."}
     - {section: configuration, category: admin, command: "/emsichill update check", description: "Comprueba si existe una Release nueva sin instalarla."}
+    - {section: configuration, category: admin, command: "/emsichill update changes <versión>", description: "Muestra dentro del juego un resumen de las notas de la Release."}
     - {section: configuration, category: admin, command: "/emsichill update install <versión>", description: "Descarga, valida y prepara una Release para el siguiente reinicio."}
     - {section: configuration, category: admin, command: "/emsichill update ignore <versión>", description: "Oculta los avisos automáticos de una Release concreta."}
     - {section: configuration, category: admin, command: "/emsichill reload", description: "Recarga las configuraciones del plugin."}

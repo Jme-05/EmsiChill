@@ -115,13 +115,22 @@ public final class Messages {
 
     public void sendUpdateActions(final Player player, final String version) {
         if (!player.hasPermission("emsichill.admin.update")) return;
+        Component changes = this.unprefixed("update.changes-button")
+            .clickEvent(ClickEvent.runCommand("/emsichill update changes " + version))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("update.changes-hover")));
         Component install = this.unprefixed("update.install-button")
             .clickEvent(ClickEvent.runCommand("/emsichill update install " + version))
             .hoverEvent(HoverEvent.showText(this.unprefixed("update.install-hover")));
         Component ignore = this.unprefixed("update.ignore-button")
             .clickEvent(ClickEvent.runCommand("/emsichill update ignore " + version))
             .hoverEvent(HoverEvent.showText(this.unprefixed("update.ignore-hover")));
-        player.sendMessage(Component.text("  ").append(install).append(Component.text("  ")).append(ignore));
+        player.sendMessage(Component.text("  ").append(changes).append(Component.text("  "))
+            .append(install).append(Component.text("  ")).append(ignore));
+    }
+
+    /** Muestra una lÃ­nea externa como texto literal para impedir colores o acciones inyectadas. */
+    public void sendReleaseLine(final CommandSender sender, final String line) {
+        sender.sendMessage(SERIALIZER.deserialize(this.prefix + "&7- &f").append(Component.text(line)));
     }
 
     public Component component(final String key, final String... replacements) {
@@ -151,5 +160,15 @@ public final class Messages {
             text = text.replace(replacements[index], replacements[index + 1]);
         }
         return SERIALIZER.deserialize(text);
+    }
+
+    /** Devuelve un texto configurable sin colores para reutilizarlo dentro de otros mensajes. */
+    public String plain(final String key, final String... replacements) {
+        String text = this.messagesFile.yaml().getString(key);
+        if (text == null) text = this.bundledFallback.getString(key, key);
+        for (int index = 0; index + 1 < replacements.length; index += 2) {
+            text = text.replace(replacements[index], replacements[index + 1]);
+        }
+        return text.replaceAll("&[0-9A-FK-ORa-fk-or]", "");
     }
 }

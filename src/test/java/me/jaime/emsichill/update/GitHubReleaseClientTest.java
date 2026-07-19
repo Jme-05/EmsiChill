@@ -21,6 +21,14 @@ class GitHubReleaseClientTest {
     }
 
     @Test
+    void readsMultilineReleaseNotes() {
+        String json = "{\"body\":\"## Changes\\n- Added mute\\n- Added warnings\"}";
+
+        assertEquals("## Changes\n- Added mute\n- Added warnings",
+            GitHubReleaseClient.readStringField(json, "body"));
+    }
+
+    @Test
     void selectsExactVersionedJarAsset() {
         String digest = "sha256:" + "a".repeat(64);
         String json = """

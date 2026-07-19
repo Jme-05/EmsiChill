@@ -36,17 +36,20 @@ public final class StaffListener implements Listener {
     private final StaffService staff;
     private final InspectionService inspections;
     private final FreezeService freezes;
+    private final ModerationService moderation;
 
     public StaffListener(
         final Main plugin,
         final StaffService staff,
         final InspectionService inspections,
-        final FreezeService freezes
+        final FreezeService freezes,
+        final ModerationService moderation
     ) {
         this.plugin = plugin;
         this.staff = staff;
         this.inspections = inspections;
         this.freezes = freezes;
+        this.moderation = moderation;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -104,6 +107,15 @@ public final class StaffListener implements Listener {
     @EventHandler
     public void onInventoryClose(final InventoryCloseEvent event) {
         this.inspections.close(event.getPlayer().getUniqueId());
+    }
+
+    @SuppressWarnings("deprecation")
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onMutedChat(final AsyncPlayerChatEvent event) {
+        MuteRecord mute = this.moderation.activeMute(event.getPlayer().getName());
+        if (mute == null) return;
+        event.setCancelled(true);
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.sendMuteStatus(event.getPlayer(), mute));
     }
 
     @SuppressWarnings("deprecation")
@@ -188,6 +200,8 @@ public final class StaffListener implements Listener {
             if (this.staff.recoverPlayer(event.getPlayer())) {
                 this.plugin.messages().send(event.getPlayer(), "staff.staffmode-recovered");
             }
+            MuteRecord mute = this.moderation.activeMute(event.getPlayer().getName());
+            if (mute != null) this.sendMuteStatus(event.getPlayer(), mute);
         }, 5L);
     }
 
@@ -196,5 +210,14 @@ public final class StaffListener implements Listener {
         this.staff.leave(event.getPlayer());
         this.freezes.release(event.getPlayer().getUniqueId());
         this.inspections.close(event.getPlayer().getUniqueId());
+    }
+
+    private void sendMuteStatus(final Player player, final MuteRecord mute) {
+        if (mute.permanent()) {
+            this.plugin.messages().send(player, "staff.mute-blocked-permanent");
+            return;
+        }
+        this.plugin.messages().send(player, "staff.mute-blocked-timed", "{remaining}",
+            MuteDuration.format(mute.expiresAt() - System.currentTimeMillis()));
     }
 }

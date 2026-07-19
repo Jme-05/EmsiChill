@@ -26,6 +26,8 @@ import me.jaime.emsichill.region.RegionManager;
 import me.jaime.emsichill.social.SocialManager;
 import me.jaime.emsichill.staff.FreezeService;
 import me.jaime.emsichill.staff.InspectionService;
+import me.jaime.emsichill.staff.ModerationService;
+import me.jaime.emsichill.staff.ModerationCommand;
 import me.jaime.emsichill.staff.StaffCommand;
 import me.jaime.emsichill.staff.StaffListener;
 import me.jaime.emsichill.staff.StaffService;
@@ -54,6 +56,8 @@ public final class Main extends JavaPlugin {
     private StaffListener staffListener;
     private InspectionService inspectionService;
     private FreezeService freezeService;
+    private ModerationService moderationService;
+    private ModerationCommand moderationCommand;
     private UpdateService updateService;
     private UpdateNotifier updateNotifier;
     private CommandDocumentation commandDocumentation;
@@ -90,9 +94,12 @@ public final class Main extends JavaPlugin {
         this.homeManager = new HomeManager(this, this.teleportManager);
         this.inspectionService = new InspectionService();
         this.freezeService = new FreezeService(this);
+        this.moderationService = new ModerationService(this);
         this.staffService = new StaffService(this);
         this.staffCommand = new StaffCommand(this, this.staffService, this.inspectionService, this.freezeService);
-        this.staffListener = new StaffListener(this, this.staffService, this.inspectionService, this.freezeService);
+        this.moderationCommand = new ModerationCommand(this, this.moderationService);
+        this.staffListener = new StaffListener(this, this.staffService, this.inspectionService, this.freezeService,
+            this.moderationService);
         this.updateService = new UpdateService(this);
         this.updateNotifier = new UpdateNotifier(this, this.updateService);
         this.commandDocumentation = CommandDocumentation.load(this);
@@ -115,13 +122,16 @@ public final class Main extends JavaPlugin {
         this.registerAll(List.of("staffchat", "vanish", "vanishlist", "staffmode", "invsee", "enderchestsee",
             "freeze", "slay"),
             this.staffCommand, this.staffCommand);
+        this.registerAll(List.of("mute", "unmute", "warn", "warnings"),
+            this.moderationCommand, this.moderationCommand);
         this.register("region", this.regionManager, this.regionManager);
         this.registerAll(List.of("grave", "deathcontrol"), this.graveManager, this.graveManager);
         this.registerAll(List.of("sit", "stand", "whereami"), this.socialManager, null);
 
         EmsiChillCommand adminCommand = new EmsiChillCommand(this, maintenance, this.authenticationManager,
             this.skinCommand, this.teleportManager, this.homeManager, this.playerInfoManager, this.staffService,
-            this.regionManager, this.graveManager, this.updateService, this.commandDocumentation);
+            this.moderationService, this.regionManager, this.graveManager, this.updateService,
+            this.commandDocumentation);
         this.register("emsichill", adminCommand, adminCommand);
     }
 
@@ -159,6 +169,7 @@ public final class Main extends JavaPlugin {
         if (this.staffService != null) this.staffService.stop();
         if (this.inspectionService != null) this.inspectionService.clear();
         if (this.freezeService != null) this.freezeService.clear();
+        if (this.moderationService != null) this.moderationService.persistData();
         if (this.regionManager != null) this.regionManager.stop();
         if (this.graveManager != null) this.graveManager.stop();
         if (this.socialManager != null) this.socialManager.stop();
@@ -216,6 +227,7 @@ public final class Main extends JavaPlugin {
         this.homeManager.reloadConfiguration();
         this.playerInfoManager.reloadConfiguration();
         this.staffService.reloadConfiguration();
+        this.moderationService.reloadConfiguration();
         this.regionManager.reloadConfiguration();
         this.graveManager.reloadConfiguration();
         this.socialManager.reloadConfiguration();

@@ -46,7 +46,9 @@ final class GitHubReleaseClient {
                 String tag = readStringField(response.body(), "tag_name");
                 String page = readStringField(response.body(), "html_url");
                 if (tag == null || page == null) throw new IllegalStateException("Respuesta de GitHub incompleta");
-                return new ReleaseInfo(tag, page, readReleaseAsset(response.body(), tag));
+                String notes = readStringField(response.body(), "body");
+                return new ReleaseInfo(tag, page, notes == null ? "" : notes,
+                    readReleaseAsset(response.body(), tag));
             });
     }
 
