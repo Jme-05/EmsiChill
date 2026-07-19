@@ -83,6 +83,7 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 | `/invsee <jugador>` | Abre el inventario; modificarlo requiere un permiso adicional. |
 | `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
 | `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación con duración definida. |
+| `/slay <jugador>` | Elimina inmediatamente a un jugador conectado. |
 | `/staffchat toggle` | Activa o desactiva el chat administrativo. |
 | `/staffchat <mensaje>` | Envía un mensaje al equipo. |
 | `/vanish [jugador]` | Activa o desactiva el modo invisible. |
@@ -134,6 +135,13 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 | Moderación | `/freeze <jugador> [segundos]` permite definir una duración entre 1 y 86400 segundos. |
 | Moderación | El jugador se libera automáticamente cuando termina el tiempo. |
 | Comandos | Se añadieron sugerencias de duración y mensajes claros para valores incorrectos. |
+
+### 5.1.2
+
+| Área | Cambio |
+|---|---|
+| Moderación | Se añadió `/slay <jugador>` para eliminar inmediatamente a un jugador conectado. |
+| Permisos | Se añadió `emsichill.slay`, disponible para operadores de forma predeterminada. |
 
 ## Licencia
 

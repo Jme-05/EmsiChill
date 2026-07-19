@@ -29,6 +29,7 @@ class ReadmeGeneratorTest {
         String generatedReadme = Files.readString(readme, StandardCharsets.UTF_8);
         String generatedPermissions = Files.readString(permissions, StandardCharsets.UTF_8);
         assertTrue(generatedReadme.contains("/invsee <jugador>"));
+        assertTrue(generatedReadme.contains("/slay <jugador>"));
         assertTrue(generatedReadme.contains("/emsichill update check"));
         assertTrue(generatedPermissions.contains("emsichill.invsee.modify"));
         assertTrue(generatedPermissions.contains("emsichill.admin.update"));
@@ -66,6 +67,7 @@ class ReadmeGeneratorTest {
             assertTrue(description.getCommands().containsKey("invsee"));
             assertTrue(description.getCommands().containsKey("enderchestsee"));
             assertTrue(description.getCommands().containsKey("freeze"));
+            assertTrue(description.getCommands().containsKey("slay"));
         }
     }
 }

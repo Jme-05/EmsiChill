@@ -122,6 +122,10 @@ commands:
     description: Congela, libera o aplica una congelación cronometrada
     usage: /freeze <player> [seconds]
     permission: emsichill.freeze
+  slay:
+    description: Elimina inmediatamente a un jugador conectado
+    usage: /slay <player>
+    permission: emsichill.slay
   region:
     description: Reclamos y protección de terrenos
     usage: /region <claim|build|teleport|view|upgrade|settings|add|owner>
@@ -252,6 +256,9 @@ permissions:
   emsichill.freeze:
     description: Permite congelar y liberar jugadores conectados
     default: op
+  emsichill.slay:
+    description: Permite eliminar inmediatamente a jugadores conectados
+    default: op
   emsichill.skin.favorites.unlimited:
     description: Elimina el límite de skins favoritas
     default: op
@@ -342,6 +349,7 @@ documentation:
     - {section: staff, category: staff, command: "/invsee <jugador>", description: "Abre el inventario; modificarlo requiere un permiso adicional."}
     - {section: staff, category: staff, command: "/enderchestsee <jugador>", description: "Abre el cofre de Ender; modificarlo requiere un permiso adicional."}
     - {section: staff, category: staff, command: "/freeze <jugador> [segundos]", description: "Congela, libera o aplica una congelación con duración definida."}
+    - {section: staff, category: staff, command: "/slay <jugador>", description: "Elimina inmediatamente a un jugador conectado."}
     - {section: staff, category: staff, command: "/staffchat toggle", description: "Activa o desactiva el chat administrativo."}
     - {section: staff, category: staff, command: "/staffchat <mensaje>", description: "Envía un mensaje al equipo."}
     - {section: staff, category: staff, command: "/vanish [jugador]", description: "Activa o desactiva el modo invisible."}

@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 13
+  text-revision: 14
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -158,6 +158,10 @@ staff:
   freeze-timed-enabled: "&a{player} quedó congelado durante {seconds} segundos."
   freeze-disabled: "&a{player} fue liberado."
   frozen-command: "&cNo puedes usar ese comando mientras estás congelado."
+  slay-usage: "&eUso: /slay <jugador>."
+  slay-already-dead: "&e{player} ya está muerto."
+  slain: "&cUn administrador te ha eliminado."
+  slay-success: "&aHas eliminado a {player}."
   random-none: "&eNo hay otro jugador visible al que puedas ir."
   tool-random: "&bJugador aleatorio"
   tool-inventory: "&bInspeccionar inventario"

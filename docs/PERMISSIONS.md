@@ -40,6 +40,7 @@ Este archivo se genera automáticamente desde `plugin.yml`.
 | `emsichill.skin.bypasscooldown` | `op` | Ignora el tiempo entre cambios de skin |
 | `emsichill.skin.favorites.unlimited` | `op` | Elimina el límite de skins favoritas |
 | `emsichill.skin.others` | `op` | Permite cambiar la skin de otros jugadores |
+| `emsichill.slay` | `op` | Permite eliminar inmediatamente a jugadores conectados |
 | `emsichill.staffchat` | `op` | Permite usar y recibir el chat del staff |
 | `emsichill.staffmode` | `op` | Permite activar el modo de staff propio |
 | `emsichill.staffmode.others` | `op` | Permite cambiar el modo de staff de otros jugadores |

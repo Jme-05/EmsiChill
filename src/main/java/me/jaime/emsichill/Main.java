@@ -112,7 +112,8 @@ public final class Main extends JavaPlugin {
             this.teleportManager, this.teleportManager);
         this.registerAll(List.of("playtime", "seen", "playtimetop"),
             this.playerInfoManager, this.playerInfoManager);
-        this.registerAll(List.of("staffchat", "vanish", "vanishlist", "staffmode", "invsee", "enderchestsee", "freeze"),
+        this.registerAll(List.of("staffchat", "vanish", "vanishlist", "staffmode", "invsee", "enderchestsee",
+            "freeze", "slay"),
             this.staffCommand, this.staffCommand);
         this.register("region", this.regionManager, this.regionManager);
         this.registerAll(List.of("grave", "deathcontrol"), this.graveManager, this.graveManager);

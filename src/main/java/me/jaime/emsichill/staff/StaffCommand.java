@@ -52,6 +52,7 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
             case "invsee" -> this.inspect(sender, args, InspectionService.Type.INVENTORY);
             case "enderchestsee" -> this.inspect(sender, args, InspectionService.Type.ENDER_CHEST);
             case "freeze" -> this.freeze(sender, args);
+            case "slay" -> this.slay(sender, args);
             default -> true;
         };
     }
@@ -182,6 +183,31 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean slay(final CommandSender sender, final String[] args) {
+        if (!sender.hasPermission("emsichill.slay")) return this.noPermission(sender);
+        if (args.length != 1) {
+            this.plugin.messages().send(sender, "staff.slay-usage");
+            return true;
+        }
+        Player target = this.findOnline(args[0]);
+        if (target == null) {
+            this.plugin.messages().send(sender, "staff.player-not-found");
+            return true;
+        }
+        if (target.isDead() || target.getHealth() <= 0.0D) {
+            this.plugin.messages().send(sender, "staff.slay-already-dead", "{player}", target.getName());
+            return true;
+        }
+
+        this.plugin.messages().send(target, "staff.slain");
+        target.setHealth(0.0D);
+        if (!sender.equals(target)) {
+            this.plugin.messages().send(sender, "staff.slay-success", "{player}", target.getName());
+        }
+        this.plugin.audit().log("PLAYER_SLAY", "actor=" + sender.getName() + " target=" + target.getName());
+        return true;
+    }
+
     private Player resolveTarget(
         final CommandSender sender,
         final String[] args,
@@ -223,7 +249,7 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
         if (command.getName().equalsIgnoreCase("freeze") && args.length == 2) {
             return CommandSuggestions.filter(FREEZE_DURATIONS, args[1]);
         }
-        if (args.length != 1 || !List.of("vanish", "staffmode", "invsee", "enderchestsee", "freeze")
+        if (args.length != 1 || !List.of("vanish", "staffmode", "invsee", "enderchestsee", "freeze", "slay")
             .contains(command.getName().toLowerCase(Locale.ROOT))) return Collections.emptyList();
         List<String> names = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) names.add(player.getName());
