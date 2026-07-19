@@ -24,9 +24,12 @@ updates:
   automatic:
     enabled: true
     interval-minutes: 30
+    check-on-admin-join: true
+    join-cache-max-age-seconds: 60
     notify-console: true
     notify-admins: true
   install:
     enabled: true
+    allow-feed-fallback: true
     timeout-seconds: 60
     max-download-megabytes: 25

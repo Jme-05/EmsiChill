@@ -20,6 +20,7 @@ public final class UpdateNotifier implements Listener {
     private final UpdateNoticeTracker notices = new UpdateNoticeTracker();
 
     private volatile UpdateResult cachedResult;
+    private volatile long cachedAtMillis;
     private volatile boolean checking;
     private boolean failureLogged;
     private BukkitTask task;
@@ -59,7 +60,13 @@ public final class UpdateNotifier implements Listener {
         Player player = event.getPlayer();
         if (!player.hasPermission("emsichill.admin.update")) return;
 
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.notifyPlayer(player), JOIN_DELAY_TICKS);
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.notifyPlayer(player);
+            if (this.checkOnAdminJoin() && shouldCheckOnJoin(this.cachedAtMillis,
+                System.currentTimeMillis(), this.joinCacheMaxAgeMillis())) {
+                this.requestCheck();
+            }
+        }, JOIN_DELAY_TICKS);
     }
 
     private void requestCheck() {
@@ -77,6 +84,7 @@ public final class UpdateNotifier implements Listener {
                 this.logFailure(result.error());
                 return;
             }
+            this.cachedAtMillis = System.currentTimeMillis();
             this.failureLogged = false;
             if (result.status() != UpdateResult.Status.UPDATE_AVAILABLE) return;
             if (this.updates.isSuppressed(result.release().tag())) return;
@@ -121,6 +129,20 @@ public final class UpdateNotifier implements Listener {
 
     private boolean notifyAdmins() {
         return this.plugin.settings().getBoolean("updates.automatic.notify-admins", true);
+    }
+
+    private boolean checkOnAdminJoin() {
+        return this.plugin.settings().getBoolean("updates.automatic.check-on-admin-join", true);
+    }
+
+    private long joinCacheMaxAgeMillis() {
+        long seconds = Math.max(15L, Math.min(3_600L,
+            this.plugin.settings().getLong("updates.automatic.join-cache-max-age-seconds", 60L)));
+        return seconds * 1_000L;
+    }
+
+    static boolean shouldCheckOnJoin(final long cachedAt, final long now, final long maxAge) {
+        return cachedAt <= 0L || now < cachedAt || now - cachedAt >= maxAge;
     }
 
     private long checkIntervalMinutes() {

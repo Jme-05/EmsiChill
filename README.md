@@ -8,7 +8,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper-26.2-blue?style=flat-square)
-![Versión](https://img.shields.io/badge/versión-5.1.3-brightgreen?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-5.1.4-brightgreen?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-MIT--0-lightgrey?style=flat-square)
 
 </div>
@@ -23,10 +23,10 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 * Teletransporte aleatorio a ubicaciones seguras.
 * Regiones protegidas con miembros, propietarios y mejoras.
 * Tumbas recuperables después de morir.
-* Consulta de tiempo jugado y última conexión.
+* Consulta del tiempo jugado y de la última conexión.
 * Herramientas completas de administración y moderación.
-* Sistema integrado de actualización, diagnóstico y respaldos.
-* Configuración modular desde archivos y comandos.
+* Sistema integrado de actualizaciones, diagnósticos y respaldos.
+* Configuración modular mediante archivos y comandos.
 
 ## Contenido
 
@@ -49,7 +49,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | Paper      |  `26.2` |
 
 > [!IMPORTANT]
-> EmsiChill está desarrollado específicamente para Paper. No se garantiza su funcionamiento en Spigot, Bukkit ni otras implementaciones.
+> EmsiChill está desarrollado específicamente para Paper. No se garantiza su funcionamiento en Spigot, Bukkit ni otras implementaciones de servidor.
 
 ---
 
@@ -67,7 +67,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 4. Inicia el servidor.
 
-5. Espera a que el plugin genere sus archivos.
+5. Espera a que el plugin genere sus archivos y carpetas de configuración.
 
 6. Configura EmsiChill desde:
 
@@ -76,7 +76,10 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
    ```
 
 > [!NOTE]
-> Después de modificar configuraciones, utiliza `/emsichill reload` o reinicia el servidor cuando el cambio lo requiera.
+> Después de modificar la configuración, utiliza `/emsichill reload` o reinicia el servidor cuando el cambio lo requiera.
+
+> [!TIP]
+> Antes de instalar una nueva versión, es recomendable crear un respaldo con `/emsichill backup`.
 
 ---
 
@@ -128,7 +131,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | Comando               | Descripción                                        |
 | --------------------- | -------------------------------------------------- |
 | `/playtime [jugador]` | Consulta el tiempo jugado                          |
-| `/playtimetop`        | Muestra la clasificación de tiempo jugado          |
+| `/playtimetop`        | Muestra la clasificación por tiempo jugado         |
 | `/seen [jugador]`     | Consulta la última conexión de un jugador          |
 | `/sit`                | Activa o desactiva la postura sentada              |
 | `/stand`              | Recupera la postura normal                         |
@@ -201,7 +204,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | `/warn <jugador> <motivo>` | Registra una advertencia con fecha, moderador y motivo             |
 | `/warnings <jugador>`      | Muestra el historial reciente de sanciones                         |
 
-Duraciones admitidas por `/mute`:
+Ejemplos de duración admitidos por `/mute`:
 
 ```text
 30s
@@ -253,10 +256,10 @@ Modos de muerte disponibles:
 
 | Comando                               | Descripción                                                       |
 | ------------------------------------- | ----------------------------------------------------------------- |
-| `/emsichill update check`             | Comprueba manualmente si existe una nueva release                 |
+| `/emsichill update check`             | Comprueba manualmente si existe una nueva versión                 |
 | `/emsichill update changes <versión>` | Muestra dentro del juego un resumen de los cambios                |
-| `/emsichill update install <versión>` | Descarga, valida y prepara una release para el siguiente reinicio |
-| `/emsichill update ignore <versión>`  | Oculta los avisos automáticos de una release concreta             |
+| `/emsichill update install <versión>` | Descarga, valida y prepara una versión para el siguiente reinicio |
+| `/emsichill update ignore <versión>`  | Oculta los avisos automáticos de una versión concreta             |
 
 ### Mantenimiento y diagnóstico
 
@@ -276,9 +279,26 @@ Modos de muerte disponibles:
 
 ## Historial de versiones
 
-### Versión actual: `5.1.3`
+### Versión actual: `5.1.4`
 
 <details open>
+<summary><strong>5.1.4 — Comprobación compatible con hostings compartidos</strong></summary>
+
+#### Actualizaciones
+
+* Cuando un administrador entra al servidor, se repite la comprobación si el resultado almacenado está desactualizado.
+* Si la API de GitHub responde con los códigos `403` o `429`, o no se encuentra disponible, EmsiChill consulta el feed público de versiones.
+* Después de alcanzar un límite de la API, el plugin espera una hora antes de volver a intentarlo y utiliza el feed durante ese periodo.
+
+#### Instalación
+
+* El método de descarga alternativo mantiene el límite máximo de tamaño.
+* El plugin valida el nombre, la versión y la clase principal del archivo JAR.
+* La opción `allow-feed-fallback` permite activar o desactivar las instalaciones obtenidas mediante el feed.
+
+</details>
+
+<details>
 <summary><strong>5.1.3 — Sanciones y notas de actualización</strong></summary>
 
 #### Moderación
@@ -294,7 +314,7 @@ Modos de muerte disponibles:
 
 #### Actualizaciones
 
-* Los avisos de nuevas releases incorporan el botón **Ver cambios**.
+* Los avisos de nuevas versiones incorporan el botón **Ver cambios**.
 * Las notas publicadas en GitHub se resumen dentro del juego antes de instalar una actualización.
 
 </details>
@@ -313,20 +333,20 @@ Modos de muerte disponibles:
 
 #### Actualizaciones
 
-* El enlace de una nueva release puede abrirse directamente desde el chat.
-* Los administradores pueden pulsar **Instalar** para preparar el JAR en la carpeta oficial de actualización de Paper.
-* La opción **Ignorar** silencia únicamente la release seleccionada.
+* El enlace de una nueva versión puede abrirse directamente desde el chat.
+* Los administradores pueden pulsar **Instalar** para preparar el JAR en la carpeta oficial de actualizaciones de Paper.
+* La opción **Ignorar** silencia únicamente la versión seleccionada.
 * Las versiones posteriores vuelven a mostrarse normalmente.
 
 #### Seguridad
 
 Antes de preparar el archivo JAR, EmsiChill comprueba:
 
-* Nombre del archivo.
-* Tamaño.
-* Suma de verificación SHA-256.
-* Versión.
-* Clase principal.
+* El nombre del archivo.
+* El tamaño.
+* La suma de verificación SHA-256.
+* La versión.
+* La clase principal.
 
 </details>
 
@@ -335,7 +355,7 @@ Antes de preparar el archivo JAR, EmsiChill comprueba:
 
 #### Moderación
 
-* `/freeze <jugador> [segundos]` permite definir una duración entre `1` y `86400` segundos.
+* `/freeze <jugador> [segundos]` permite definir una duración de entre `1` y `86400` segundos.
 * El jugador se libera automáticamente cuando termina el tiempo establecido.
 
 #### Comandos
@@ -350,14 +370,14 @@ Antes de preparar el archivo JAR, EmsiChill comprueba:
 
 #### Actualizaciones
 
-* Se añadió `/emsichill update check` para comprobar releases manualmente.
-* Se añadió la comprobación automática de nuevas releases de GitHub.
+* Se añadió `/emsichill update check` para comprobar versiones manualmente.
+* Se añadió la comprobación automática de nuevas versiones publicadas en GitHub.
 
 #### Notificaciones
 
-* El servidor avisa en la consola cuando existe una nueva versión.
+* El servidor muestra un aviso en la consola cuando existe una nueva versión.
 * Los administradores con el permiso `emsichill.admin.update` también reciben el aviso.
-* El intervalo y los destinatarios pueden configurarse desde `config.yml`.
+* El intervalo de comprobación y los destinatarios pueden configurarse desde `config.yml`.
 
 #### Moderación
 
@@ -383,4 +403,4 @@ Antes de preparar el archivo JAR, EmsiChill comprueba:
 
 EmsiChill se distribuye bajo la licencia **MIT No Attribution**, identificada también como **MIT-0**.
 
-Consulta el archivo `LICENSE` del proyecto para conocer los términos completos.
+Consulta el archivo [`LICENSE`](LICENSE) del proyecto para conocer los términos completos.

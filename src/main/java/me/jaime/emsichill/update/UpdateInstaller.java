@@ -48,9 +48,14 @@ final class UpdateInstaller {
         }
 
         long maximumBytes = this.maximumDownloadBytes();
-        if (asset.size() <= 0L || asset.size() > maximumBytes || !validDigest(asset.digest())) {
+        if (asset.hasVerifiedMetadata() && asset.size() > maximumBytes) {
             return CompletableFuture.completedFuture(UpdateInstallResult.of(
                 UpdateInstallResult.Status.FAILED, release.tag(), "metadatos del JAR inválidos"));
+        }
+        if (!asset.hasVerifiedMetadata()
+            && !this.plugin.settings().getBoolean("updates.install.allow-feed-fallback", true)) {
+            return CompletableFuture.completedFuture(UpdateInstallResult.of(
+                UpdateInstallResult.Status.FAILED, release.tag(), "la instalación mediante el feed está desactivada"));
         }
         URI uri = URI.create(asset.downloadUrl());
         if (!uri.getScheme().equalsIgnoreCase("https") || !uri.getHost().equalsIgnoreCase("github.com")) {
@@ -94,10 +99,12 @@ final class UpdateInstaller {
             temporary = updateDirectory.resolve(".emsichill-download.part");
             DownloadDigest downloaded = copyAndDigest(response.body(), temporary, maximumBytes);
             ReleaseAsset asset = release.asset();
-            if (downloaded.size() != asset.size()) throw new IOException("el tamaño descargado no coincide");
-            String expectedHash = asset.digest().substring("sha256:".length());
-            if (!downloaded.sha256().equalsIgnoreCase(expectedHash)) {
-                throw new IOException("el SHA-256 descargado no coincide");
+            if (asset.hasVerifiedMetadata()) {
+                if (downloaded.size() != asset.size()) throw new IOException("el tamaño descargado no coincide");
+                String expectedHash = asset.digest().substring("sha256:".length());
+                if (!downloaded.sha256().equalsIgnoreCase(expectedHash)) {
+                    throw new IOException("el SHA-256 descargado no coincide");
+                }
             }
             validateJar(temporary, release.tag());
 
@@ -184,10 +191,6 @@ final class UpdateInstaller {
         var left = VersionNumber.parse(first);
         var right = VersionNumber.parse(second);
         return left.isPresent() && right.isPresent() && left.get().compareTo(right.get()) == 0;
-    }
-
-    private static boolean validDigest(final String digest) {
-        return digest != null && digest.matches("(?i)sha256:[0-9a-f]{64}");
     }
 
     private static void moveReplacing(final Path source, final Path destination) throws IOException {

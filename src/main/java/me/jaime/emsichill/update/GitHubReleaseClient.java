@@ -9,10 +9,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /** Consulta únicamente la última Release pública del repositorio configurado. */
 final class GitHubReleaseClient {
     private static final String API_VERSION = "2026-03-10";
+    private static final long API_BACKOFF_MILLIS = Duration.ofHours(1).toMillis();
+    private static final Map<String, Long> API_BLOCKED_UNTIL = new ConcurrentHashMap<>();
 
     private final HttpClient client;
     private final Duration timeout;
@@ -30,6 +34,11 @@ final class GitHubReleaseClient {
     }
 
     CompletableFuture<ReleaseInfo> latestRelease() {
+        GitHubAtomReleaseClient feed = new GitHubAtomReleaseClient(
+            this.client, this.repository, this.userAgent, this.timeout);
+        if (API_BLOCKED_UNTIL.getOrDefault(this.repository, 0L) > System.currentTimeMillis()) {
+            return feed.latestRelease();
+        }
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.github.com/repos/" + this.repository + "/releases/latest"))
             .timeout(this.timeout)
@@ -43,13 +52,27 @@ final class GitHubReleaseClient {
                 if (response.statusCode() != 200) {
                     throw new IllegalStateException("GitHub respondió con HTTP " + response.statusCode());
                 }
+                API_BLOCKED_UNTIL.remove(this.repository);
                 String tag = readStringField(response.body(), "tag_name");
                 String page = readStringField(response.body(), "html_url");
                 if (tag == null || page == null) throw new IllegalStateException("Respuesta de GitHub incompleta");
                 String notes = readStringField(response.body(), "body");
                 return new ReleaseInfo(tag, page, notes == null ? "" : notes,
                     readReleaseAsset(response.body(), tag));
+            })
+            .exceptionallyCompose(failure -> {
+                String detail = rootMessage(failure);
+                if (detail.contains("HTTP 403") || detail.contains("HTTP 429")) {
+                    API_BLOCKED_UNTIL.put(this.repository, System.currentTimeMillis() + API_BACKOFF_MILLIS);
+                }
+                return feed.latestRelease();
             });
+    }
+
+    private static String rootMessage(final Throwable failure) {
+        Throwable current = failure;
+        while (current.getCause() != null) current = current.getCause();
+        return current.getMessage() == null ? current.getClass().getSimpleName() : current.getMessage();
     }
 
     static ReleaseAsset readReleaseAsset(final String json, final String tag) {
