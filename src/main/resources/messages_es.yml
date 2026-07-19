@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 12
+  text-revision: 13
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -148,10 +148,14 @@ staff:
   enderchestsee-usage: "&eUso: /enderchestsee <jugador>."
   inspection-opened-read-only: "&eInspección de {player} abierta en modo de solo lectura."
   inspection-opened-editable: "&aInspección de {player} abierta con modificación permitida."
-  freeze-usage: "&eUso: /freeze <jugador>."
+  freeze-usage: "&eUso: /freeze <jugador> [segundos]."
+  freeze-seconds-invalid: "&cLos segundos deben ser un número entre 1 y 86400."
   frozen: "&cUn moderador te ha congelado temporalmente."
+  frozen-timed: "&cUn moderador te ha congelado durante {seconds} segundos."
   unfrozen: "&aYa puedes moverte con normalidad."
+  freeze-expired: "&aTerminó tu tiempo de congelación. Ya puedes moverte."
   freeze-enabled: "&a{player} quedó congelado temporalmente."
+  freeze-timed-enabled: "&a{player} quedó congelado durante {seconds} segundos."
   freeze-disabled: "&a{player} fue liberado."
   frozen-command: "&cNo puedes usar ese comando mientras estás congelado."
   random-none: "&eNo hay otro jugador visible al que puedas ir."

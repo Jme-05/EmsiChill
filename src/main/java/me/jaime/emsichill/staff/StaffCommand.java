@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -17,6 +18,9 @@ import me.jaime.emsichill.util.CommandSuggestions;
 
 /** Valida sintaxis y permisos de moderación; las reglas viven en servicios dedicados. */
 public final class StaffCommand implements CommandExecutor, TabCompleter {
+    private static final int MAX_FREEZE_SECONDS = 86_400;
+    private static final List<String> FREEZE_DURATIONS = List.of("10", "30", "60", "300");
+
     private final Main plugin;
     private final StaffService staff;
     private final InspectionService inspections;
@@ -126,7 +130,7 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
 
     private boolean freeze(final CommandSender sender, final String[] args) {
         if (!sender.hasPermission("emsichill.freeze")) return this.noPermission(sender);
-        if (args.length != 1) {
+        if (args.length < 1 || args.length > 2) {
             this.plugin.messages().send(sender, "staff.freeze-usage");
             return true;
         }
@@ -135,6 +139,8 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
             this.plugin.messages().send(sender, "staff.player-not-found");
             return true;
         }
+        if (args.length == 2) return this.timedFreeze(sender, target, args[1]);
+
         boolean enabled = this.freezes.toggle(target.getUniqueId());
         this.plugin.messages().send(target, enabled ? "staff.frozen" : "staff.unfrozen");
         if (!sender.equals(target)) {
@@ -143,6 +149,36 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
         }
         this.plugin.audit().log(enabled ? "PLAYER_FREEZE" : "PLAYER_UNFREEZE",
             "actor=" + sender.getName() + " target=" + target.getName());
+        return true;
+    }
+
+    private boolean timedFreeze(final CommandSender sender, final Player target, final String value) {
+        int seconds;
+        try {
+            seconds = Integer.parseInt(value);
+        } catch (NumberFormatException exception) {
+            this.plugin.messages().send(sender, "staff.freeze-seconds-invalid");
+            return true;
+        }
+        if (seconds < 1 || seconds > MAX_FREEZE_SECONDS) {
+            this.plugin.messages().send(sender, "staff.freeze-seconds-invalid");
+            return true;
+        }
+
+        UUID targetId = target.getUniqueId();
+        String targetName = target.getName();
+        this.freezes.freezeFor(targetId, seconds, () -> {
+            Player onlineTarget = Bukkit.getPlayer(targetId);
+            if (onlineTarget != null) this.plugin.messages().send(onlineTarget, "staff.freeze-expired");
+            this.plugin.audit().log("PLAYER_FREEZE_EXPIRED", "target=" + targetName);
+        });
+        this.plugin.messages().send(target, "staff.frozen-timed", "{seconds}", Integer.toString(seconds));
+        if (!sender.equals(target)) {
+            this.plugin.messages().send(sender, "staff.freeze-timed-enabled",
+                "{player}", targetName, "{seconds}", Integer.toString(seconds));
+        }
+        this.plugin.audit().log("PLAYER_TIMED_FREEZE", "actor=" + sender.getName()
+            + " target=" + targetName + " seconds=" + seconds);
         return true;
     }
 
@@ -183,6 +219,9 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
     ) {
         if (command.getName().equalsIgnoreCase("staffchat") && args.length == 1) {
             return CommandSuggestions.filter(List.of("toggle"), args[0]);
+        }
+        if (command.getName().equalsIgnoreCase("freeze") && args.length == 2) {
+            return CommandSuggestions.filter(FREEZE_DURATIONS, args[1]);
         }
         if (args.length != 1 || !List.of("vanish", "staffmode", "invsee", "enderchestsee", "freeze")
             .contains(command.getName().toLowerCase(Locale.ROOT))) return Collections.emptyList();

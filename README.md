@@ -18,8 +18,6 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 
 <!-- EMSICHILL_COMMANDS_START -->
 
-### 5.0.0
-
 ## Comandos para jugadores
 
 | Comando | Descripción |
@@ -84,7 +82,7 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 |---|---|
 | `/invsee <jugador>` | Abre el inventario; modificarlo requiere un permiso adicional. |
 | `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
-| `/freeze <jugador>` | Congela o libera temporalmente a un jugador conectado. |
+| `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación con duración definida. |
 | `/staffchat toggle` | Activa o desactiva el chat administrativo. |
 | `/staffchat <mensaje>` | Envía un mensaje al equipo. |
 | `/vanish [jugador]` | Activa o desactiva el modo invisible. |
@@ -118,9 +116,15 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 
 ## Historial de versiones
 
-### 5.1.0
+### 5.1.1
 
-## Comandos para administradores y moderadores
+| Área | Cambio |
+|---|---|
+| Moderación | `/freeze <jugador> [segundos]` permite definir una duración entre 1 y 86400 segundos. |
+| Moderación | El jugador se libera automáticamente cuando termina el tiempo. |
+| Comandos | Se añadieron sugerencias de duración y mensajes claros para valores incorrectos. |
+
+### 5.1.0
 
 | Área | Cambio |
 |---|---|

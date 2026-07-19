@@ -89,7 +89,7 @@ public final class Main extends JavaPlugin {
         this.teleportManager = new TeleportManager(this);
         this.homeManager = new HomeManager(this, this.teleportManager);
         this.inspectionService = new InspectionService();
-        this.freezeService = new FreezeService();
+        this.freezeService = new FreezeService(this);
         this.staffService = new StaffService(this);
         this.staffCommand = new StaffCommand(this, this.staffService, this.inspectionService, this.freezeService);
         this.staffListener = new StaffListener(this, this.staffService, this.inspectionService, this.freezeService);
