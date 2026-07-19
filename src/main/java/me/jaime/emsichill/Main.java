@@ -189,6 +189,7 @@ public final class Main extends JavaPlugin {
     public Messages messages() { return this.messages; }
     public AuditLogger audit() { return this.auditLogger; }
     public DataStore dataStore() { return this.dataStore; }
+    public boolean saveSettings() { return this.settingsFile.save(); }
 
     public boolean moduleEnabled(final String module) {
         return this.settings().getBoolean("modules." + module, true);

@@ -19,8 +19,14 @@ updates:
   enabled: true
   repository: Jme-05/EmsiChill
   timeout-seconds: 6
+  ignored-version: ""
+  staged-version: ""
   automatic:
     enabled: true
     interval-minutes: 30
     notify-console: true
     notify-admins: true
+  install:
+    enabled: true
+    timeout-seconds: 60
+    max-download-megabytes: 25

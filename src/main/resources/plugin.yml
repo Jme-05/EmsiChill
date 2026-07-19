@@ -29,7 +29,7 @@ commands:
     usage: /auth <unregister|changepassword|reload>
   emsichill:
     description: Información y recarga de EmsiChill
-    usage: /emsichill <help|reload|status|doctor|backup|migrate|update check|rtp cooldown>
+    usage: /emsichill <help|reload|status|doctor|backup|migrate|update <check|install|ignore>|rtp cooldown>
     aliases: [emsi]
   home:
     description: Te teletransporta a uno de tus homes
@@ -170,7 +170,7 @@ permissions:
     description: Permite diagnosticar, respaldar y migrar los datos de EmsiChill
     default: op
   emsichill.admin.update:
-    description: Permite comprobar si existe una Release nueva
+    description: Permite comprobar, ignorar y preparar Releases nuevas
     default: op
   emsichill.home:
     description: Permite usar /home y /homes
@@ -367,6 +367,8 @@ documentation:
     - {section: configuration, category: admin, command: "/deathcontrol <jugador> <grave|keep|drop>", description: "Cambia el modo de muerte de un jugador."}
     - {section: configuration, category: admin, command: "/auth reload", description: "Recarga el módulo de autenticación."}
     - {section: configuration, category: admin, command: "/emsichill update check", description: "Comprueba si existe una Release nueva sin instalarla."}
+    - {section: configuration, category: admin, command: "/emsichill update install <versión>", description: "Descarga, valida y prepara una Release para el siguiente reinicio."}
+    - {section: configuration, category: admin, command: "/emsichill update ignore <versión>", description: "Oculta los avisos automáticos de una Release concreta."}
     - {section: configuration, category: admin, command: "/emsichill reload", description: "Recarga las configuraciones del plugin."}
     - {section: configuration, category: admin, command: "/emsichill status", description: "Muestra el estado de los módulos."}
     - {section: configuration, category: admin, command: "/emsichill doctor", description: "Busca problemas en datos y configuración."}

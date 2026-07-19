@@ -1,5 +1,5 @@
 package me.jaime.emsichill.update;
 
-/** Versión publicada y página desde la que el administrador puede descargarla. */
-public record ReleaseInfo(String tag, String pageUrl) {
+/** Versión publicada, página informativa y JAR instalable. */
+public record ReleaseInfo(String tag, String pageUrl, ReleaseAsset asset) {
 }

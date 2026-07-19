@@ -106,6 +106,8 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 | `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador. |
 | `/auth reload` | Recarga el módulo de autenticación. |
 | `/emsichill update check` | Comprueba si existe una Release nueva sin instalarla. |
+| `/emsichill update install <versión>` | Descarga, valida y prepara una Release para el siguiente reinicio. |
+| `/emsichill update ignore <versión>` | Oculta los avisos automáticos de una Release concreta. |
 | `/emsichill reload` | Recarga las configuraciones del plugin. |
 | `/emsichill status` | Muestra el estado de los módulos. |
 | `/emsichill doctor` | Busca problemas en datos y configuración. |
@@ -143,6 +145,9 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 | Moderación | Se añadió `/slay <jugador>` para eliminar inmediatamente a un jugador conectado. |
 | Permisos | Se añadió `emsichill.slay`, disponible para operadores de forma predeterminada. |
 | Actualizaciones | El enlace de una nueva Release ahora puede abrirse directamente desde el chat. |
+| Actualizaciones | Los administradores pueden pulsar **Instalar** para preparar el JAR en la carpeta oficial de actualización de Paper. |
+| Actualizaciones | **Ignorar** silencia únicamente la Release elegida; las versiones posteriores volverán a mostrarse. |
+| Seguridad | Antes de preparar el JAR se comprueban su nombre, tamaño, SHA-256, versión y clase principal. |
 
 ## Licencia
 

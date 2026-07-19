@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import me.jaime.emsichill.Main;
 import net.kyori.adventure.text.Component;
@@ -110,6 +111,17 @@ public final class Messages {
             .append(link)
             .append(SERIALIZER.deserialize(text.substring(marker + "{url}".length())));
         sender.sendMessage(message);
+    }
+
+    public void sendUpdateActions(final Player player, final String version) {
+        if (!player.hasPermission("emsichill.admin.update")) return;
+        Component install = this.unprefixed("update.install-button")
+            .clickEvent(ClickEvent.runCommand("/emsichill update install " + version))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("update.install-hover")));
+        Component ignore = this.unprefixed("update.ignore-button")
+            .clickEvent(ClickEvent.runCommand("/emsichill update ignore " + version))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("update.ignore-hover")));
+        player.sendMessage(Component.text("  ").append(install).append(Component.text("  ")).append(ignore));
     }
 
     public Component component(final String key, final String... replacements) {

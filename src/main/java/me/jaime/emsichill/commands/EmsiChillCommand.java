@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 
 import me.jaime.emsichill.Main;
 import me.jaime.emsichill.auth.AuthenticationManager;
@@ -27,6 +28,7 @@ import me.jaime.emsichill.staff.StaffService;
 import me.jaime.emsichill.storage.DataStore;
 import me.jaime.emsichill.teleport.TeleportManager;
 import me.jaime.emsichill.update.UpdateResult;
+import me.jaime.emsichill.update.UpdateInstallResult;
 import me.jaime.emsichill.update.UpdateService;
 import me.jaime.emsichill.util.AuditLogger;
 import me.jaime.emsichill.util.CommandSuggestions;
@@ -93,6 +95,14 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("check")) {
             return this.checkUpdates(sender);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("update")
+            && args[1].equalsIgnoreCase("install")) {
+            return this.installUpdate(sender, args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("update")
+            && args[1].equalsIgnoreCase("ignore")) {
+            return this.ignoreUpdate(sender, args[2]);
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             return this.reload(sender);
@@ -169,6 +179,9 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 this.messages.sendLink(sender, "update.available", result.release().pageUrl(),
                     "{current}", result.currentVersion(),
                     "{latest}", result.release().tag());
+                if (sender instanceof Player player) {
+                    this.messages.sendUpdateActions(player, result.release().tag());
+                }
                 return;
             }
             if (result.status() == UpdateResult.Status.UP_TO_DATE) {
@@ -178,6 +191,62 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             this.plugin.getLogger().warning("No se pudo comprobar la actualización: " + result.error());
             this.messages.send(sender, "update.failed");
         }));
+        return true;
+    }
+
+    private boolean installUpdate(final CommandSender sender, final String version) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        this.messages.send(sender, "update.install-started", "{version}", version);
+        this.updates.install(version).whenComplete((result, failure) ->
+            Bukkit.getScheduler().runTask(this.plugin, () -> this.finishUpdateInstall(sender, result, failure)));
+        return true;
+    }
+
+    private void finishUpdateInstall(
+        final CommandSender sender,
+        final UpdateInstallResult result,
+        final Throwable failure
+    ) {
+        if (failure != null || result == null) {
+            this.plugin.getLogger().warning("Falló la preparación de la actualización: "
+                + (failure == null ? "resultado vacío" : failure.getMessage()));
+            this.messages.send(sender, "update.install-failed");
+            return;
+        }
+        switch (result.status()) {
+            case PREPARED -> {
+                this.updates.markStaged(result.version());
+                this.messages.send(sender, "update.install-prepared", "{version}", result.version());
+                this.audit.log("UPDATE_PREPARED", "actor=" + sender.getName() + " version=" + result.version());
+            }
+            case NO_UPDATE -> this.messages.send(sender, "update.up-to-date",
+                "{version}", this.plugin.getPluginMeta().getVersion());
+            case VERSION_CHANGED -> this.messages.send(sender, "update.version-changed",
+                "{version}", result.version());
+            case IN_PROGRESS -> this.messages.send(sender, "update.install-in-progress");
+            case DISABLED -> this.messages.send(sender, "update.install-disabled");
+            case FAILED -> {
+                this.plugin.getLogger().warning("No se pudo preparar EmsiChill " + result.version()
+                    + ": " + result.error());
+                this.messages.send(sender, "update.install-failed");
+            }
+        }
+    }
+
+    private boolean ignoreUpdate(final CommandSender sender, final String version) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        if (!this.updates.ignore(version)) {
+            this.messages.send(sender, "update.ignore-failed");
+            return true;
+        }
+        this.messages.send(sender, "update.ignored", "{version}", version);
+        this.audit.log("UPDATE_IGNORED", "actor=" + sender.getName() + " version=" + version);
         return true;
     }
 
@@ -311,7 +380,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("update")
             && sender.hasPermission("emsichill.admin.update")) {
-            return CommandSuggestions.filter(List.of("check"), args[1]);
+            return CommandSuggestions.filter(List.of("check", "install", "ignore"), args[1]);
         }
         return Collections.emptyList();
     }

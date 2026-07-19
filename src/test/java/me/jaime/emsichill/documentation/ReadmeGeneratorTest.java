@@ -31,6 +31,7 @@ class ReadmeGeneratorTest {
         assertTrue(generatedReadme.contains("/invsee <jugador>"));
         assertTrue(generatedReadme.contains("/slay <jugador>"));
         assertTrue(generatedReadme.contains("/emsichill update check"));
+        assertTrue(generatedReadme.contains("/emsichill update install <versión>"));
         assertTrue(generatedPermissions.contains("emsichill.invsee.modify"));
         assertTrue(generatedPermissions.contains("emsichill.admin.update"));
     }

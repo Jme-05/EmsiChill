@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 15
+  text-revision: 16
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -173,6 +173,18 @@ update:
   available: "&aHay una actualización: &f{latest} &7(instalada: {current})&a. {url}"
   automatic-available: "&dNueva actualización de EmsiChill disponible: &f{latest} &7(instalada: {current})&d. &f{url}"
   link-hover: "&eHaz clic para abrir la Release en GitHub."
+  install-button: "&a&l[Instalar]"
+  install-hover: "&eDescarga y prepara esta versión para el siguiente reinicio."
+  ignore-button: "&c&l[Ignorar]"
+  ignore-hover: "&eOculta los avisos automáticos de esta versión."
+  install-started: "&eDescargando y comprobando EmsiChill {version}..."
+  install-prepared: "&aEmsiChill {version} quedó preparado. Reinicia el servidor para aplicarlo."
+  install-failed: "&cNo se pudo preparar la actualización. Revisa la consola."
+  install-in-progress: "&eYa hay una actualización descargándose."
+  install-disabled: "&cLa instalación de actualizaciones está desactivada en config.yml."
+  version-changed: "&eLa Release más reciente cambió a {version}. Vuelve a comprobar las actualizaciones."
+  ignored: "&eSe ignorarán los avisos automáticos de EmsiChill {version}."
+  ignore-failed: "&cNo se pudo guardar la versión ignorada."
   up-to-date: "&aEmsiChill {version} es la versión más reciente publicada."
   failed: "&cNo se pudo comprobar la actualización. Revisa la consola."
 

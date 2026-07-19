@@ -19,4 +19,23 @@ class GitHubReleaseClientTest {
     void returnsNullForMissingFields() {
         assertNull(GitHubReleaseClient.readStringField("{}", "tag_name"));
     }
+
+    @Test
+    void selectsExactVersionedJarAsset() {
+        String digest = "sha256:" + "a".repeat(64);
+        String json = """
+            {"tag_name":"v5.1.2","assets":[
+              {"name":"EmsiChill-5.1.2-jar-with-dependencies.jar","size":400,
+               "digest":"%s","browser_download_url":"https://github.com/wrong"},
+              {"name":"EmsiChill-5.1.2.jar","size":300,
+               "digest":"%s","browser_download_url":"https://github.com/correct"}
+            ]}
+            """.formatted(digest, digest);
+
+        ReleaseAsset asset = GitHubReleaseClient.readReleaseAsset(json, "v5.1.2");
+
+        assertEquals("EmsiChill-5.1.2.jar", asset.name());
+        assertEquals(300L, asset.size());
+        assertEquals("https://github.com/correct", asset.downloadUrl());
+    }
 }

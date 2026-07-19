@@ -6,7 +6,7 @@ Este archivo se genera automáticamente desde `plugin.yml`.
 |---|---|---|
 | `emsichill.admin.maintenance` | `op` | Permite diagnosticar, respaldar y migrar los datos de EmsiChill |
 | `emsichill.admin.reload` | `op` | Permite recargar EmsiChill |
-| `emsichill.admin.update` | `op` | Permite comprobar si existe una Release nueva |
+| `emsichill.admin.update` | `op` | Permite comprobar, ignorar y preparar Releases nuevas |
 | `emsichill.auth.admin` | `op` | Permite administrar cuentas con /auth |
 | `emsichill.back` | `true` | Permite regresar a la ubicación anterior |
 | `emsichill.back.others` | `op` | Permite ejecutar /back sobre otro jugador |

@@ -79,6 +79,7 @@ public final class UpdateNotifier implements Listener {
             }
             this.failureLogged = false;
             if (result.status() != UpdateResult.Status.UPDATE_AVAILABLE) return;
+            if (this.updates.isSuppressed(result.release().tag())) return;
             this.notifyConsole(result);
             if (this.notifyAdmins()) {
                 Bukkit.getOnlinePlayers().forEach(this::notifyPlayer);
@@ -104,6 +105,7 @@ public final class UpdateNotifier implements Listener {
         this.plugin.messages().sendLink(player, "update.automatic-available", result.release().pageUrl(),
             "{current}", result.currentVersion(),
             "{latest}", result.release().tag());
+        this.plugin.messages().sendUpdateActions(player, result.release().tag());
     }
 
     private void logFailure(final String detail) {
