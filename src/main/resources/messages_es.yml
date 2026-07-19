@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 14
+  text-revision: 15
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -172,6 +172,7 @@ update:
   checking: "&eComprobando la última Release de EmsiChill..."
   available: "&aHay una actualización: &f{latest} &7(instalada: {current})&a. {url}"
   automatic-available: "&dNueva actualización de EmsiChill disponible: &f{latest} &7(instalada: {current})&d. &f{url}"
+  link-hover: "&eHaz clic para abrir la Release en GitHub."
   up-to-date: "&aEmsiChill {version} es la versión más reciente publicada."
   failed: "&cNo se pudo comprobar la actualización. Revisa la consola."
 

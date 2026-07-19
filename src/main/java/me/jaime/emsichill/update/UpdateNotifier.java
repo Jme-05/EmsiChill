@@ -89,10 +89,10 @@ public final class UpdateNotifier implements Listener {
     private void notifyConsole(final UpdateResult result) {
         if (!this.plugin.settings().getBoolean("updates.automatic.notify-console", true)) return;
         if (!this.notices.markConsole(result.release().tag())) return;
-        this.plugin.messages().send(Bukkit.getConsoleSender(), "update.automatic-available",
+        this.plugin.messages().sendLink(Bukkit.getConsoleSender(), "update.automatic-available",
+            result.release().pageUrl(),
             "{current}", result.currentVersion(),
-            "{latest}", result.release().tag(),
-            "{url}", result.release().pageUrl());
+            "{latest}", result.release().tag());
     }
 
     private void notifyPlayer(final Player player) {
@@ -101,10 +101,9 @@ public final class UpdateNotifier implements Listener {
         UpdateResult result = this.cachedResult;
         if (result == null || result.status() != UpdateResult.Status.UPDATE_AVAILABLE) return;
         if (!this.notices.markPlayer(result.release().tag(), player.getUniqueId())) return;
-        this.plugin.messages().send(player, "update.automatic-available",
+        this.plugin.messages().sendLink(player, "update.automatic-available", result.release().pageUrl(),
             "{current}", result.currentVersion(),
-            "{latest}", result.release().tag(),
-            "{url}", result.release().pageUrl());
+            "{latest}", result.release().tag());
     }
 
     private void logFailure(final String detail) {

@@ -166,10 +166,9 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 return;
             }
             if (result.status() == UpdateResult.Status.UPDATE_AVAILABLE) {
-                this.messages.send(sender, "update.available",
+                this.messages.sendLink(sender, "update.available", result.release().pageUrl(),
                     "{current}", result.currentVersion(),
-                    "{latest}", result.release().tag(),
-                    "{url}", result.release().pageUrl());
+                    "{latest}", result.release().tag());
                 return;
             }
             if (result.status() == UpdateResult.Status.UP_TO_DATE) {

@@ -12,6 +12,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.jaime.emsichill.Main;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 /**
@@ -88,7 +90,33 @@ public final class Messages {
         sender.sendMessage(SERIALIZER.deserialize(this.prefix + text));
     }
 
+    public void sendLink(
+        final CommandSender sender,
+        final String key,
+        final String url,
+        final String... replacements
+    ) {
+        String text = this.resolveText(key, replacements);
+        int marker = text.indexOf("{url}");
+        Component link = SERIALIZER.deserialize("&b&n" + url)
+            .clickEvent(ClickEvent.openUrl(url))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("update.link-hover")));
+        if (marker < 0) {
+            sender.sendMessage(SERIALIZER.deserialize(this.prefix + text + " ").append(link));
+            return;
+        }
+
+        Component message = SERIALIZER.deserialize(this.prefix + text.substring(0, marker))
+            .append(link)
+            .append(SERIALIZER.deserialize(text.substring(marker + "{url}".length())));
+        sender.sendMessage(message);
+    }
+
     public Component component(final String key, final String... replacements) {
+        return SERIALIZER.deserialize(this.prefix + this.resolveText(key, replacements));
+    }
+
+    private String resolveText(final String key, final String... replacements) {
         String text = this.messagesFile.yaml().getString(key);
         if (text == null) text = this.bundledFallback.getString(key);
         // Una clave ausente usa el recurso incluido antes de mostrar un error genérico.
@@ -101,7 +129,7 @@ public final class Messages {
         for (int index = 0; index + 1 < replacements.length; index += 2) {
             text = text.replace(replacements[index], replacements[index + 1]);
         }
-        return SERIALIZER.deserialize(this.prefix + text);
+        return text;
     }
 
     public Component unprefixed(final String key, final String... replacements) {

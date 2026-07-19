@@ -142,6 +142,7 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 |---|---|
 | Moderación | Se añadió `/slay <jugador>` para eliminar inmediatamente a un jugador conectado. |
 | Permisos | Se añadió `emsichill.slay`, disponible para operadores de forma predeterminada. |
+| Actualizaciones | El enlace de una nueva Release ahora puede abrirse directamente desde el chat. |
 
 ## Licencia
 
