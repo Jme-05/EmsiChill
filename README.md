@@ -114,16 +114,6 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 
 <!-- EMSICHILL_COMMANDS_END -->
 
-## Historial de versiones
-
-### 5.1.1
-
-| Área | Cambio |
-|---|---|
-| Moderación | `/freeze <jugador> [segundos]` permite definir una duración entre 1 y 86400 segundos. |
-| Moderación | El jugador se libera automáticamente cuando termina el tiempo. |
-| Comandos | Se añadieron sugerencias de duración y mensajes claros para valores incorrectos. |
-
 ### 5.1.0
 
 | Área | Cambio |
@@ -136,6 +126,14 @@ regiones, tumbas y herramientas de moderación en un solo JAR.
 | Permisos | Se separaron los permisos para mirar y modificar inventarios. |
 | Arquitectura | Se dividió el sistema de staff en comandos, eventos, lógica y almacenamiento. |
 | Documentación | Los comandos y permisos pasaron a generarse desde `plugin.yml`. |
+
+### 5.1.1
+
+| Área | Cambio |
+|---|---|
+| Moderación | `/freeze <jugador> [segundos]` permite definir una duración entre 1 y 86400 segundos. |
+| Moderación | El jugador se libera automáticamente cuando termina el tiempo. |
+| Comandos | Se añadieron sugerencias de duración y mensajes claros para valores incorrectos. |
 
 ## Licencia
 
