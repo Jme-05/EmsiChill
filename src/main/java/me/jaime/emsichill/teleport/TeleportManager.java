@@ -24,7 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -157,6 +156,7 @@ public final class TeleportManager implements CommandExecutor, TabCompleter, Lis
         this.plugin.messages().send(requester, "teleport.request-sent", "{player}", target.getName());
         this.plugin.messages().send(target, here ? "teleport.request-here-received" : "teleport.request-received",
             "{player}", requester.getName());
+        this.plugin.messages().sendTeleportRequestActions(target);
         return true;
     }
 

@@ -8,7 +8,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper-26.2-blue?style=flat-square)
-![Versión](https://img.shields.io/badge/versión-5.1.4-brightgreen?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-5.1.5-brightgreen?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-MIT--0-lightgrey?style=flat-square)
 
 </div>
@@ -87,191 +87,107 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 ## Comandos para jugadores
 
-### Autenticación
-
-| Comando                                           | Descripción                            |
-| ------------------------------------------------- | -------------------------------------- |
-| `/register <contraseña> <confirmación>`           | Registra una nueva cuenta              |
-| `/login <contraseña>`                             | Inicia sesión en una cuenta registrada |
-| `/changepassword <actual> <nueva> <confirmación>` | Cambia la contraseña de la cuenta      |
-| `/unregister <contraseña>`                        | Elimina el registro propio             |
-
-### Skins
-
-| Comando                 | Descripción                           |
-| ----------------------- | ------------------------------------- |
-| `/skin <nombre>`        | Aplica la skin de una cuenta premium  |
-| `/skin random`          | Aplica una skin premium aleatoria     |
-| `/skin reset`           | Restablece la skin del jugador        |
-| `/skin save <nombre>`   | Guarda una skin en favoritos          |
-| `/skin unsave <nombre>` | Elimina una skin de favoritos         |
-| `/skin favorites`       | Abre el menú de skins favoritas       |
-| `/skin history`         | Abre el historial de skins utilizadas |
-| `/skin clearhistory`    | Elimina el historial propio de skins  |
-
-### Homes y teletransportes
-
-| Comando              | Descripción                                          |
-| -------------------- | ---------------------------------------------------- |
-| `/sethome [nombre]`  | Guarda un home en la ubicación actual                |
-| `/home [nombre]`     | Se teletransporta inmediatamente a un home           |
-| `/delhome <nombre>`  | Elimina un home                                      |
-| `/homes`             | Muestra todos los homes propios                      |
-| `/tpa <jugador>`     | Solicita teletransportarse hacia otro jugador        |
-| `/tpahere <jugador>` | Solicita que otro jugador se teletransporte hacia ti |
-| `/tpaccept`          | Acepta una solicitud de teletransporte               |
-| `/tpdeny`            | Rechaza una solicitud de teletransporte              |
-| `/tpcancel`          | Cancela una solicitud enviada                        |
-| `/tptoggle`          | Activa o bloquea las solicitudes de teletransporte   |
-| `/back`              | Regresa a la ubicación anterior o a una tumba        |
-| `/rtp`               | Busca una ubicación aleatoria segura                 |
-
-### Información y utilidades
-
-| Comando               | Descripción                                        |
-| --------------------- | -------------------------------------------------- |
-| `/playtime [jugador]` | Consulta el tiempo jugado                          |
-| `/playtimetop`        | Muestra la clasificación por tiempo jugado         |
-| `/seen [jugador]`     | Consulta la última conexión de un jugador          |
-| `/sit`                | Activa o desactiva la postura sentada              |
-| `/stand`              | Recupera la postura normal                         |
-| `/whereami`           | Comparte la dimensión y las coordenadas en el chat |
-
-### Tumbas
-
-| Comando               | Descripción                       |
-| --------------------- | --------------------------------- |
-| `/grave list`         | Muestra las tumbas activas        |
-| `/grave locate <id>`  | Muestra la ubicación de una tumba |
-| `/grave recover <id>` | Recupera una tumba propia         |
-
----
+| Comando | Descripción |
+|---|---|
+| `/register <contraseña> <contraseña>` | Registra una cuenta. |
+| `/login <contraseña>` | Inicia sesión. |
+| `/changepassword <actual> <nueva> <nueva>` | Cambia la contraseña. |
+| `/unregister <contraseña>` | Elimina el registro propio. |
+| `/skin <nombre>` | Aplica la skin de una cuenta premium. |
+| `/skin random` | Aplica una skin premium aleatoria. |
+| `/skin reset` | Restablece la skin. |
+| `/skin save <nombre>` | Guarda una skin como favorita. |
+| `/skin unsave <nombre>` | Elimina una skin de favoritos. |
+| `/skin favorites` | Abre el menú de skins favoritas. |
+| `/skin history` | Abre el historial de skins. |
+| `/skin clearhistory` | Elimina el historial propio. |
+| `/skull <nombre>` | Obtiene la cabeza de una cuenta premium. |
+| `/sethome [nombre]` | Guarda un home. |
+| `/home [nombre]` | Se teletransporta inmediatamente a un home. |
+| `/delhome <nombre>` | Elimina un home. |
+| `/homes` | Muestra todos los homes propios. |
+| `/tpa <jugador>` | Solicita teletransportarse a otro jugador. |
+| `/tpahere <jugador>` | Solicita que otro jugador vaya hacia ti. |
+| `/tpaccept` | Acepta una solicitud de teletransporte. |
+| `/tpdeny` | Rechaza una solicitud de teletransporte. |
+| `/tpcancel` | Cancela una solicitud enviada. |
+| `/tptoggle` | Activa o bloquea las solicitudes. |
+| `/back` | Regresa a la ubicación anterior o a la tumba. |
+| `/rtp` | Busca un lugar aleatorio seguro. |
+| `/playtime [jugador]` | Consulta el tiempo jugado. |
+| `/playtimetop` | Muestra la clasificación de tiempo jugado. |
+| `/seen [jugador]` | Consulta la última conexión. |
+| `/sit` | Activa o desactiva la postura sentada. |
+| `/crawl` | Activa o desactiva la postura de gateo. |
+| `/stand` | Recupera la postura normal. |
+| `/whereami` | Comparte dimensión y coordenadas en el chat. |
+| `/grave list` | Muestra las tumbas activas. |
+| `/grave locate <id>` | Muestra la ubicación de una tumba. |
+| `/grave recover <id>` | Recupera una tumba propia. |
 
 ## Comandos de regiones
 
-### Gestión básica
-
-| Comando                     | Descripción                                       |
-| --------------------------- | ------------------------------------------------- |
-| `/region claim <nombre>`    | Reclama una región centrada en la posición actual |
-| `/region list`              | Muestra las regiones propias y sus coordenadas    |
-| `/region info [nombre]`     | Muestra información detallada de una región       |
-| `/region teleport <nombre>` | Se teletransporta a una región propia             |
-| `/region view [nombre]`     | Muestra temporalmente los límites de una región   |
-| `/region delete [nombre]`   | Elimina permanentemente una región                |
-| `/region help`              | Muestra la ayuda del sistema de regiones          |
-
-### Compra y ampliación
-
-| Comando                     | Descripción                                    |
-| --------------------------- | ---------------------------------------------- |
-| `/region build`             | Abre el menú para comprar regiones adicionales |
-| `/region upgrade [nombre]`  | Abre el menú de ampliación de una región       |
-| `/region settings [nombre]` | Abre la configuración de una región            |
-
-### Miembros y propietarios
-
-| Comando                      | Descripción                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `/region add <jugador>`      | Permite que un jugador construya dentro de la región |
-| `/region remove <jugador>`   | Elimina a un miembro de la región                    |
-| `/region owner <jugador>`    | Añade un propietario secundario                      |
-| `/region unowner <jugador>`  | Elimina a un propietario secundario                  |
-| `/region transfer <jugador>` | Transfiere la propiedad principal de la región       |
-
----
+| Comando | Descripción |
+|---|---|
+| `/region claim <nombre>` | Reclama una región centrada en tu posición. |
+| `/region list` | Lista tus regiones y coordenadas. |
+| `/region info [nombre]` | Muestra información de una región. |
+| `/region teleport <nombre>` | Se teletransporta a una región propia. |
+| `/region view [nombre]` | Muestra temporalmente sus límites. |
+| `/region build` | Abre el menú para comprar más regiones. |
+| `/region upgrade [nombre]` | Abre el menú de ampliación. |
+| `/region settings [nombre]` | Abre la configuración de la región. |
+| `/region add <jugador>` | Permite construir a un miembro. |
+| `/region remove <jugador>` | Elimina a un miembro. |
+| `/region owner <jugador>` | Añade un propietario secundario. |
+| `/region unowner <jugador>` | Elimina un propietario secundario. |
+| `/region transfer <jugador>` | Transfiere el propietario principal. |
+| `/region delete [nombre]` | Elimina permanentemente una región. |
+| `/region help` | Muestra la ayuda de regiones. |
 
 ## Comandos para administradores y moderadores
 
-### Inspección y control
+| Comando | Descripción |
+|---|---|
+| `/invsee <jugador>` | Abre el inventario; modificarlo requiere un permiso adicional. |
+| `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
+| `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación con duración definida. |
+| `/slay <jugador>` | Elimina inmediatamente a un jugador conectado. |
+| `/mute <jugador> [tiempo]` | Silencia permanentemente o durante 30s, 10m, 2h o 1d. |
+| `/unmute <jugador>` | Retira el silencio activo de un jugador. |
+| `/warn <jugador> <motivo>` | Registra una advertencia con fecha, moderador y motivo. |
+| `/warnings <jugador>` | Muestra el historial reciente de sanciones. |
+| `/staffchat toggle` | Activa o desactiva el chat administrativo. |
+| `/staffchat <mensaje>` | Envía un mensaje al equipo. |
+| `/vanish [jugador]` | Activa o desactiva el modo invisible. |
+| `/vanishlist` | Lista los jugadores invisibles. |
+| `/staffmode [jugador]` | Activa las herramientas de moderación. |
+| `/skin <jugador> <skin>` | Cambia la skin de otro jugador. |
+| `/home <jugador> [home]` | Abre y utiliza homes ajenos, incluso desconectados. |
+| `/back <jugador>` | Envía a otro jugador a su ubicación anterior. |
+| `/auth unregister <jugador>` | Elimina administrativamente el registro de una cuenta. |
+| `/auth changepassword <jugador> <nueva>` | Cambia administrativamente una contraseña. |
+| `/grave admin recover <jugador>` | Recupera administrativamente una tumba. |
 
-| Comando                        | Descripción                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------- |
-| `/invsee <jugador>`            | Abre el inventario de un jugador; modificarlo requiere un permiso adicional     |
-| `/enderchestsee <jugador>`     | Abre el cofre de Ender de un jugador; modificarlo requiere un permiso adicional |
-| `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación temporal                               |
-| `/slay <jugador>`              | Elimina inmediatamente a un jugador conectado                                   |
-| `/vanish [jugador]`            | Activa o desactiva el modo invisible                                            |
-| `/vanishlist`                  | Muestra la lista de jugadores invisibles                                        |
-| `/staffmode [jugador]`         | Activa o desactiva las herramientas de moderación                               |
+## Configuración mediante comandos administrativos
 
-### Sanciones
-
-| Comando                    | Descripción                                                        |
-| -------------------------- | ------------------------------------------------------------------ |
-| `/mute <jugador> [tiempo]` | Silencia a un jugador permanentemente o durante un tiempo definido |
-| `/unmute <jugador>`        | Retira el silencio activo de un jugador                            |
-| `/warn <jugador> <motivo>` | Registra una advertencia con fecha, moderador y motivo             |
-| `/warnings <jugador>`      | Muestra el historial reciente de sanciones                         |
-
-Ejemplos de duración admitidos por `/mute`:
-
-```text
-30s
-10m
-2h
-1d
-```
-
-### Comunicación del equipo
-
-| Comando                | Descripción                               |
-| ---------------------- | ----------------------------------------- |
-| `/staffchat toggle`    | Activa o desactiva el chat administrativo |
-| `/staffchat <mensaje>` | Envía un mensaje al equipo administrativo |
-
-### Administración de jugadores
-
-| Comando                                  | Descripción                                                     |
-| ---------------------------------------- | --------------------------------------------------------------- |
-| `/skin <jugador> <skin>`                 | Cambia la skin de otro jugador                                  |
-| `/home <jugador> [home]`                 | Abre y utiliza homes ajenos, incluso de jugadores desconectados |
-| `/back <jugador>`                        | Envía a otro jugador a su ubicación anterior                    |
-| `/auth unregister <jugador>`             | Elimina administrativamente el registro de una cuenta           |
-| `/auth changepassword <jugador> <nueva>` | Cambia administrativamente la contraseña de una cuenta          |
-| `/grave admin recover <jugador>`         | Recupera administrativamente una tumba                          |
-
----
-
-## Configuración administrativa
-
-### Homes, RTP y muertes
-
-| Comando                                       | Descripción                               |
-| --------------------------------------------- | ----------------------------------------- |
-| `/emsichill homes limit <cantidad>`           | Cambia el límite predeterminado de homes  |
-| `/emsichill rtp cooldown <minutos>`           | Cambia el tiempo de espera global del RTP |
-| `/deathcontrol default <grave\|keep\|drop>`   | Cambia el modo de muerte predeterminado   |
-| `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador    |
-
-Modos de muerte disponibles:
-
-| Modo    | Comportamiento                         |
-| ------- | -------------------------------------- |
-| `grave` | Guarda los objetos dentro de una tumba |
-| `keep`  | Conserva los objetos después de morir  |
-| `drop`  | Deja caer los objetos de manera normal |
-
-### Actualizaciones
-
-| Comando                               | Descripción                                                       |
-| ------------------------------------- | ----------------------------------------------------------------- |
-| `/emsichill update check`             | Comprueba manualmente si existe una nueva versión                 |
-| `/emsichill update changes <versión>` | Muestra dentro del juego un resumen de los cambios                |
-| `/emsichill update install <versión>` | Descarga, valida y prepara una versión para el siguiente reinicio |
-| `/emsichill update ignore <versión>`  | Oculta los avisos automáticos de una versión concreta             |
-
-### Mantenimiento y diagnóstico
-
-| Comando                       | Descripción                                     |
-| ----------------------------- | ----------------------------------------------- |
-| `/auth reload`                | Recarga el módulo de autenticación              |
-| `/emsichill reload`           | Recarga las configuraciones del plugin          |
-| `/emsichill status`           | Muestra el estado de los módulos                |
-| `/emsichill doctor`           | Busca problemas en los datos y la configuración |
-| `/emsichill backup`           | Crea un respaldo de los datos                   |
-| `/emsichill migrate`          | Guarda y normaliza los datos actuales           |
-| `/emsichill help <categoría>` | Muestra la ayuda organizada por categorías      |
+| Comando | Descripción |
+|---|---|
+| `/emsichill homes limit <cantidad>` | Cambia el límite predeterminado de homes. |
+| `/emsichill rtp cooldown <minutos>` | Cambia el cooldown global de RTP. |
+| `/deathcontrol default <grave\|keep\|drop>` | Cambia el modo de muerte predeterminado. |
+| `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador. |
+| `/auth reload` | Recarga el módulo de autenticación. |
+| `/emsichill update check` | Comprueba si existe una Release nueva sin instalarla. |
+| `/emsichill update changes <versión>` | Muestra dentro del juego un resumen de las notas de la Release. |
+| `/emsichill update install <versión>` | Descarga, valida y prepara una Release para el siguiente reinicio. |
+| `/emsichill update ignore <versión>` | Oculta los avisos automáticos de una Release concreta. |
+| `/emsichill reload` | Recarga las configuraciones del plugin. |
+| `/emsichill status` | Muestra el estado de los módulos. |
+| `/emsichill doctor` | Busca problemas en datos y configuración. |
+| `/emsichill backup` | Crea un respaldo de los datos. |
+| `/emsichill migrate` | Guarda y normaliza los datos actuales. |
+| `/emsichill help <categoría>` | Muestra ayuda generada por categorías. |
 
 <!-- EMSICHILL_COMMANDS_END -->
 
@@ -279,9 +195,30 @@ Modos de muerte disponibles:
 
 ## Historial de versiones
 
-### Versión actual: `5.1.4`
+### Versión actual: `5.1.5`
 
 <details open>
+<summary><strong>5.1.5 — TPA interactivo, gateo y cabezas</strong></summary>
+
+#### Teletransporte
+
+* Las solicitudes de `/tpa` y `/tpahere` muestran los botones **Aceptar** y **Rechazar** directamente en el chat.
+* Los botones ejecutan `/tpaccept` y `/tpdeny`, por lo que conservan las comprobaciones normales de las solicitudes.
+
+#### Posturas
+
+* Se añadió `/crawl` para gatear y desplazarse cerca del suelo.
+* `/stand` y la tecla Shift restauran la postura normal.
+* Las posturas se limpian al recibir daño, morir, teletransportarse o desconectarse.
+
+#### Cabezas
+
+* Se añadió `/skull <nombre>` para obtener la cabeza de cualquier cuenta premium válida.
+* La búsqueda reutiliza el proveedor y la caché de `/skin` sin bloquear el servidor.
+
+</details>
+
+<details>
 <summary><strong>5.1.4 — Comprobación compatible con hostings compartidos</strong></summary>
 
 #### Actualizaciones

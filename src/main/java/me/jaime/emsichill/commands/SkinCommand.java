@@ -86,6 +86,11 @@ public final class SkinCommand implements CommandExecutor, TabCompleter, Listene
         return this.repository.cachedTextureCount();
     }
 
+    /** Comparte la búsqueda y la caché de texturas con comandos relacionados. */
+    public SkinTexture findTexture(final String skinName) throws IOException, InterruptedException {
+        return this.provider.findByName(skinName);
+    }
+
     public void persistData() {
         this.repository.save();
     }

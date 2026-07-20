@@ -15,10 +15,10 @@ help:
   categories: "&eCategorías: &fauth, teleport, skin, region, grave, social, staff y admin&e. Ejemplo: &f/emsichill help social&e."
   account: "&eCuenta: &f/register <password> <password>, /login <password>, /changepassword <current> <new> <new>, /unregister <password>&e."
   teleports: "&eTeletransportes: &f/home [name], /sethome [name], /delhome <name>, /tpa <player>, /tpaccept, /back [player], /rtp&e."
-  skins: "&eSkins: &f/skin <name>, /skin random, /skin reset, /skin save <name>, /skin favorites, /skin history&e."
+  skins: "&eSkins: &f/skin <name>, /skin random, /skin reset, /skin save <name>, /skin favorites, /skin history y /skull <name>&e."
   regions: "&eRegiones: &f/region claim [name], /region view [name], /region upgrade [name], /region settings [name], /region add <player>, /region info [name]&e."
   graves: "&eTumbas: &f/grave list, /grave locate <id>, /grave recover <id>&e. Mayús + clic recoge todos los objetos que quepan."
-  social: "&eSocial: &f/sit &epermite sentarte; &f/stand &erestablece la postura; &f/whereami &ecomparte tu dimensión y coordenadas."
+  social: "&eSocial: &f/sit y /crawl &ecambian tu postura; &f/stand &ela restablece; &f/whereami &ecomparte tu dimensión y coordenadas."
   staff: "&eStaff: &f/staffchat <message|toggle>, /vanish [player], /vanishlist, /staffmode [player]&e."
   admin: "&eAdministración: &f/emsichill reload|status|doctor|backup|migrate, /emsichill rtp cooldown <minutos>, /emsichill homes limit <number>, /auth, /deathcontrol y /back <player>&e."
 
@@ -76,6 +76,14 @@ skin:
   favorite-limit: "&cAlcanzaste el límite de {limit} favoritas."
   history-cleared: "&aHistorial de skins eliminado."
 
+skull:
+  usage: "&eUso: /skull <nombre>."
+  invalid-name: "&cEl nombre del jugador no es válido."
+  searching: "&eBuscando la cabeza de {player}..."
+  not-found: "&cNo existe una cuenta premium llamada {player}."
+  mojang-unavailable: "&cNo pude contactar con Mojang. Inténtalo otra vez."
+  received: "&aRecibiste la cabeza de &e{player}&a."
+
 teleport:
   sethome-usage: "&eUso: /sethome [name]."
   home-usage: "&eUso: /home [name]."
@@ -99,6 +107,10 @@ teleport:
   request-sent: "&aSolicitud enviada a {player}."
   request-received: "&e{player} quiere teletransportarse hacia ti. Usa /tpaccept o /tpdeny."
   request-here-received: "&e{player} quiere que vayas hacia él. Usa /tpaccept o /tpdeny."
+  accept-button: "&a&l[Aceptar]"
+  accept-hover: "&aAcepta esta solicitud de teletransporte."
+  deny-button: "&c&l[Rechazar]"
+  deny-hover: "&cRechaza esta solicitud de teletransporte."
   request-accepted: "&aSolicitud de teletransporte aceptada."
   request-denied: "&cSolicitud de teletransporte rechazada."
   request-cancelled: "&eSolicitud cancelada."

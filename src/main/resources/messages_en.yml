@@ -11,10 +11,10 @@ help:
   categories: "&eCategories: &fauth, teleport, skin, region, grave, social, staff and admin&e."
   account: "&eAccount: &f/register <password> <password>, /login <password>, /changepassword <current> <new> <new>, /unregister <password>"
   teleports: "&eTeleports: &f/home [name], /sethome [name], /delhome <name>, /tpa <player>, /tpaccept, /back [player], /rtp"
-  skins: "&eSkins: &f/skin <name>, /skin random, /skin reset, /skin save <name>, /skin favorites, /skin history"
+  skins: "&eSkins: &f/skin <name>, /skin random, /skin reset, /skin save <name>, /skin favorites, /skin history and /skull <name>"
   regions: "&eRegions: &f/region claim [name], /region view, /region upgrade, /region settings, /region add <player>, /region info"
   graves: "&eGraves: &f/grave list, /grave locate <id>, /grave recover <id>. Shift-click collects all items that fit."
-  social: "&eSocial: &f/sit &elets you sit; &f/stand &eresets your pose; &f/whereami &eshares your dimension and coordinates."
+  social: "&eSocial: &f/sit and /crawl &echange your pose; &f/stand &eresets it; &f/whereami &eshares your dimension and coordinates."
   staff: "&eStaff: &f/staffchat <message|toggle>, /vanish [player], /vanishlist, /staffmode [player]"
   admin: "&eAdmin: &f/emsichill reload|status|doctor|backup|migrate, /emsichill rtp cooldown <minutes>, /emsichill homes limit <number>, /auth, /deathcontrol and /back <player>"
 auth:
@@ -70,6 +70,14 @@ skin:
   favorite-limit: "&cYou reached the limit of {limit} favorites."
   history-cleared: "&aSkin history cleared."
 
+skull:
+  usage: "&eUsage: /skull <name>."
+  invalid-name: "&cThe player name is invalid."
+  searching: "&eSearching for {player}'s head..."
+  not-found: "&cThere is no premium account named {player}."
+  mojang-unavailable: "&cMojang could not be reached. Try again."
+  received: "&aYou received &e{player}&a's head."
+
 teleport:
   sethome-usage: "&eUsage: /sethome [name]"
   home-usage: "&eUsage: /home [name]"
@@ -93,6 +101,10 @@ teleport:
   request-sent: "&aRequest sent to {player}."
   request-received: "&e{player} wants to teleport to you. Use /tpaccept or /tpdeny."
   request-here-received: "&e{player} wants you to teleport to them. Use /tpaccept or /tpdeny."
+  accept-button: "&a&l[Accept]"
+  accept-hover: "&aAccept this teleport request."
+  deny-button: "&c&l[Deny]"
+  deny-hover: "&cReject this teleport request."
   request-accepted: "&aTeleport request accepted."
   request-denied: "&cTeleport request denied."
   request-cancelled: "&eRequest cancelled."

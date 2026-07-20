@@ -15,6 +15,7 @@ import me.jaime.emsichill.auth.AuthenticationBarrier;
 import me.jaime.emsichill.auth.AuthenticationManager;
 import me.jaime.emsichill.commands.EmsiChillCommand;
 import me.jaime.emsichill.commands.SkinCommand;
+import me.jaime.emsichill.commands.SkullCommand;
 import me.jaime.emsichill.config.ConfigFile;
 import me.jaime.emsichill.config.Messages;
 import me.jaime.emsichill.documentation.CommandDocumentation;
@@ -48,6 +49,7 @@ public final class Main extends JavaPlugin {
     private DataStore dataStore;
     private AuthenticationManager authenticationManager;
     private SkinCommand skinCommand;
+    private SkullCommand skullCommand;
     private TeleportManager teleportManager;
     private HomeManager homeManager;
     private PlayerInfoManager playerInfoManager;
@@ -90,6 +92,7 @@ public final class Main extends JavaPlugin {
     private void initializeModules() {
         this.authenticationManager = new AuthenticationManager(this);
         this.skinCommand = new SkinCommand(this);
+        this.skullCommand = new SkullCommand(this, this.skinCommand);
         this.teleportManager = new TeleportManager(this);
         this.homeManager = new HomeManager(this, this.teleportManager);
         this.inspectionService = new InspectionService();
@@ -114,6 +117,7 @@ public final class Main extends JavaPlugin {
             this.authenticationManager, null);
         this.register("auth", this.authenticationManager, this.authenticationManager);
         this.register("skin", this.skinCommand, this.skinCommand);
+        this.register("skull", this.skullCommand, this.skullCommand);
         this.registerAll(List.of("home", "sethome", "delhome", "homes"), this.homeManager, this.homeManager);
         this.registerAll(List.of("tpa", "tpahere", "tpaccept", "tpdeny", "tpcancel", "tptoggle", "back", "rtp"),
             this.teleportManager, this.teleportManager);
@@ -126,7 +130,7 @@ public final class Main extends JavaPlugin {
             this.moderationCommand, this.moderationCommand);
         this.register("region", this.regionManager, this.regionManager);
         this.registerAll(List.of("grave", "deathcontrol"), this.graveManager, this.graveManager);
-        this.registerAll(List.of("sit", "stand", "whereami"), this.socialManager, null);
+        this.registerAll(List.of("sit", "crawl", "stand", "whereami"), this.socialManager, null);
 
         EmsiChillCommand adminCommand = new EmsiChillCommand(this, maintenance, this.authenticationManager,
             this.skinCommand, this.teleportManager, this.homeManager, this.playerInfoManager, this.staffService,

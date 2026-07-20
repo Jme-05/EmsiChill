@@ -9,6 +9,10 @@ commands:
     description: Cambia y guarda la skin de un jugador
     usage: /skin <name|random|reset>
     aliases: [skins]
+  skull:
+    description: Entrega la cabeza de una cuenta premium
+    usage: /skull <name>
+    permission: emsichill.skull
   login:
     description: Inicia sesión en el servidor
     usage: /login <password>
@@ -158,6 +162,10 @@ commands:
     description: Te permite sentarte usando una pose nativa
     usage: /sit
     permission: emsichill.pose
+  crawl:
+    description: Te permite gatear por el suelo
+    usage: /crawl
+    permission: emsichill.pose
   stand:
     description: Restablece tu postura normal
     usage: /stand
@@ -169,6 +177,9 @@ commands:
 permissions:
   emsichill.skin:
     description: Permite usar /skin
+    default: true
+  emsichill.skull:
+    description: Permite obtener cabezas con /skull
     default: true
   emsichill.skin.others:
     description: Permite cambiar la skin de otros jugadores
@@ -312,7 +323,7 @@ permissions:
     description: Permite configurar la pérdida de inventario
     default: op
   emsichill.pose:
-    description: Permite usar /sit y /stand
+    description: Permite usar /sit, /crawl y /stand
     default: true
   emsichill.whereami:
     description: Permite compartir la ubicación con /whereami
@@ -338,6 +349,7 @@ documentation:
     - {section: players, category: skin, command: "/skin favorites", description: "Abre el menú de skins favoritas."}
     - {section: players, category: skin, command: "/skin history", description: "Abre el historial de skins."}
     - {section: players, category: skin, command: "/skin clearhistory", description: "Elimina el historial propio."}
+    - {section: players, category: skin, command: "/skull <nombre>", description: "Obtiene la cabeza de una cuenta premium."}
     - {section: players, category: teleport, command: "/sethome [nombre]", description: "Guarda un home."}
     - {section: players, category: teleport, command: "/home [nombre]", description: "Se teletransporta inmediatamente a un home."}
     - {section: players, category: teleport, command: "/delhome <nombre>", description: "Elimina un home."}
@@ -354,6 +366,7 @@ documentation:
     - {section: players, category: social, command: "/playtimetop", description: "Muestra la clasificación de tiempo jugado."}
     - {section: players, category: social, command: "/seen [jugador]", description: "Consulta la última conexión."}
     - {section: players, category: social, command: "/sit", description: "Activa o desactiva la postura sentada."}
+    - {section: players, category: social, command: "/crawl", description: "Activa o desactiva la postura de gateo."}
     - {section: players, category: social, command: "/stand", description: "Recupera la postura normal."}
     - {section: players, category: social, command: "/whereami", description: "Comparte dimensión y coordenadas en el chat."}
     - {section: players, category: grave, command: "/grave list", description: "Muestra las tumbas activas."}

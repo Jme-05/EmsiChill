@@ -1,4 +1,4 @@
-# Sit usa un asiento temporal que se elimina al levantarse.
+# Sit usa un asiento temporal y crawl mantiene el estado de gateo del jugador.
 poses:
   enabled: true
 

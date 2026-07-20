@@ -128,6 +128,16 @@ public final class Messages {
             .append(install).append(Component.text("  ")).append(ignore));
     }
 
+    public void sendTeleportRequestActions(final Player player) {
+        Component accept = this.unprefixed("teleport.accept-button")
+            .clickEvent(ClickEvent.runCommand("/tpaccept"))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("teleport.accept-hover")));
+        Component deny = this.unprefixed("teleport.deny-button")
+            .clickEvent(ClickEvent.runCommand("/tpdeny"))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("teleport.deny-hover")));
+        player.sendMessage(Component.text("  ").append(accept).append(Component.text("  ")).append(deny));
+    }
+
     /** Muestra una lÃ­nea externa como texto literal para impedir colores o acciones inyectadas. */
     public void sendReleaseLine(final CommandSender sender, final String line) {
         sender.sendMessage(SERIALIZER.deserialize(this.prefix + "&7- &f").append(Component.text(line)));

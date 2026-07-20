@@ -27,7 +27,7 @@ Este archivo se genera automáticamente desde `plugin.yml`.
 | `emsichill.invsee.view` | `op` | Permite abrir inventarios ajenos en modo de solo lectura |
 | `emsichill.mute` | `op` | Permite silenciar jugadores |
 | `emsichill.playtime` | `true` | Permite consultar tiempo jugado y clasificación |
-| `emsichill.pose` | `true` | Permite usar /sit y /stand |
+| `emsichill.pose` | `true` | Permite usar /sit, /crawl y /stand |
 | `emsichill.region.admin` | `op` | Permite administrar cualquier región |
 | `emsichill.region.claim` | `true` | Permite reclamar terrenos |
 | `emsichill.region.unlimited` | `op` | Permite reclamar regiones sin límite de cantidad |
@@ -41,6 +41,7 @@ Este archivo se genera automáticamente desde `plugin.yml`.
 | `emsichill.skin.bypasscooldown` | `op` | Ignora el tiempo entre cambios de skin |
 | `emsichill.skin.favorites.unlimited` | `op` | Elimina el límite de skins favoritas |
 | `emsichill.skin.others` | `op` | Permite cambiar la skin de otros jugadores |
+| `emsichill.skull` | `true` | Permite obtener cabezas con /skull |
 | `emsichill.slay` | `op` | Permite eliminar inmediatamente a jugadores conectados |
 | `emsichill.staffchat` | `op` | Permite usar y recibir el chat del staff |
 | `emsichill.staffmode` | `op` | Permite activar el modo de staff propio |
