@@ -72,6 +72,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     }
 
     public void start() {
+        if (!this.enabled()) return;
         if (this.cleanupTask != null) this.cleanupTask.cancel();
         this.cleanupTask = Bukkit.getScheduler().runTaskTimer(this.plugin, this::expireGraves, 1200L, 1200L);
         this.restoreMarkers();
@@ -138,7 +139,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     @EventHandler
     // El modo elegido decide si se crea tumba, se conserva todo o se usa la caída vanilla.
     public void onDeath(final PlayerDeathEvent event) {
-        if (!this.plugin.moduleEnabled("graves")) return;
+        if (!this.enabled()) return;
         Player player = event.getEntity();
         LossMode mode = this.repository.mode(player.getName(), this.defaultMode());
         if (mode == LossMode.DROP) return;
@@ -280,6 +281,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
 
     @EventHandler(ignoreCancelled = true)
     public void onInteract(final PlayerInteractEvent event) {
+        if (!this.enabled()) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null) return;
         String id = this.graveBlocks.get(this.blockKey(event.getClickedBlock().getLocation()));
         if (id == null) return;
@@ -408,7 +410,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         grave.items().clear();
         for (ItemStack item : inventory.getContents())
             if (item != null && !item.getType().isAir()) grave.items().add(item.clone());
-        this.repository.saveNow();
+        this.repository.save();
     }
 
     @EventHandler
@@ -546,6 +548,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
 
     // La expiración aplica la política configurada antes de eliminar el marcador.
     private void expireGraves() {
+        if (!this.enabled()) return;
         long now = Instant.now().getEpochSecond();
         for (Grave grave : new ArrayList<>(this.repository.all())) {
             if (grave.expiresAt() > now || this.openGraves.contains(grave.id())) continue;
@@ -567,6 +570,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
 
     @EventHandler(ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent event) {
+        if (!this.enabled()) return;
         if (this.graveBlocks.containsKey(this.blockKey(event.getBlock().getLocation()))) {
             event.setCancelled(true);
             this.plugin.messages().send(event.getPlayer(), "grave.use-command");
@@ -575,21 +579,25 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityExplosion(final EntityExplodeEvent event) {
+        if (!this.enabled()) return;
         event.blockList().removeIf(block -> this.graveBlocks.containsKey(this.blockKey(block.getLocation())));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockExplosion(final BlockExplodeEvent event) {
+        if (!this.enabled()) return;
         event.blockList().removeIf(block -> this.graveBlocks.containsKey(this.blockKey(block.getLocation())));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPistonExtend(final BlockPistonExtendEvent event) {
+        if (!this.enabled()) return;
         if (event.getBlocks().stream().anyMatch(block -> this.graveBlocks.containsKey(this.blockKey(block.getLocation())))) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPistonRetract(final BlockPistonRetractEvent event) {
+        if (!this.enabled()) return;
         if (event.getBlocks().stream().anyMatch(block -> this.graveBlocks.containsKey(this.blockKey(block.getLocation())))) event.setCancelled(true);
     }
 
@@ -617,6 +625,10 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     private LossMode defaultMode() {
         LossMode value = LossMode.parse(this.configFile.yaml().getString("inventory-loss.default-mode", "grave"));
         return value == null ? LossMode.GRAVE : value;
+    }
+
+    private boolean enabled() {
+        return this.plugin.moduleEnabled("graves");
     }
 
     private String displayMode(final LossMode mode) {

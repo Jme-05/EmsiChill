@@ -61,6 +61,8 @@ public final class StaffService {
         for (Player player : new ArrayList<>(Bukkit.getOnlinePlayers())) {
             if (this.isStaffMode(player)) this.disableStaffMode(player);
         }
+        this.staffChatEnabled.clear();
+        this.revealVanishedPlayers();
         this.saveData();
     }
 
@@ -125,6 +127,16 @@ public final class StaffService {
                 if (viewer.hasPermission("emsichill.vanish.see")) viewer.showPlayer(this.plugin, target);
                 else viewer.hidePlayer(this.plugin, target);
             }
+        }
+    }
+
+    private void revealVanishedPlayers() {
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            if (!this.isVanished(target)) continue;
+            for (Player viewer : Bukkit.getOnlinePlayers()) {
+                if (!viewer.equals(target)) viewer.showPlayer(this.plugin, target);
+            }
+            target.setCanPickupItems(true);
         }
     }
 

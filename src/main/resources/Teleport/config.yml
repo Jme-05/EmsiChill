@@ -1,11 +1,3 @@
-homes:
-  default-limit: 1
-  permission-limits:
-    - permission: emsichill.homes.3
-      limit: 3
-    - permission: emsichill.homes.5
-      limit: 5
-
 teleport:
   default-delay-seconds: 3
   cancel-on-move: true

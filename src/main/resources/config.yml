@@ -29,7 +29,9 @@ updates:
     notify-console: true
     notify-admins: true
   install:
-    enabled: true
-    allow-feed-fallback: true
+    # Mantén la instalación apagada salvo que confíes plenamente en el repositorio configurado.
+    enabled: false
+    # El feed solo sirve para avisos; instalar requiere tamaño y SHA-256 de la API de GitHub.
+    allow-feed-fallback: false
     timeout-seconds: 60
     max-download-megabytes: 25

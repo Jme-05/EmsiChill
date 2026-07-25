@@ -16,6 +16,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Directional;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,9 +25,19 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -217,7 +229,11 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
     }
 
     private boolean delete(final Player player, final String[] args) {
-        Region region = args.length == 2 ? this.ownedByName(player, args[1]) : this.manageableRegion(player);
+        if (args.length != 3 || !args[2].equalsIgnoreCase("confirm")) {
+            this.plugin.messages().send(player, "region.delete-usage");
+            return true;
+        }
+        Region region = this.ownedByName(player, args[1]);
         if (region == null || !this.canManage(player, region)) {
             this.plugin.messages().send(player, "region.not-found");
             return true;
@@ -602,6 +618,7 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
 
     @EventHandler
     public void onUpgradeClick(final InventoryClickEvent event) {
+        if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         InventoryHolder holder = event.getView().getTopInventory().getHolder();
         // La compra se revalida al hacer clic para evitar precios antiguos o dobles cobros.
@@ -670,6 +687,10 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
             || region.coOwners().contains(player.getUniqueId());
     }
 
+    private boolean enabled() {
+        return this.plugin.moduleEnabled("regions");
+    }
+
     private void deny(final Player player) {
         this.plugin.messages().send(player, "region.protected");
     }
@@ -677,30 +698,35 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
     // Todos los cambios de bloques pasan por la misma regla de propietario y miembros.
     @EventHandler(ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent event) {
+        if (!this.enabled()) return;
         Region region = this.repository.at(event.getBlock().getLocation());
         if (region != null && !this.canBuild(event.getPlayer(), region)) { event.setCancelled(true); this.deny(event.getPlayer()); }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlace(final BlockPlaceEvent event) {
+        if (!this.enabled()) return;
         Region region = this.repository.at(event.getBlock().getLocation());
         if (region != null && !this.canBuild(event.getPlayer(), region)) { event.setCancelled(true); this.deny(event.getPlayer()); }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onBucketEmpty(final PlayerBucketEmptyEvent event) {
+        if (!this.enabled()) return;
         Region region = this.repository.at(event.getBlockClicked().getRelative(event.getBlockFace()).getLocation());
         if (region != null && !this.canBuild(event.getPlayer(), region)) { event.setCancelled(true); this.deny(event.getPlayer()); }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onBucketFill(final PlayerBucketFillEvent event) {
+        if (!this.enabled()) return;
         Region region = this.repository.at(event.getBlockClicked().getLocation());
         if (region != null && !this.canBuild(event.getPlayer(), region)) { event.setCancelled(true); this.deny(event.getPlayer()); }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onInteract(final PlayerInteractEvent event) {
+        if (!this.enabled()) return;
         Block block = event.getClickedBlock();
         if (block == null) return;
         Region region = this.repository.at(block.getLocation());
@@ -717,6 +743,7 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityInteract(final PlayerInteractEntityEvent event) {
+        if (!this.enabled()) return;
         Region region = this.repository.at(event.getRightClicked().getLocation());
         if (region != null && !this.canBuild(event.getPlayer(), region) && !region.publicInteractions()) {
             event.setCancelled(true); this.deny(event.getPlayer());
@@ -725,6 +752,7 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
 
     @EventHandler(ignoreCancelled = true)
     public void onHangingBreak(final HangingBreakByEntityEvent event) {
+        if (!this.enabled()) return;
         if (!(event.getRemover() instanceof Player player)) return;
         Region region = this.repository.at(event.getEntity().getLocation());
         if (region != null && !this.canBuild(player, region)) { event.setCancelled(true); this.deny(player); }
@@ -732,6 +760,7 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
 
     @EventHandler(ignoreCancelled = true)
     public void onHangingPlace(final HangingPlaceEvent event) {
+        if (!this.enabled()) return;
         Player player = event.getPlayer();
         if (player == null) return;
         Region region = this.repository.at(event.getEntity().getLocation());
@@ -740,13 +769,116 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
 
     @EventHandler(ignoreCancelled = true)
     public void onPvp(final EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player victim)) return;
-        Player attacker = event.getDamager() instanceof Player value ? value : null;
-        if (attacker == null && event.getDamager() instanceof org.bukkit.entity.Projectile projectile
-            && projectile.getShooter() instanceof Player value) attacker = value;
+        if (!this.enabled()) return;
+        Player attacker = this.attacker(event);
         if (attacker == null) return;
-        Region region = this.repository.at(victim.getLocation());
-        if (region != null && !region.pvp()) event.setCancelled(true);
+        if (!(event.getEntity() instanceof Player victim)) {
+            Region region = this.repository.at(event.getEntity().getLocation());
+            if (region != null && !this.canBuild(attacker, region)) {
+                event.setCancelled(true);
+                this.deny(attacker);
+            }
+            return;
+        }
+        Region victimRegion = this.repository.at(victim.getLocation());
+        Region attackerRegion = this.repository.at(attacker.getLocation());
+        if ((victimRegion != null && !victimRegion.pvp())
+            || (attackerRegion != null && !attackerRegion.pvp())) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityExplosion(final EntityExplodeEvent event) {
+        if (!this.enabled()) return;
+        event.blockList().removeIf(block -> this.repository.at(block.getLocation()) != null);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockExplosion(final BlockExplodeEvent event) {
+        if (!this.enabled()) return;
+        event.blockList().removeIf(block -> this.repository.at(block.getLocation()) != null);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPistonExtend(final BlockPistonExtendEvent event) {
+        if (!this.enabled()) return;
+        if (this.pistonTouchesRegion(event.getBlocks(), event.getDirection())) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPistonRetract(final BlockPistonRetractEvent event) {
+        if (!this.enabled()) return;
+        if (this.pistonTouchesRegion(event.getBlocks(), event.getDirection().getOppositeFace())) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFluidFlow(final BlockFromToEvent event) {
+        if (!this.enabled()) return;
+        if (this.repository.at(event.getToBlock().getLocation()) != null) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBurn(final BlockBurnEvent event) {
+        if (!this.enabled()) return;
+        if (this.repository.at(event.getBlock().getLocation()) != null) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onIgnite(final BlockIgniteEvent event) {
+        if (!this.enabled()) return;
+        Region region = this.repository.at(event.getBlock().getLocation());
+        if (region == null) return;
+        Player player = event.getPlayer();
+        if (player == null || !this.canBuild(player, region)) {
+            event.setCancelled(true);
+            if (player != null) this.deny(player);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDispense(final BlockDispenseEvent event) {
+        if (!this.enabled()) return;
+        if (this.repository.at(event.getBlock().getLocation()) != null) {
+            event.setCancelled(true);
+            return;
+        }
+        if (event.getBlock().getBlockData() instanceof Directional directional
+            && this.repository.at(event.getBlock().getRelative(directional.getFacing()).getLocation()) != null) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityChangeBlock(final EntityChangeBlockEvent event) {
+        if (!this.enabled()) return;
+        if (this.repository.at(event.getBlock().getLocation()) != null) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityPlace(final EntityPlaceEvent event) {
+        if (!this.enabled()) return;
+        Region region = this.repository.at(event.getEntity().getLocation());
+        Player player = event.getPlayer();
+        if (region != null && (player == null || !this.canBuild(player, region))) {
+            event.setCancelled(true);
+            if (player != null) this.deny(player);
+        }
+    }
+
+    private boolean pistonTouchesRegion(final List<Block> blocks, final BlockFace direction) {
+        for (Block block : blocks) {
+            if (this.repository.at(block.getLocation()) != null
+                || this.repository.at(block.getRelative(direction).getLocation()) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Player attacker(final EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) return player;
+        if (event.getDamager() instanceof org.bukkit.entity.Projectile projectile
+            && projectile.getShooter() instanceof Player player) return player;
+        return null;
     }
 
     private Region manageableRegion(final Player player) {
@@ -874,6 +1006,10 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
             List<String> names = new ArrayList<>();
             for (Region region : this.repository.all()) if (this.canManage(player, region)) names.add(region.name());
             return CommandSuggestions.filter(names, args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("delete") && sender instanceof Player player
+            && this.ownedByName(player, args[1]) != null) {
+            return CommandSuggestions.filter(List.of("confirm"), args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("teleport") && sender instanceof Player player) {
             List<String> names = new ArrayList<>();

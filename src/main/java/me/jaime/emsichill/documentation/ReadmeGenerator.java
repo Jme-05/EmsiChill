@@ -5,15 +5,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-/** Herramienta de compilación que mantiene README y permisos sincronizados con plugin.yml. */
+/** Herramienta de compilación que mantiene los comandos del README sincronizados con plugin.yml. */
 public final class ReadmeGenerator {
     static final String START = "<!-- EMSICHILL_COMMANDS_START -->";
     static final String END = "<!-- EMSICHILL_COMMANDS_END -->";
@@ -22,15 +18,14 @@ public final class ReadmeGenerator {
     }
 
     public static void main(final String[] args) throws IOException {
-        if (args.length != 3) throw new IllegalArgumentException("Uso: <plugin.yml> <README.md> <PERMISSIONS.md>");
-        generate(Path.of(args[0]), Path.of(args[1]), Path.of(args[2]));
+        if (args.length != 2) throw new IllegalArgumentException("Uso: <plugin.yml> <README.md>");
+        generate(Path.of(args[0]), Path.of(args[1]));
     }
 
-    static void generate(final Path pluginYml, final Path readme, final Path permissions) throws IOException {
+    static void generate(final Path pluginYml, final Path readme) throws IOException {
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(pluginYml.toString()));
         CommandDocumentation documentation = CommandDocumentation.from(yaml);
         updateReadme(readme, commandMarkdown(documentation));
-        writeIfChanged(permissions, permissionMarkdown(loadStructured(pluginYml)));
     }
 
     private static String commandMarkdown(final CommandDocumentation documentation) {
@@ -48,36 +43,6 @@ public final class ReadmeGenerator {
             markdown.append('\n');
         }
         return markdown.toString().stripTrailing();
-    }
-
-    private static String permissionMarkdown(final Map<String, Object> yaml) {
-        StringBuilder markdown = new StringBuilder("# Permisos de EmsiChill\n\n")
-            .append("Este archivo se genera automáticamente desde `plugin.yml`.\n\n")
-            .append("| Permiso | Predeterminado | Descripción |\n|---|---|---|\n");
-        Map<String, Object> permissions = map(yaml.get("permissions"));
-        for (String key : permissions.keySet().stream().sorted().toList()) {
-            Map<String, Object> definition = map(permissions.get(key));
-            String value = String.valueOf(definition.getOrDefault("default", false));
-            String description = String.valueOf(definition.getOrDefault("description", "Sin descripción."));
-            markdown.append("| `").append(key).append("` | `").append(value)
-                .append("` | ").append(description.replace("|", "\\|"))
-                .append(" |\n");
-        }
-        return markdown.toString();
-    }
-
-    static Map<String, Object> loadStructured(final Path path) throws IOException {
-        LoaderOptions options = new LoaderOptions();
-        options.setAllowDuplicateKeys(false);
-        Yaml parser = new Yaml(new SafeConstructor(options));
-        try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            return map(parser.load(reader));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Map<String, Object> map(final Object value) {
-        return value instanceof Map<?, ?> raw ? (Map<String, Object>) raw : new LinkedHashMap<>();
     }
 
     private static void updateReadme(final Path readme, final String generated) throws IOException {

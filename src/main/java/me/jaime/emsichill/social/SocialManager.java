@@ -48,12 +48,12 @@ public final class SocialManager implements CommandExecutor, Listener {
     public void reloadConfiguration() {
         if (this.configFile == null) this.configFile = new ConfigFile(this.plugin, "Social/config.yml");
         else this.configFile.reload();
-        if (!this.configFile.yaml().getBoolean("poses.enabled", true)) this.stop();
+        if (!this.enabled() || !this.configFile.yaml().getBoolean("poses.enabled", true)) this.stop();
         else this.running = true;
     }
 
     public void start() {
-        this.running = this.configFile.yaml().getBoolean("poses.enabled", true);
+        this.running = this.enabled() && this.configFile.yaml().getBoolean("poses.enabled", true);
     }
 
     public void stop() {
@@ -178,7 +178,7 @@ public final class SocialManager implements CommandExecutor, Listener {
 
     @EventHandler
     public void onTickEnd(final ServerTickEndEvent event) {
-        if (this.running && !this.activePoses.isEmpty()) this.maintainPoses();
+        if (this.enabled() && this.running && !this.activePoses.isEmpty()) this.maintainPoses();
     }
 
     private boolean shareLocation(final Player player) {
@@ -209,6 +209,7 @@ public final class SocialManager implements CommandExecutor, Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onSneak(final PlayerToggleSneakEvent event) {
+        if (!this.enabled()) return;
         if (event.isSneaking() && this.activePoses.containsKey(event.getPlayer().getUniqueId())) {
             this.clearPose(event.getPlayer());
         }
@@ -216,6 +217,7 @@ public final class SocialManager implements CommandExecutor, Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onToggleSwim(final EntityToggleSwimEvent event) {
+        if (!this.enabled()) return;
         if (event.getEntity() instanceof Player player
             && this.activePoses.get(player.getUniqueId()) == SocialPose.CRAWL) {
             event.setCancelled(true);
@@ -224,11 +226,13 @@ public final class SocialManager implements CommandExecutor, Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onTeleport(final PlayerTeleportEvent event) {
+        if (!this.enabled()) return;
         if (this.activePoses.containsKey(event.getPlayer().getUniqueId())) this.clearPose(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent event) {
+        if (!this.enabled()) return;
         if (event.getEntity() instanceof Player player && this.activePoses.containsKey(player.getUniqueId())) {
             this.clearPose(player);
         }
@@ -236,16 +240,19 @@ public final class SocialManager implements CommandExecutor, Listener {
 
     @EventHandler
     public void onDeath(final PlayerDeathEvent event) {
+        if (!this.enabled()) return;
         if (this.activePoses.containsKey(event.getEntity().getUniqueId())) this.clearPose(event.getEntity());
     }
 
     @EventHandler
     public void onRespawn(final PlayerRespawnEvent event) {
+        if (!this.enabled()) return;
         Bukkit.getScheduler().runTask(this.plugin, () -> this.clearPose(event.getPlayer()));
     }
 
     @EventHandler
     public void onQuit(final PlayerQuitEvent event) {
+        if (!this.enabled()) return;
         if (this.activePoses.containsKey(event.getPlayer().getUniqueId())) this.clearPose(event.getPlayer());
     }
 
@@ -274,5 +281,9 @@ public final class SocialManager implements CommandExecutor, Listener {
         private Pose bukkitPose() {
             return this.bukkitPose;
         }
+    }
+
+    private boolean enabled() {
+        return this.plugin.moduleEnabled("social");
     }
 }

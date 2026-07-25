@@ -231,7 +231,7 @@ region:
   help-view: "&e/region view [name] &7- Marks the aqua border and yellow center. &e/region info [name] &7shows its details."
   help-people: "&e/region add|remove <player> &7- Manages members. &e/region owner|unowner <player> &7- Manages co-owners."
   help-settings: "&e/region settings [name] &7- Controls PvP, containers and interactions. &e/region upgrade [name] &7- Expands the radius."
-  help-delete: "&e/region list &7- Shows your regions. &e/region transfer <player> &7- Changes the owner. &e/region delete [name] &7- Deletes the region."
+  help-delete: "&e/region list &7- Shows your regions. &e/region transfer <player> &7- Changes the owner. &e/region delete <name> confirm &7- Deletes the region."
   claim-usage: "&eUsage: /region claim [name]. Example: /region claim home. Your current block will be the center."
   invalid-name: "&cNames may only contain letters, numbers, dashes and underscores."
   name-exists: "&cYou already own a region named {name}. Choose another name."
@@ -241,6 +241,7 @@ region:
   overlap: "&cThis location is occupied by region {name}, owned by {owner}."
   too-close: "&cYou cannot claim here because region {name}, owned by {owner}, is too close. Find another place."
   claimed: "&aRegion {name} created in {dimension}, center X: {x}, Z: {z}. Radius: {radius} blocks; total area: {diameter} x {diameter}; full height."
+  delete-usage: "&eUsage: /region delete <name> confirm. Type the exact name to avoid deleting the wrong region."
   deleted: "&aRegion {name} deleted."
   not-found: "&cNo manageable region was found. Stand inside it or write its name after the command."
   not-found-here: "&cThere is no region here."
@@ -321,9 +322,9 @@ social:
 
 maintenance:
   status-header: "&5&lEmsiChill status"
-  status-players: "&dPlayers: &f{tracked} registered; {authenticated} authenticated."
+  status-players: "&dPlayers: &f{registered} accounts; {authenticated} authenticated; {tracked} tracked."
   status-world: "&dWorld: &f{regions} regions ({chunks} indexed chunks) and {graves} active graves."
-  status-runtime: "&dService: &f{homes} homes, {skins} saved skins and {writes} pending writes."
+  status-runtime: "&dService: &f{homes} homes, {skins} saved skins, {cache} cached textures, {teleports} teleport operations, {vanished} vanished and {writes} pending writes."
   doctor-ok: "&aDiagnosis complete: no problems were found."
   doctor-header: "&eDiagnosis completed with {count} warning(s):"
   doctor-entry: "&7- &f{issue}"

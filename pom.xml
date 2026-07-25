@@ -24,10 +24,6 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
     </repositories>
 
     <!-- Dependencies imports -->
@@ -56,10 +52,6 @@
     <build>
         <!-- Name of your compiled artifact -->
         <finalName>${project.artifactId}-${project.version}</finalName>
-        <!-- Directory of .java files -->
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <!-- Clean old builds and install dependencies before compile -->
-        <defaultGoal>clean install</defaultGoal>
         <!-- Package files inside resource directory in to the jar -->
         <resources>
             <resource>
@@ -105,7 +97,6 @@
                             <arguments>
                                 <argument>${project.basedir}/src/main/resources/plugin.yml</argument>
                                 <argument>${project.basedir}/README.md</argument>
-                                <argument>${project.basedir}/docs/PERMISSIONS.md</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -120,26 +111,6 @@
                         <exclude>me/jaime/emsichill/documentation/ReadmeGenerator.class</exclude>
                     </excludes>
                 </configuration>
-            </plugin>
-
-            <!-- Include dependencies inside jar -->
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> 
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -132,7 +132,7 @@ public final class TeleportManager implements CommandExecutor, TabCompleter, Lis
     }
 
     public void teleportFromHome(final Player player, final Location destination) {
-        this.instantTeleport(player, destination, true);
+        this.delayedTeleport(player, destination, "home", true);
     }
 
     // Solo se conserva la solicitud entrante más reciente de cada destinatario.
@@ -336,6 +336,7 @@ public final class TeleportManager implements CommandExecutor, TabCompleter, Lis
 
     @EventHandler(ignoreCancelled = true)
     public void onMove(final PlayerMoveEvent event) {
+        if (!this.enabled()) return;
         if (!this.configFile.yaml().getBoolean("teleport.cancel-on-move", true) || !event.hasChangedPosition()) return;
         RtpSearch search = this.pendingRtpSearches.get(event.getPlayer().getUniqueId());
         if (search != null && search.origin().getWorld().equals(event.getTo().getWorld())
@@ -353,6 +354,7 @@ public final class TeleportManager implements CommandExecutor, TabCompleter, Lis
 
     @EventHandler
     public void onDeath(final PlayerDeathEvent event) {
+        if (!this.enabled()) return;
         if (this.configFile.yaml().getBoolean("back.save-death-location", true)) {
             this.backLocations.put(event.getEntity().getUniqueId(), SavedLocation.from(event.getEntity().getLocation()));
         }
@@ -360,6 +362,7 @@ public final class TeleportManager implements CommandExecutor, TabCompleter, Lis
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent event) {
+        if (!this.enabled()) return;
         if (!(event.getEntity() instanceof Player player)
             || !this.configFile.yaml().getBoolean("teleport.cancel-on-damage", true)) return;
         PendingTeleport pending = this.pendingTeleports.remove(player.getUniqueId());
@@ -390,6 +393,10 @@ public final class TeleportManager implements CommandExecutor, TabCompleter, Lis
     }
 
     private String userKey(final Player player) { return player.getName().toLowerCase(Locale.ROOT); }
+
+    private boolean enabled() {
+        return this.plugin.moduleEnabled("teleport");
+    }
 
     // Homes y preferencias se reconstruyen tolerando mundos que aún no estén cargados.
     private void loadData() {

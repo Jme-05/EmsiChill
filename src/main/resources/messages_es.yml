@@ -237,7 +237,7 @@ region:
   help-view: "&e/region view [name] &7- Marca el borde en celeste y el centro en amarillo. &e/region info [name] &7muestra sus datos."
   help-people: "&e/region add <player> &7- Añade un miembro. &e/region remove <player> &7- Lo elimina. &e/region owner <player> &7- Añade un copropietario. &e/region unowner <player> &7- Lo elimina."
   help-settings: "&e/region settings [name] &7- Controla PvP, contenedores e interacciones. &e/region upgrade [name] &7- Amplía el radio."
-  help-delete: "&e/region list &7- Muestra tus regiones. &e/region transfer <player> &7- Cambia el propietario. &e/region delete [name] &7- Borra la región."
+  help-delete: "&e/region list &7- Muestra tus regiones. &e/region transfer <player> &7- Cambia el propietario. &e/region delete <name> confirm &7- Borra la región."
   claim-usage: "&eUso: /region claim [name]. Ejemplo: /region claim casa. El bloque donde estás será el centro."
   invalid-name: "&cEl nombre solo puede contener letras, números, guiones y guiones bajos."
   name-exists: "&cYa tienes una región llamada {name}. Elige otro nombre."
@@ -247,6 +247,7 @@ region:
   overlap: "&cEste lugar ya está ocupado por la región {name}, propiedad de {owner}."
   too-close: "&cNo se pudo reclamar aquí porque la región {name}, de {owner}, está demasiado cerca. Busca otro lugar."
   claimed: "&aRegión {name} creada en {dimension}, centro X: {x}, Z: {z}. Radio: {radius} bloques; área total: {diameter} x {diameter}; altura completa."
+  delete-usage: "&eUso: /region delete <name> confirm. Escribe el nombre exacto para evitar borrar la región equivocada."
   deleted: "&aRegión {name} eliminada."
   not-found: "&cNo se encontró una región que puedas administrar. Ponte dentro de ella o escribe su nombre después del comando."
   not-found-here: "&cNo hay ninguna región en esta ubicación."
@@ -327,9 +328,9 @@ social:
 
 maintenance:
   status-header: "&5&lEstado de EmsiChill"
-  status-players: "&dJugadores: &f{tracked} registrados; {authenticated} con sesión iniciada."
+  status-players: "&dJugadores: &f{registered} cuentas; {authenticated} con sesión iniciada; {tracked} rastreados."
   status-world: "&dMundo: &f{regions} regiones ({chunks} sectores indexados) y {graves} tumbas activas."
-  status-runtime: "&dServicio: &f{homes} hogares, {skins} skins guardadas y {writes} escrituras pendientes."
+  status-runtime: "&dServicio: &f{homes} hogares, {skins} skins guardadas, {cache} texturas en caché, {teleports} operaciones de teletransporte, {vanished} ocultos y {writes} escrituras pendientes."
   doctor-ok: "&aDiagnóstico completado: no se encontraron problemas."
   doctor-header: "&eDiagnóstico completado con {count} aviso(s):"
   doctor-entry: "&7- &f{issue}"

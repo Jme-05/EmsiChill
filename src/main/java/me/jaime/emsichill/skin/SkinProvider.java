@@ -25,7 +25,7 @@ import com.google.gson.JsonParser;
  */
 public final class SkinProvider {
     private static final String MINESKIN_URL = "https://api.mineskin.org/v2/skins";
-    private static final String USER_AGENT = "EmsiChill/5.0.0 (Minecraft plugin)";
+    private static final String USER_AGENT = "EmsiChill (Minecraft plugin)";
 
     private final SkinRepository repository;
     private final HttpClient httpClient = HttpClient.newBuilder()

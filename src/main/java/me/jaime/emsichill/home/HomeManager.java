@@ -116,25 +116,27 @@ public final class HomeManager implements CommandExecutor, TabCompleter {
         if (player.hasPermission("emsichill.homes.others") && args.length >= 1) {
             String targetKey = args[0].toLowerCase(Locale.ROOT);
             Map<String, HomeLocation> targetHomes = this.repository.homes(targetKey);
-            if (!targetHomes.isEmpty()) {
-                String targetName = this.repository.displayName(targetKey);
-                if (args.length == 1) {
-                    if (targetHomes.isEmpty()) this.plugin.messages().send(player, "teleport.admin-no-homes", "{player}", targetName);
-                    else this.plugin.messages().send(player, "teleport.admin-home-list", "{player}", targetName,
-                        "{homes}", String.join(", ", targetHomes.keySet()));
-                    return true;
-                }
-                String targetHomeName = args[1].toLowerCase(Locale.ROOT);
-                HomeLocation targetHome = targetHomes.get(targetHomeName);
-                Location destination = targetHome == null ? null : targetHome.toLocation();
-                if (destination == null) {
-                    this.plugin.messages().send(player, "teleport.admin-home-not-found", "{home}", targetHomeName,
-                        "{player}", targetName);
-                    return true;
-                }
-                this.teleportManager.teleportFromHome(player, destination);
+            String targetName = this.repository.displayName(targetKey);
+            if (args.length == 1) {
+                if (targetHomes.isEmpty()) this.plugin.messages().send(player, "teleport.admin-no-homes", "{player}", targetName);
+                else this.plugin.messages().send(player, "teleport.admin-home-list", "{player}", targetName,
+                    "{homes}", String.join(", ", targetHomes.keySet()));
                 return true;
             }
+            if (targetHomes.isEmpty()) {
+                this.plugin.messages().send(player, "teleport.admin-no-homes", "{player}", targetName);
+                return true;
+            }
+            String targetHomeName = args[1].toLowerCase(Locale.ROOT);
+            HomeLocation targetHome = targetHomes.get(targetHomeName);
+            Location destination = targetHome == null ? null : targetHome.toLocation();
+            if (destination == null) {
+                this.plugin.messages().send(player, "teleport.admin-home-not-found", "{home}", targetHomeName,
+                    "{player}", targetName);
+                return true;
+            }
+            this.teleportManager.teleportFromHome(player, destination);
+            return true;
         }
         if (args.length > 1) {
             this.plugin.messages().send(player, "teleport.home-usage");

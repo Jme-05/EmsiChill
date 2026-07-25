@@ -272,6 +272,9 @@ public final class SkinCommand implements CommandExecutor, TabCompleter, Listene
 
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent event) {
+        if (!this.enabled()) {
+            return;
+        }
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
@@ -306,6 +309,10 @@ public final class SkinCommand implements CommandExecutor, TabCompleter, Listene
         }
 
         player.closeInventory();
+        if (!this.service.canChangeSkin(player)) {
+            return;
+        }
+        this.service.beginCooldown(player);
         this.service.applyNamed(player, player, skinName, false, true);
     }
 

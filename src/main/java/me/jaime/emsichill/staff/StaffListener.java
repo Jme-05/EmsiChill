@@ -54,6 +54,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onToolUse(final PlayerInteractEvent event) {
+        if (!this.enabled()) return;
         Player player = event.getPlayer();
         if (!this.staff.isStaffMode(player)) return;
         String id = this.staff.toolId(event.getItem());
@@ -71,6 +72,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onInspect(final PlayerInteractEntityEvent event) {
+        if (!this.enabled()) return;
         Player viewer = event.getPlayer();
         if (!(event.getRightClicked() instanceof Player target) || !this.staff.isStaffMode(viewer)) return;
         String id = this.staff.toolId(viewer.getInventory().getItemInMainHand());
@@ -90,6 +92,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(final InventoryClickEvent event) {
+        if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.isReadOnly(player, event.getView())) {
             event.setCancelled(true);
@@ -98,6 +101,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryDrag(final InventoryDragEvent event) {
+        if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.isReadOnly(player, event.getView())) {
             event.setCancelled(true);
@@ -106,12 +110,14 @@ public final class StaffListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(final InventoryCloseEvent event) {
+        if (!this.enabled()) return;
         this.inspections.close(event.getPlayer().getUniqueId());
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onMutedChat(final AsyncPlayerChatEvent event) {
+        if (!this.enabled()) return;
         MuteRecord mute = this.moderation.activeMute(event.getPlayer().getName());
         if (mute == null) return;
         event.setCancelled(true);
@@ -121,6 +127,7 @@ public final class StaffListener implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChat(final AsyncPlayerChatEvent event) {
+        if (!this.enabled()) return;
         if (!this.staff.usesStaffChat(event.getPlayer())) return;
         event.setCancelled(true);
         Bukkit.getScheduler().runTask(this.plugin,
@@ -129,11 +136,13 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onMobTarget(final EntityTargetLivingEntityEvent event) {
+        if (!this.enabled()) return;
         if (event.getTarget() instanceof Player player && this.staff.isVanished(player)) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPickup(final EntityPickupItemEvent event) {
+        if (!this.enabled()) return;
         if (event.getEntity() instanceof Player player
             && (this.staff.blocksItemPickup(player) || this.freezes.isFrozen(player.getUniqueId()))) {
             event.setCancelled(true);
@@ -142,6 +151,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onMove(final PlayerMoveEvent event) {
+        if (!this.enabled()) return;
         if (!this.freezes.isFrozen(event.getPlayer().getUniqueId()) || event.getTo() == null) return;
         Location from = event.getFrom();
         Location to = event.getTo();
@@ -155,31 +165,37 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent event) {
+        if (!this.enabled()) return;
         if (this.freezes.isFrozen(event.getPlayer().getUniqueId())) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlace(final BlockPlaceEvent event) {
+        if (!this.enabled()) return;
         if (this.freezes.isFrozen(event.getPlayer().getUniqueId())) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onFrozenInteract(final PlayerInteractEvent event) {
+        if (!this.enabled()) return;
         if (this.freezes.isFrozen(event.getPlayer().getUniqueId())) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onFrozenEntityInteract(final PlayerInteractEntityEvent event) {
+        if (!this.enabled()) return;
         if (this.freezes.isFrozen(event.getPlayer().getUniqueId())) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onDrop(final PlayerDropItemEvent event) {
+        if (!this.enabled()) return;
         if (this.freezes.isFrozen(event.getPlayer().getUniqueId())) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent event) {
+        if (!this.enabled()) return;
         if (event.getEntity() instanceof Player player && this.freezes.isFrozen(player.getUniqueId())) {
             event.setCancelled(true);
         }
@@ -187,6 +203,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onCommand(final PlayerCommandPreprocessEvent event) {
+        if (!this.enabled()) return;
         if (!this.freezes.isFrozen(event.getPlayer().getUniqueId())) return;
         String command = event.getMessage().substring(1).split(" ", 2)[0].toLowerCase(Locale.ROOT);
         if (FROZEN_COMMANDS.contains(command)) return;
@@ -196,6 +213,7 @@ public final class StaffListener implements Listener {
 
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
+        if (!this.enabled()) return;
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             if (this.staff.recoverPlayer(event.getPlayer())) {
                 this.plugin.messages().send(event.getPlayer(), "staff.staffmode-recovered");
@@ -219,5 +237,9 @@ public final class StaffListener implements Listener {
         }
         this.plugin.messages().send(player, "staff.mute-blocked-timed", "{remaining}",
             MuteDuration.format(mute.expiresAt() - System.currentTimeMillis()));
+    }
+
+    private boolean enabled() {
+        return this.plugin.moduleEnabled("staff");
     }
 }

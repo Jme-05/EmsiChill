@@ -37,7 +37,7 @@ final class UpdateInstaller {
     }
 
     CompletableFuture<UpdateInstallResult> prepare(final ReleaseInfo release) {
-        if (!this.plugin.settings().getBoolean("updates.install.enabled", true)) {
+        if (!this.plugin.settings().getBoolean("updates.install.enabled", false)) {
             return CompletableFuture.completedFuture(UpdateInstallResult.of(
                 UpdateInstallResult.Status.DISABLED, release.tag(), "instalación desactivada"));
         }
@@ -52,10 +52,10 @@ final class UpdateInstaller {
             return CompletableFuture.completedFuture(UpdateInstallResult.of(
                 UpdateInstallResult.Status.FAILED, release.tag(), "metadatos del JAR inválidos"));
         }
-        if (!asset.hasVerifiedMetadata()
-            && !this.plugin.settings().getBoolean("updates.install.allow-feed-fallback", true)) {
+        if (!asset.hasVerifiedMetadata()) {
             return CompletableFuture.completedFuture(UpdateInstallResult.of(
-                UpdateInstallResult.Status.FAILED, release.tag(), "la instalación mediante el feed está desactivada"));
+                UpdateInstallResult.Status.FAILED, release.tag(),
+                "la instalación requiere tamaño y SHA-256 verificados por la API de GitHub"));
         }
         URI uri = URI.create(asset.downloadUrl());
         if (!uri.getScheme().equalsIgnoreCase("https") || !uri.getHost().equalsIgnoreCase("github.com")) {

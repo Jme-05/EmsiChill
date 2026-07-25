@@ -154,12 +154,12 @@ public final class Main extends JavaPlugin {
     }
 
     private void startModules() {
-        this.authenticationManager.start();
-        this.skinCommand.start();
-        this.playerInfoManager.start();
-        this.staffService.start();
-        this.graveManager.start();
-        this.socialManager.start();
+        if (this.moduleEnabled("authentication")) this.authenticationManager.start();
+        if (this.moduleEnabled("skins")) this.skinCommand.start();
+        if (this.moduleEnabled("player-info")) this.playerInfoManager.start();
+        if (this.moduleEnabled("staff")) this.staffService.start();
+        if (this.moduleEnabled("graves")) this.graveManager.start();
+        if (this.moduleEnabled("social")) this.socialManager.start();
         this.updateNotifier.start();
     }
 
@@ -223,6 +223,15 @@ public final class Main extends JavaPlugin {
     }
 
     public void reloadPlugin() {
+        boolean skinsEnabled = this.moduleEnabled("skins");
+        boolean teleportEnabled = this.moduleEnabled("teleport");
+        boolean homesEnabled = this.moduleEnabled("homes");
+        boolean playerInfoEnabled = this.moduleEnabled("player-info");
+        boolean staffEnabled = this.moduleEnabled("staff");
+        boolean regionsEnabled = this.moduleEnabled("regions");
+        boolean gravesEnabled = this.moduleEnabled("graves");
+        boolean socialEnabled = this.moduleEnabled("social");
+
         this.settingsFile.reload();
         this.messages.reload();
         this.authenticationManager.reloadConfiguration();
@@ -236,5 +245,29 @@ public final class Main extends JavaPlugin {
         this.graveManager.reloadConfiguration();
         this.socialManager.reloadConfiguration();
         this.updateNotifier.reloadConfiguration();
+
+        if (skinsEnabled && !this.moduleEnabled("skins")) this.skinCommand.stop();
+        else if (!skinsEnabled && this.moduleEnabled("skins")) this.skinCommand.start();
+
+        if (teleportEnabled && !this.moduleEnabled("teleport")) this.teleportManager.stop();
+        if (homesEnabled && !this.moduleEnabled("homes")) this.homeManager.stop();
+
+        if (playerInfoEnabled && !this.moduleEnabled("player-info")) this.playerInfoManager.stop();
+        else if (!playerInfoEnabled && this.moduleEnabled("player-info")) this.playerInfoManager.start();
+
+        if (staffEnabled && !this.moduleEnabled("staff")) {
+            this.staffService.stop();
+            this.inspectionService.clear();
+            this.freezeService.clear();
+            this.moderationService.persistData();
+        } else if (!staffEnabled && this.moduleEnabled("staff")) this.staffService.start();
+
+        if (regionsEnabled && !this.moduleEnabled("regions")) this.regionManager.stop();
+
+        if (gravesEnabled && !this.moduleEnabled("graves")) this.graveManager.stop();
+        else if (!gravesEnabled && this.moduleEnabled("graves")) this.graveManager.start();
+
+        if (socialEnabled && !this.moduleEnabled("social")) this.socialManager.stop();
+        else if (!socialEnabled && this.moduleEnabled("social")) this.socialManager.start();
     }
 }

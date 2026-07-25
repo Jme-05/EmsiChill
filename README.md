@@ -2,9 +2,9 @@
 
 # EmsiChill
 
-**Plugin multifunción para servidores Paper**
+**Suite modular para servidores Paper**
 
-Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas de moderación en un único archivo JAR.
+Autenticación, skins, homes, teletransportes, regiones, tumbas, posturas, información de jugadores y herramientas de staff en un solo archivo JAR.
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper-26.2-blue?style=flat-square)
@@ -15,27 +15,35 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 ---
 
-## Características principales
+## Qué es
 
-* Sistema de registro e inicio de sesión.
-* Gestión de skins premium, favoritas e historial.
-* Homes personales y teletransportes entre jugadores.
-* Teletransporte aleatorio a ubicaciones seguras.
-* Regiones protegidas con miembros, propietarios y mejoras.
-* Tumbas recuperables después de morir.
-* Consulta del tiempo jugado y de la última conexión.
-* Herramientas completas de administración y moderación.
-* Sistema integrado de actualizaciones, diagnósticos y respaldos.
-* Configuración modular mediante archivos y comandos.
+EmsiChill es un plugin multifunción para servidores Paper que quieren una base compacta, configurable y fácil de operar sin instalar diez plugins distintos para tareas comunes. Está pensado para servidores pequeños o medianos donde importan la moderación diaria, la protección contra grief, los datos simples en disco y una experiencia cómoda para jugadores.
+
+No es un reemplazo de redes grandes con bases de datos externas, proxies complejos o paneles web. Su enfoque es otro: un JAR, módulos activables, archivos YAML legibles, comandos claros y mantenimiento desde el juego.
+
+## Alcance
+
+* Autenticación con registro, login, bloqueo de acciones antes de iniciar sesión, sesiones opcionales y protección contra intentos repetidos.
+* Skins premium con caché, historial, favoritos, menú de selección, cooldowns y `/skull` para cabezas.
+* Homes, TPA, `/back` y RTP con delays configurables, cancelación por movimiento o daño y cooldown para teletransportes aleatorios.
+* Regiones de altura completa con propietarios, co-propietarios, miembros, PvP configurable, contenedores públicos opcionales, mejoras de tamaño y compra de cupos.
+* Protección de regiones contra construcción ajena, interacciones, entidades, explosiones, pistones, fluidos, fuego y dispensadores.
+* Tumbas recuperables con privacidad temporal, expiración configurable y control de muerte por jugador o global.
+* Información social: tiempo jugado, ranking, última conexión, posturas `/sit` y `/crawl`, restauración con `/stand` y coordenadas compartibles con `/whereami`.
+* Herramientas de staff: staff chat, vanish, staff mode, inspección de inventario y Ender Chest, freeze, slay, mute, warn y registro de sanciones.
+* Operación administrativa: reload, status, doctor, backup, migración de datos y avisos de nuevas Releases.
 
 ## Contenido
 
 * [Requisitos](#requisitos)
 * [Instalación](#instalación)
+* [Configuración](#configuración)
+* [Actualizaciones](#actualizaciones)
+* [Operación segura](#operación-segura)
 * [Comandos para jugadores](#comandos-para-jugadores)
 * [Comandos de regiones](#comandos-de-regiones)
 * [Comandos para administradores y moderadores](#comandos-para-administradores-y-moderadores)
-* [Configuración administrativa](#configuración-administrativa)
+* [Configuración mediante comandos administrativos](#configuración-mediante-comandos-administrativos)
 * [Historial de versiones](#historial-de-versiones)
 * [Licencia](#licencia)
 
@@ -55,31 +63,52 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 ## Instalación
 
-1. Descarga la versión más reciente de `EmsiChill` desde la sección **Releases**.
-
+1. Descarga la versión más reciente de `EmsiChill` desde **Releases**.
 2. Apaga completamente el servidor.
-
-3. Coloca el archivo `.jar` dentro de la carpeta:
-
-   ```text
-   plugins/
-   ```
-
-4. Inicia el servidor.
-
-5. Espera a que el plugin genere sus archivos y carpetas de configuración.
-
-6. Configura EmsiChill desde:
-
-   ```text
-   plugins/EmsiChill/
-   ```
-
-> [!NOTE]
-> Después de modificar la configuración, utiliza `/emsichill reload` o reinicia el servidor cuando el cambio lo requiera.
+3. Coloca el archivo `.jar` dentro de `plugins/`.
+4. Inicia el servidor y espera a que se generen los archivos de configuración.
+5. Revisa `plugins/EmsiChill/` antes de abrir el servidor al público.
+6. Ejecuta `/emsichill doctor` para detectar problemas obvios de datos o configuración.
 
 > [!TIP]
-> Antes de instalar una nueva versión, es recomendable crear un respaldo con `/emsichill backup`.
+> Antes de actualizar una instalación existente, crea un respaldo con `/emsichill backup`.
+
+---
+
+## Configuración
+
+La configuración se divide por módulos para que cada archivo tenga un propósito claro.
+
+| Archivo | Controla |
+|---|---|
+| `config.yml` | Idioma, prefijo, módulos activos, auditoría y actualizaciones. |
+| `AuthenticationManager/config.yml` | Registro, login, sesiones, bloqueo de acciones y ubicación de autenticación. |
+| `Skin/config.yml` | Timeouts de Mojang, caché, cooldown, favoritos, historial y skins aleatorias. |
+| `Teleport/config.yml` | Delays, cancelación por movimiento o daño, TPA, `/back`, homes y RTP. |
+| `Home/config.yml` | Límite base de homes y límites por permiso. |
+| `Regions/config.yml` | Límite de regiones, distancia mínima, compras, radios de mejora y partículas de visualización. |
+| `Graves/config.yml` | Modo de muerte, vida útil de tumbas, privacidad, búsqueda de cofre y expiración. |
+| `Staff/config.yml` | Staff chat, vanish, staff mode y tamaño del historial de moderación. |
+| `PlayerInfo/config.yml` | Tamaño del ranking de tiempo jugado. |
+| `Social/config.yml` | Posturas, `/whereami` y anuncios de sueño. |
+| `messages_es.yml` / `messages_en.yml` | Textos visibles para jugadores y administradores. |
+
+Después de cambiar archivos YAML, usa `/emsichill reload` cuando sea suficiente. Para cambios de entorno, dependencias, permisos del servidor o reemplazo del JAR, reinicia el servidor.
+
+## Actualizaciones
+
+EmsiChill puede comprobar Releases de GitHub y avisar en consola o a administradores con `emsichill.admin.update`. Si la API de GitHub limita o falla, el feed público se usa solo para avisos.
+
+La instalación desde el juego está desactivada por defecto. Para preparar un JAR automáticamente, `updates.install.enabled` debe activarse manualmente y la Release debe venir de la API de GitHub con tamaño y SHA-256 verificados. El archivo se deja en la carpeta oficial de updates de Paper para el siguiente reinicio.
+
+## Operación segura
+
+* Desactiva módulos que no uses desde `config.yml`; los comandos y listeners respetan el estado del módulo.
+* `/region delete` exige escribir el nombre de la región y `confirm`.
+* Las regiones protegen altura completa y bloquean los vectores típicos de grief, no solo romper y colocar bloques.
+* Los teletransportes pueden cancelarse por movimiento o daño, según `Teleport/config.yml`.
+* Las tumbas guardan objetos en datos del plugin y se sincronizan al cerrar o recuperar inventarios.
+* Usa `/emsichill status`, `/emsichill doctor` y `/emsichill backup` como rutina antes de tocar configuración sensible.
 
 ---
 
@@ -103,7 +132,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | `/skin clearhistory` | Elimina el historial propio. |
 | `/skull <nombre>` | Obtiene la cabeza de una cuenta premium. |
 | `/sethome [nombre]` | Guarda un home. |
-| `/home [nombre]` | Se teletransporta inmediatamente a un home. |
+| `/home [nombre]` | Se teletransporta a un home respetando el delay configurado. |
 | `/delhome <nombre>` | Elimina un home. |
 | `/homes` | Muestra todos los homes propios. |
 | `/tpa <jugador>` | Solicita teletransportarse a otro jugador. |
@@ -142,7 +171,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | `/region owner <jugador>` | Añade un propietario secundario. |
 | `/region unowner <jugador>` | Elimina un propietario secundario. |
 | `/region transfer <jugador>` | Transfiere el propietario principal. |
-| `/region delete [nombre]` | Elimina permanentemente una región. |
+| `/region delete <nombre> confirm` | Elimina permanentemente una región. |
 | `/region help` | Muestra la ayuda de regiones. |
 
 ## Comandos para administradores y moderadores
@@ -163,7 +192,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | `/vanishlist` | Lista los jugadores invisibles. |
 | `/staffmode [jugador]` | Activa las herramientas de moderación. |
 | `/skin <jugador> <skin>` | Cambia la skin de otro jugador. |
-| `/home <jugador> [home]` | Abre y utiliza homes ajenos, incluso desconectados. |
+| `/home <jugador> [home]` | Lista o utiliza homes ajenos, incluso de jugadores desconectados. |
 | `/back <jugador>` | Envía a otro jugador a su ubicación anterior. |
 | `/auth unregister <jugador>` | Elimina administrativamente el registro de una cuenta. |
 | `/auth changepassword <jugador> <nueva>` | Cambia administrativamente una contraseña. |
@@ -180,7 +209,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 | `/auth reload` | Recarga el módulo de autenticación. |
 | `/emsichill update check` | Comprueba si existe una Release nueva sin instalarla. |
 | `/emsichill update changes <versión>` | Muestra dentro del juego un resumen de las notas de la Release. |
-| `/emsichill update install <versión>` | Descarga, valida y prepara una Release para el siguiente reinicio. |
+| `/emsichill update install <versión>` | Si la instalación está habilitada, descarga, valida y prepara una Release. |
 | `/emsichill update ignore <versión>` | Oculta los avisos automáticos de una Release concreta. |
 | `/emsichill reload` | Recarga las configuraciones del plugin. |
 | `/emsichill status` | Muestra el estado de los módulos. |
@@ -198,7 +227,7 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 ### Versión actual: `5.1.5`
 
 <details open>
-<summary><strong>5.1.5 — TPA interactivo, gateo y cabezas</strong></summary>
+<summary><strong>5.1.5 — TPA interactivo, gateo, cabezas y endurecimiento general</strong></summary>
 
 #### Teletransporte
 
@@ -216,6 +245,22 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 * Se añadió `/skull <nombre>` para obtener la cabeza de cualquier cuenta premium válida.
 * La búsqueda reutiliza el proveedor y la caché de `/skin` sin bloquear el servidor.
 
+#### Seguridad
+
+* `/region delete` exige escribir el nombre de la región y `confirm`.
+* Las regiones bloquean explosiones, pistones, fluidos, fuego, dispensadores y cambios de entidades.
+* La instalación de updates desde el juego queda desactivada por defecto y requiere metadatos verificados por GitHub.
+
+#### Módulos
+
+* Los listeners y servicios respetan el estado de cada módulo después de `/emsichill reload`.
+* Al desactivar módulos se limpian tareas pendientes, estados temporales y datos en memoria que no deben seguir activos.
+
+#### Documentación
+
+* El README describe el alcance real del plugin, sus archivos de configuración y las decisiones de seguridad actuales.
+* La tabla de comandos se genera desde `plugin.yml` para mantener el README y `/emsichill help` sincronizados.
+
 </details>
 
 <details>
@@ -229,9 +274,8 @@ Autenticación, skins, homes, teletransportes, regiones, tumbas y herramientas d
 
 #### Instalación
 
-* El método de descarga alternativo mantiene el límite máximo de tamaño.
-* El plugin valida el nombre, la versión y la clase principal del archivo JAR.
-* La opción `allow-feed-fallback` permite activar o desactivar las instalaciones obtenidas mediante el feed.
+* Se añadió un flujo de instalación desde el juego para preparar el JAR en la carpeta oficial de updates de Paper.
+* Desde `5.1.5`, ese flujo queda apagado por defecto y solo acepta metadatos verificados por la API de GitHub.
 
 </details>
 

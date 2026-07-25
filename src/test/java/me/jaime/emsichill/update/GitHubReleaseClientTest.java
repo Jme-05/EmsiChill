@@ -2,6 +2,7 @@ package me.jaime.emsichill.update;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,5 +46,18 @@ class GitHubReleaseClientTest {
         assertEquals("EmsiChill-5.1.2.jar", asset.name());
         assertEquals(300L, asset.size());
         assertEquals("https://github.com/correct", asset.downloadUrl());
+        assertTrue(asset.hasVerifiedMetadata());
+    }
+
+    @Test
+    void rejectsAssetWithoutDigestMetadata() {
+        String json = """
+            {"tag_name":"v5.1.2","assets":[
+              {"name":"EmsiChill-5.1.2.jar","size":300,
+               "browser_download_url":"https://github.com/correct"}
+            ]}
+            """;
+
+        assertNull(GitHubReleaseClient.readReleaseAsset(json, "v5.1.2"));
     }
 }

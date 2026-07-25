@@ -17,25 +17,22 @@ class ReadmeGeneratorTest {
     Path temporaryDirectory;
 
     @Test
-    void generatesCommandsAndPermissionsFromPluginYml() throws Exception {
+    void generatesCommandsFromPluginYml() throws Exception {
         Path pluginYml = Path.of("src/main/resources/plugin.yml");
         Path readme = this.temporaryDirectory.resolve("README.md");
-        Path permissions = this.temporaryDirectory.resolve("PERMISSIONS.md");
         Files.writeString(readme, "# Test\n\n" + ReadmeGenerator.START + "\nold\n"
             + ReadmeGenerator.END + "\n", StandardCharsets.UTF_8);
 
-        ReadmeGenerator.generate(pluginYml, readme, permissions);
+        ReadmeGenerator.generate(pluginYml, readme);
 
         String generatedReadme = Files.readString(readme, StandardCharsets.UTF_8);
-        String generatedPermissions = Files.readString(permissions, StandardCharsets.UTF_8);
         assertTrue(generatedReadme.contains("/invsee <jugador>"));
         assertTrue(generatedReadme.contains("/slay <jugador>"));
         assertTrue(generatedReadme.contains("/crawl"));
         assertTrue(generatedReadme.contains("/skull <nombre>"));
+        assertTrue(generatedReadme.contains("/region delete <nombre> confirm"));
         assertTrue(generatedReadme.contains("/emsichill update check"));
         assertTrue(generatedReadme.contains("/emsichill update install <versión>"));
-        assertTrue(generatedPermissions.contains("emsichill.invsee.modify"));
-        assertTrue(generatedPermissions.contains("emsichill.admin.update"));
     }
 
     @Test
@@ -50,17 +47,15 @@ class ReadmeGeneratorTest {
             assertTrue(documented.stream().anyMatch(usage -> usage.startsWith("/" + command)),
                 () -> "Falta documentar /" + command);
         }
-        try {
-            var structured = ReadmeGenerator.loadStructured(Path.of("src/main/resources/plugin.yml"));
-            var permissions = (java.util.Map<?, ?>) structured.get("permissions");
-            for (var entry : permissions.entrySet()) {
-                var definition = (java.util.Map<?, ?>) entry.getValue();
-                assertTrue(definition.get("description") instanceof String,
-                    () -> "Falta describir " + entry.getKey());
-            }
-        } catch (java.io.IOException exception) {
-            throw new AssertionError(exception);
+        var permissions = yaml.getConfigurationSection("permissions");
+        int described = 0;
+        for (String permission : permissions.getKeys(true)) {
+            if (!permissions.isConfigurationSection(permission) || !permissions.isSet(permission + ".default")) continue;
+            described++;
+            assertTrue(permissions.isString(permission + ".description"),
+                () -> "Falta describir " + permission);
         }
+        assertTrue(described > 0, "No se encontraron permisos documentados");
     }
 
     @Test

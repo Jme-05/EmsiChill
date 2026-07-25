@@ -495,8 +495,6 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
         this.cancelTimeout(id);
         this.authenticated.remove(id);
         this.processing.remove(id);
-        this.failedAttempts.remove(this.userKey(player.getName()));
-        this.loginLockouts.remove(this.userKey(player.getName()));
 
         if (this.restoreSession(player)) {
             this.authenticate(player, true);
