@@ -1,5 +1,9 @@
 <div align="center">
 
+<p align="center">
+  <img src="assets/icon.png" alt="EmsiChill icon" width="160">
+</p>
+
 # EmsiChill
 
 **Suite modular para servidores Paper**
