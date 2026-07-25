@@ -34,7 +34,7 @@ commands:
     usage: /auth <unregister|changepassword|reload>
   emsichill:
     description: Información y recarga de EmsiChill
-    usage: /emsichill <help|reload|status|doctor|backup|migrate|update <check|changes|install|ignore>|rtp cooldown>
+    usage: /emsichill <help|reload|status|inspect|backup|migrate|update <check|changes|install|ignore>|rtp cooldown>
     aliases: [emsi]
   home:
     description: Te teletransporta a uno de tus homes
@@ -115,7 +115,7 @@ commands:
     permission: emsichill.staffmode
     aliases: [mod]
   invsee:
-    description: Abre el inventario de un jugador conectado
+    description: Abre el inventario, armadura y mano secundaria de un jugador conectado
     usage: /invsee <player>
     permission: emsichill.invsee.view
   enderchestsee:
@@ -127,10 +127,6 @@ commands:
     description: Congela, libera o aplica una congelación cronometrada
     usage: /freeze <player> [seconds]
     permission: emsichill.freeze
-  slay:
-    description: Elimina inmediatamente a un jugador conectado
-    usage: /slay <player>
-    permission: emsichill.slay
   mute:
     description: Silencia permanentemente o durante un tiempo a un jugador
     usage: /mute <player> [time]
@@ -284,9 +280,6 @@ permissions:
   emsichill.freeze:
     description: Permite congelar y liberar jugadores conectados
     default: op
-  emsichill.slay:
-    description: Permite eliminar inmediatamente a jugadores conectados
-    default: op
   emsichill.mute:
     description: Permite silenciar jugadores
     default: op
@@ -388,10 +381,9 @@ documentation:
     - {section: regions, category: region, command: "/region transfer <jugador>", description: "Transfiere el propietario principal."}
     - {section: regions, category: region, command: "/region delete <nombre> confirm", description: "Elimina permanentemente una región."}
     - {section: regions, category: region, command: "/region help", description: "Muestra la ayuda de regiones."}
-    - {section: staff, category: staff, command: "/invsee <jugador>", description: "Abre el inventario; modificarlo requiere un permiso adicional."}
+    - {section: staff, category: staff, command: "/invsee <jugador>", description: "Abre inventario, armadura y mano secundaria; modificarlo requiere un permiso adicional."}
     - {section: staff, category: staff, command: "/enderchestsee <jugador>", description: "Abre el cofre de Ender; modificarlo requiere un permiso adicional."}
     - {section: staff, category: staff, command: "/freeze <jugador> [segundos]", description: "Congela, libera o aplica una congelación con duración definida."}
-    - {section: staff, category: staff, command: "/slay <jugador>", description: "Elimina inmediatamente a un jugador conectado."}
     - {section: staff, category: staff, command: "/mute <jugador> [tiempo]", description: "Silencia permanentemente o durante 30s, 10m, 2h o 1d."}
     - {section: staff, category: staff, command: "/unmute <jugador>", description: "Retira el silencio activo de un jugador."}
     - {section: staff, category: staff, command: "/warn <jugador> <motivo>", description: "Registra una advertencia con fecha, moderador y motivo."}
@@ -418,7 +410,7 @@ documentation:
     - {section: configuration, category: admin, command: "/emsichill update ignore <versión>", description: "Oculta los avisos automáticos de una Release concreta."}
     - {section: configuration, category: admin, command: "/emsichill reload", description: "Recarga las configuraciones del plugin."}
     - {section: configuration, category: admin, command: "/emsichill status", description: "Muestra el estado de los módulos."}
-    - {section: configuration, category: admin, command: "/emsichill doctor", description: "Busca problemas en datos y configuración."}
+    - {section: configuration, category: admin, command: "/emsichill inspect", description: "Busca problemas en datos y configuración."}
     - {section: configuration, category: admin, command: "/emsichill backup", description: "Crea un respaldo de los datos."}
     - {section: configuration, category: admin, command: "/emsichill migrate", description: "Guarda y normaliza los datos actuales."}
     - {section: configuration, category: admin, command: "/emsichill help <categoría>", description: "Muestra ayuda generada por categorías."}

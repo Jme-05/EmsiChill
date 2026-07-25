@@ -30,8 +30,8 @@ No es un reemplazo de redes grandes con bases de datos externas, proxies complej
 * Protección de regiones contra construcción ajena, interacciones, entidades, explosiones, pistones, fluidos, fuego y dispensadores.
 * Tumbas recuperables con privacidad temporal, expiración configurable y control de muerte por jugador o global.
 * Información social: tiempo jugado, ranking, última conexión, posturas `/sit` y `/crawl`, restauración con `/stand` y coordenadas compartibles con `/whereami`.
-* Herramientas de staff: staff chat, vanish, staff mode, inspección de inventario y Ender Chest, freeze, slay, mute, warn y registro de sanciones.
-* Operación administrativa: reload, status, doctor, backup, migración de datos y avisos de nuevas Releases.
+* Herramientas de staff: staff chat, vanish, staff mode, inspección de inventario y Ender Chest, freeze, mute, warn y registro de sanciones.
+* Operación administrativa: reload, status, inspect, backup, migración de datos y avisos de nuevas Releases.
 
 ## Contenido
 
@@ -68,7 +68,7 @@ No es un reemplazo de redes grandes con bases de datos externas, proxies complej
 3. Coloca el archivo `.jar` dentro de `plugins/`.
 4. Inicia el servidor y espera a que se generen los archivos de configuración.
 5. Revisa `plugins/EmsiChill/` antes de abrir el servidor al público.
-6. Ejecuta `/emsichill doctor` para detectar problemas obvios de datos o configuración.
+6. Ejecuta `/emsichill inspect` para detectar problemas obvios de datos o configuración.
 
 > [!TIP]
 > Antes de actualizar una instalación existente, crea un respaldo con `/emsichill backup`.
@@ -108,7 +108,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 * Las regiones protegen altura completa y bloquean los vectores típicos de grief, no solo romper y colocar bloques.
 * Los teletransportes pueden cancelarse por movimiento o daño, según `Teleport/config.yml`.
 * Las tumbas guardan objetos en datos del plugin y se sincronizan al cerrar o recuperar inventarios.
-* Usa `/emsichill status`, `/emsichill doctor` y `/emsichill backup` como rutina antes de tocar configuración sensible.
+* Usa `/emsichill status`, `/emsichill inspect` y `/emsichill backup` como rutina antes de tocar configuración sensible.
 
 ---
 
@@ -178,10 +178,9 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 
 | Comando | Descripción |
 |---|---|
-| `/invsee <jugador>` | Abre el inventario; modificarlo requiere un permiso adicional. |
+| `/invsee <jugador>` | Abre inventario, armadura y mano secundaria; modificarlo requiere un permiso adicional. |
 | `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
 | `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación con duración definida. |
-| `/slay <jugador>` | Elimina inmediatamente a un jugador conectado. |
 | `/mute <jugador> [tiempo]` | Silencia permanentemente o durante 30s, 10m, 2h o 1d. |
 | `/unmute <jugador>` | Retira el silencio activo de un jugador. |
 | `/warn <jugador> <motivo>` | Registra una advertencia con fecha, moderador y motivo. |
@@ -213,7 +212,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 | `/emsichill update ignore <versión>` | Oculta los avisos automáticos de una Release concreta. |
 | `/emsichill reload` | Recarga las configuraciones del plugin. |
 | `/emsichill status` | Muestra el estado de los módulos. |
-| `/emsichill doctor` | Busca problemas en datos y configuración. |
+| `/emsichill inspect` | Busca problemas en datos y configuración. |
 | `/emsichill backup` | Crea un respaldo de los datos. |
 | `/emsichill migrate` | Guarda y normaliza los datos actuales. |
 | `/emsichill help <categoría>` | Muestra ayuda generada por categorías. |
@@ -250,6 +249,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 * `/region delete` exige escribir el nombre de la región y `confirm`.
 * Las regiones bloquean explosiones, pistones, fluidos, fuego, dispensadores y cambios de entidades.
 * La instalación de updates desde el juego queda desactivada por defecto y requiere metadatos verificados por GitHub.
+* Se retiró `/slay` y su permiso para evitar eliminaciones administrativas instantáneas.
 
 #### Módulos
 
@@ -301,16 +301,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 </details>
 
 <details>
-<summary><strong>5.1.2 — Slay y actualización desde el juego</strong></summary>
-
-#### Moderación
-
-* Se añadió `/slay <jugador>` para eliminar inmediatamente a un jugador conectado.
-
-#### Permisos
-
-* Se añadió el permiso `emsichill.slay`.
-* El permiso está disponible para operadores de forma predeterminada.
+<summary><strong>5.1.2 — Actualización desde el juego</strong></summary>
 
 #### Actualizaciones
 

@@ -124,7 +124,7 @@ public final class Main extends JavaPlugin {
         this.registerAll(List.of("playtime", "seen", "playtimetop"),
             this.playerInfoManager, this.playerInfoManager);
         this.registerAll(List.of("staffchat", "vanish", "vanishlist", "staffmode", "invsee", "enderchestsee",
-            "freeze", "slay"),
+            "freeze"),
             this.staffCommand, this.staffCommand);
         this.registerAll(List.of("mute", "unmute", "warn", "warnings"),
             this.moderationCommand, this.moderationCommand);

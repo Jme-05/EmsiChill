@@ -94,7 +94,8 @@ public final class StaffListener implements Listener {
     public void onInventoryClick(final InventoryClickEvent event) {
         if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.isReadOnly(player, event.getView())) {
+        if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.shouldCancelClick(player,
+            event.getView(), event.getRawSlot(), event.isShiftClick(), event.getAction())) {
             event.setCancelled(true);
         }
     }
@@ -103,7 +104,8 @@ public final class StaffListener implements Listener {
     public void onInventoryDrag(final InventoryDragEvent event) {
         if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.isReadOnly(player, event.getView())) {
+        if (this.freezes.isFrozen(player.getUniqueId())
+            || this.inspections.shouldCancelDrag(player, event.getView(), event.getRawSlots())) {
             event.setCancelled(true);
         }
     }
@@ -228,6 +230,7 @@ public final class StaffListener implements Listener {
         this.staff.leave(event.getPlayer());
         this.freezes.release(event.getPlayer().getUniqueId());
         this.inspections.close(event.getPlayer().getUniqueId());
+        this.inspections.closeTarget(event.getPlayer());
     }
 
     private void sendMuteStatus(final Player player, final MuteRecord mute) {

@@ -116,7 +116,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             return this.reload(sender);
         }
-        if (args.length == 1 && List.of("status", "doctor", "backup", "migrate")
+        if (args.length == 1 && List.of("status", "inspect", "backup", "migrate")
             .contains(args[0].toLowerCase(Locale.ROOT))) {
             if (!sender.hasPermission("emsichill.admin.maintenance")) {
                 this.messages.send(sender, "general.no-permission");
@@ -288,7 +288,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     private boolean handleMaintenance(final CommandSender sender, final String action) {
         switch (action) {
             case "status" -> this.sendStatus(sender);
-            case "doctor" -> this.runDoctor(sender);
+            case "inspect" -> this.runInspection(sender);
             case "backup" -> this.createBackup(sender);
             case "migrate" -> this.persistData(sender);
             default -> { }
@@ -316,15 +316,15 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             "{writes}", Integer.toString(this.dataStore.pendingWrites()));
     }
 
-    private void runDoctor(final CommandSender sender) {
+    private void runInspection(final CommandSender sender) {
         List<String> issues = this.maintenance.diagnose();
         if (issues.isEmpty()) {
-            this.messages.send(sender, "maintenance.doctor-ok");
+            this.messages.send(sender, "maintenance.inspect-ok");
             return;
         }
-        this.messages.send(sender, "maintenance.doctor-header", "{count}", Integer.toString(issues.size()));
+        this.messages.send(sender, "maintenance.inspect-header", "{count}", Integer.toString(issues.size()));
         for (String issue : issues) {
-            this.messages.send(sender, "maintenance.doctor-entry", "{issue}", issue);
+            this.messages.send(sender, "maintenance.inspect-entry", "{issue}", issue);
         }
     }
 
@@ -391,7 +391,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("emsichill.rtp.admin")) actions.add("rtp");
             if (sender.hasPermission("emsichill.admin.reload")) actions.add("reload");
             if (sender.hasPermission("emsichill.admin.maintenance")) {
-                actions.addAll(List.of("status", "doctor", "backup", "migrate"));
+                actions.addAll(List.of("status", "inspect", "backup", "migrate"));
             }
             if (sender.hasPermission("emsichill.admin.update")) actions.add("update");
             actions.add("help");
