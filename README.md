@@ -8,7 +8,7 @@
 
 **Suite modular para servidores Paper**
 
-Autenticación, skins, homes, teletransportes, regiones, tumbas, posturas, información de jugadores y herramientas de staff en un solo archivo JAR.
+Autenticación, skins, homes, teletransportes, regiones, tumbas, posturas, resource packs, información de jugadores y herramientas de staff en un solo archivo JAR.
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper-26.2-blue?style=flat-square)
@@ -34,6 +34,7 @@ No es un reemplazo de redes grandes con bases de datos externas, proxies complej
 * Protección de regiones contra construcción ajena, interacciones, entidades, explosiones, pistones, fluidos, fuego y dispensadores.
 * Tumbas recuperables con privacidad temporal, expiración configurable y control de muerte por jugador o global.
 * Información social: tiempo jugado, ranking, última conexión, posturas `/sit` y `/crawl`, restauración con `/stand` y coordenadas compartibles con `/whereami`.
+* Resource packs automáticos al entrar, con soporte para varios paquetes, prompt personalizado, packs opcionales u obligatorios y validación de URL directa más SHA-1.
 * Herramientas de staff: staff chat, vanish, staff mode, inspección de inventario y Ender Chest, freeze, mute, warn y registro de sanciones.
 * Operación administrativa: reload, status, inspect, backup, migración de datos y avisos de nuevas Releases.
 
@@ -95,6 +96,7 @@ La configuración se divide por módulos para que cada archivo tenga un propósi
 | `Staff/config.yml` | Staff chat, vanish, staff mode y tamaño del historial de moderación. |
 | `PlayerInfo/config.yml` | Tamaño del ranking de tiempo jugado. |
 | `Social/config.yml` | Posturas, `/whereami` y anuncios de sueño. |
+| `ResourcePacks/config.yml` | Lista de resource packs enviados al entrar, URL directa, SHA-1, prompt y modo obligatorio u opcional. |
 | `messages_es.yml` / `messages_en.yml` | Textos visibles para jugadores y administradores. |
 
 Después de cambiar archivos YAML, usa `/emsichill reload` cuando sea suficiente. Para cambios de entorno, dependencias, permisos del servidor o reemplazo del JAR, reinicia el servidor.
@@ -112,6 +114,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 * Las regiones protegen altura completa y bloquean los vectores típicos de grief, no solo romper y colocar bloques.
 * Los teletransportes pueden cancelarse por movimiento o daño, según `Teleport/config.yml`.
 * Las tumbas guardan objetos en datos del plugin y se sincronizan al cerrar o recuperar inventarios.
+* Los resource packs están apagados por defecto. Activa `modules.resource-packs` solo después de configurar URLs directas a archivos `.zip` y el SHA-1 exacto de cada archivo.
 * Usa `/emsichill status`, `/emsichill inspect` y `/emsichill backup` como rutina antes de tocar configuración sensible.
 
 ---
@@ -259,6 +262,12 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 
 * Los listeners y servicios respetan el estado de cada módulo después de `/emsichill reload`.
 * Al desactivar módulos se limpian tareas pendientes, estados temporales y datos en memoria que no deben seguir activos.
+
+#### Resource packs
+
+* Se añadió `ResourcePacks/config.yml` para enviar uno o varios paquetes de recursos cuando un jugador entra al servidor.
+* Cada pack puede ser opcional u obligatorio y exige URL directa más SHA-1 válido del `.zip` final.
+* El módulo queda desactivado por defecto para evitar enviar paquetes de ejemplo o enlaces incompletos.
 
 #### Documentación
 

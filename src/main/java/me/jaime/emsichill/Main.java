@@ -24,6 +24,7 @@ import me.jaime.emsichill.home.HomeManager;
 import me.jaime.emsichill.maintenance.MaintenanceService;
 import me.jaime.emsichill.playerinfo.PlayerInfoManager;
 import me.jaime.emsichill.region.RegionManager;
+import me.jaime.emsichill.resourcepack.ResourcePackManager;
 import me.jaime.emsichill.social.SocialManager;
 import me.jaime.emsichill.staff.FreezeService;
 import me.jaime.emsichill.staff.InspectionService;
@@ -66,6 +67,7 @@ public final class Main extends JavaPlugin {
     private RegionManager regionManager;
     private GraveManager graveManager;
     private SocialManager socialManager;
+    private ResourcePackManager resourcePackManager;
 
     @Override
     public void onEnable() {
@@ -110,6 +112,7 @@ public final class Main extends JavaPlugin {
         this.regionManager = new RegionManager(this);
         this.graveManager = new GraveManager(this);
         this.socialManager = new SocialManager(this);
+        this.resourcePackManager = new ResourcePackManager(this);
     }
 
     private void registerCommands(final MaintenanceService maintenance) {
@@ -150,6 +153,7 @@ public final class Main extends JavaPlugin {
         pluginManager.registerEvents(this.regionManager, this);
         pluginManager.registerEvents(this.graveManager, this);
         pluginManager.registerEvents(this.socialManager, this);
+        pluginManager.registerEvents(this.resourcePackManager, this);
         pluginManager.registerEvents(this.updateNotifier, this);
     }
 
@@ -244,6 +248,7 @@ public final class Main extends JavaPlugin {
         this.regionManager.reloadConfiguration();
         this.graveManager.reloadConfiguration();
         this.socialManager.reloadConfiguration();
+        this.resourcePackManager.reloadConfiguration();
         this.updateNotifier.reloadConfiguration();
 
         if (skinsEnabled && !this.moduleEnabled("skins")) this.skinCommand.stop();

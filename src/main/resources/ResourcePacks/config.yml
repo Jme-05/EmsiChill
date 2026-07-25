@@ -1,0 +1,25 @@
+# Usa /emsichill reload para aplicar los cambios.
+# Este modulo solo envia packs al entrar. Minecraft necesita URLs directas a archivos .zip.
+
+# Espera 2 segundos despues de que el jugador entra antes de enviar los packs.
+send-delay-ticks: 40
+
+# Si otro plugin envio packs antes, puedes limpiar esos packs antes de enviar los de EmsiChill.
+clear-existing: false
+
+# Registra en consola si el jugador acepta, descarga, carga, rechaza o falla con un pack.
+log-status: true
+
+# Puedes definir uno o varios packs. Cada sha1 debe ser el hash SHA-1 del .zip final.
+# En Windows: Get-FileHash "C:\ruta\pack.zip" -Algorithm SHA1
+packs: []
+
+# Ejemplo:
+# packs:
+#   - id: main
+#     enabled: true
+#     name: "Server Pack"
+#     url: "https://tusitio.com/resource-pack.zip"
+#     sha1: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+#     required: false
+#     prompt: "Este servidor usa un paquete de recursos personalizado."
