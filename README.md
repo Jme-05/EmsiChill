@@ -35,6 +35,7 @@ No es un reemplazo de redes grandes con bases de datos externas, proxies complej
 * Tumbas recuperables con privacidad temporal, expiración configurable y control de muerte por jugador o global.
 * Información social: tiempo jugado, ranking, última conexión, posturas `/sit` y `/crawl`, restauración con `/stand` y coordenadas compartibles con `/whereami`.
 * Resource packs automáticos al entrar, con soporte para varios paquetes, prompt personalizado, packs opcionales u obligatorios y validación de URL directa más SHA-1.
+* Modo opcional para recordar packs cargados por jugador y enviar solo packs nuevos o con SHA-1 cambiado.
 * Herramientas de staff: staff chat, vanish, staff mode, inspección de inventario y Ender Chest, freeze, mute, warn y registro de sanciones.
 * Operación administrativa: reload, status, inspect, backup, migración de datos y avisos de nuevas Releases.
 
@@ -116,6 +117,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 * Las tumbas guardan objetos en datos del plugin y se sincronizan al cerrar o recuperar inventarios.
 * Las sesiones de autenticación no guardan la IP en texto plano: guardan una firma privada generada con una clave local del servidor. Si la misma cuenta entra desde otra dirección, debe iniciar sesión otra vez.
 * Los resource packs están apagados por defecto. Activa `modules.resource-packs` solo después de configurar URLs directas a archivos `.zip` y el SHA-1 exacto de cada archivo.
+* Si activas `send-only-new-or-changed`, EmsiChill guarda el estado en `ResourcePacks/players.yml` y deja de reenviar packs que ese jugador ya cargó con el mismo SHA-1.
 * Usa `/emsichill status`, `/emsichill inspect` y `/emsichill backup` como rutina antes de tocar configuración sensible.
 
 ---
@@ -268,6 +270,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 
 * Se añadió `ResourcePacks/config.yml` para enviar uno o varios paquetes de recursos cuando un jugador entra al servidor.
 * Cada pack puede ser opcional u obligatorio y exige URL directa más SHA-1 válido del `.zip` final.
+* Se puede activar `send-only-new-or-changed` para mandar solo packs nuevos o con SHA-1 cambiado por jugador.
 * El módulo queda desactivado por defecto para evitar enviar paquetes de ejemplo o enlaces incompletos.
 
 #### Documentación

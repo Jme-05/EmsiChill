@@ -1,7 +1,9 @@
 package me.jaime.emsichill.resourcepack;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HexFormat;
@@ -13,6 +15,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,10 +29,13 @@ import me.jaime.emsichill.config.ConfigFile;
 public final class ResourcePackManager implements Listener {
     private final Main plugin;
     private ConfigFile configFile;
+    private File playerStateFile;
+    private YamlConfiguration playerState;
     private List<PackDefinition> packs = List.of();
     private long sendDelayTicks;
     private boolean clearExisting;
     private boolean logStatus;
+    private boolean sendOnlyNewOrChanged;
 
     public ResourcePackManager(final Main plugin) {
         this.plugin = plugin;
@@ -42,6 +48,8 @@ public final class ResourcePackManager implements Listener {
         this.sendDelayTicks = Math.max(0L, this.configFile.yaml().getLong("send-delay-ticks", 40L));
         this.clearExisting = this.configFile.yaml().getBoolean("clear-existing", false);
         this.logStatus = this.configFile.yaml().getBoolean("log-status", true);
+        this.sendOnlyNewOrChanged = this.configFile.yaml().getBoolean("send-only-new-or-changed", false);
+        this.reloadPlayerState();
         this.packs = this.loadPacks();
     }
 
@@ -56,9 +64,13 @@ public final class ResourcePackManager implements Listener {
 
     @EventHandler
     public void onResourcePackStatus(final PlayerResourcePackStatusEvent event) {
-        if (!this.enabled() || !this.logStatus) return;
+        if (!this.enabled()) return;
         PackDefinition pack = this.pack(event.getID());
         if (pack == null) return;
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
+            this.rememberLoadedPack(event.getPlayer(), pack);
+        }
+        if (!this.logStatus) return;
         switch (event.getStatus()) {
             case ACCEPTED, DOWNLOADED, SUCCESSFULLY_LOADED, DECLINED, FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD,
                 DISCARDED -> this.plugin.getLogger()
@@ -70,8 +82,10 @@ public final class ResourcePackManager implements Listener {
 
     private void sendPacks(final Player player) {
         if (!this.enabled() || this.packs.isEmpty()) return;
-        if (this.clearExisting) player.removeResourcePacks();
-        for (PackDefinition pack : this.packs) {
+        List<PackDefinition> sendable = this.packsToSend(player);
+        if (sendable.isEmpty()) return;
+        if (this.clearExisting && !this.sendOnlyNewOrChanged) player.removeResourcePacks();
+        for (PackDefinition pack : sendable) {
             try {
                 player.addResourcePack(pack.id(), pack.url(), pack.sha1(), pack.prompt(), pack.required());
             } catch (IllegalArgumentException exception) {
@@ -79,6 +93,15 @@ public final class ResourcePackManager implements Listener {
                     + " a " + player.getName() + ": " + exception.getMessage());
             }
         }
+    }
+
+    private List<PackDefinition> packsToSend(final Player player) {
+        if (!this.sendOnlyNewOrChanged) return this.packs;
+        List<PackDefinition> sendable = new ArrayList<>();
+        for (PackDefinition pack : this.packs) {
+            if (!this.alreadyLoaded(player, pack)) sendable.add(pack);
+        }
+        return sendable;
     }
 
     private boolean enabled() {
@@ -119,17 +142,39 @@ public final class ResourcePackManager implements Listener {
         return List.copyOf(loaded);
     }
 
+    private void reloadPlayerState() {
+        if (this.playerStateFile == null) {
+            this.playerStateFile = new File(this.plugin.getDataFolder(), "ResourcePacks/players.yml");
+        }
+        this.playerState = this.plugin.dataStore().load(this.playerStateFile);
+    }
+
+    private boolean alreadyLoaded(final Player player, final PackDefinition pack) {
+        String path = "players." + player.getUniqueId() + ".packs." + pack.id();
+        return pack.sha1Hex().equalsIgnoreCase(this.playerState.getString(path + ".sha1", ""));
+    }
+
+    private void rememberLoadedPack(final Player player, final PackDefinition pack) {
+        String path = "players." + player.getUniqueId() + ".packs." + pack.id();
+        this.playerState.set(path + ".name", pack.name());
+        this.playerState.set(path + ".sha1", pack.sha1Hex());
+        this.playerState.set(path + ".loaded-at", Instant.now().getEpochSecond());
+        this.plugin.dataStore().saveAsync(this.playerStateFile, this.playerState);
+    }
+
     static PackDefinition parse(final Map<?, ?> entry) {
         String name = string(entry.get("name"), string(entry.get("id"), "server-pack"));
         String url = string(entry.get("url"), "");
         String sha1 = string(entry.get("sha1"), string(entry.get("hash"), ""));
         if (!validUrl(url) || !validSha1(sha1)) return null;
         String prompt = string(entry.get("prompt"), "");
+        String sha1Hex = sha1.toLowerCase(Locale.ROOT);
         return new PackDefinition(
             packId(string(entry.get("id"), url)),
             name,
             url,
-            HexFormat.of().parseHex(sha1.toLowerCase(Locale.ROOT)),
+            sha1Hex,
+            HexFormat.of().parseHex(sha1Hex),
             Boolean.parseBoolean(string(entry.get("required"), "false")),
             prompt.isBlank() ? null : prompt
         );
@@ -167,6 +212,6 @@ public final class ResourcePackManager implements Listener {
         return value == null ? fallback : value.toString().trim();
     }
 
-    record PackDefinition(UUID id, String name, String url, byte[] sha1, boolean required, String prompt) {
+    record PackDefinition(UUID id, String name, String url, String sha1Hex, byte[] sha1, boolean required, String prompt) {
     }
 }

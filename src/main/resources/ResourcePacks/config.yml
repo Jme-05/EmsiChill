@@ -10,6 +10,11 @@ clear-existing: false
 # Registra en consola si el jugador acepta, descarga, carga, rechaza o falla con un pack.
 log-status: true
 
+# Si se activa, EmsiChill recuerda por jugador los packs que cargaron correctamente.
+# En los siguientes joins solo envia packs nuevos o cuyo SHA-1 cambio.
+# Ojo: Minecraft normalmente reenvia packs al entrar para reaplicarlos en cada conexion.
+send-only-new-or-changed: false
+
 # Puedes definir uno o varios packs. Cada sha1 debe ser el hash SHA-1 del .zip final.
 # En Windows: Get-FileHash "C:\ruta\pack.zip" -Algorithm SHA1
 packs: []

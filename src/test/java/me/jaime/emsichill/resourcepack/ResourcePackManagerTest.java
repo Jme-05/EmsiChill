@@ -26,6 +26,7 @@ class ResourcePackManagerTest {
 
         assertNotNull(pack);
         assertEquals("Main Pack", pack.name());
+        assertEquals("a".repeat(40), pack.sha1Hex());
         assertTrue(pack.required());
         assertEquals("Required pack", pack.prompt());
         assertArrayEquals(new byte[] {(byte) 0xaa, (byte) 0xaa}, new byte[] {pack.sha1()[0], pack.sha1()[1]});
