@@ -12,6 +12,8 @@ sessions:
   # Si se activa, permite restaurar temporalmente una sesión válida.
   enabled: false
   duration-minutes: 30
+  # Se genera automaticamente. No lo compartas: protege la firma de la direccion del jugador.
+  address-secret: ""
 
 visibility:
   # Oculta del mundo y del TAB a quien todavía no se autenticó.

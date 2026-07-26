@@ -27,7 +27,7 @@ No es un reemplazo de redes grandes con bases de datos externas, proxies complej
 
 ## Alcance
 
-* Autenticación con registro, login, bloqueo de acciones antes de iniciar sesión, sesiones opcionales y protección contra intentos repetidos.
+* Autenticación con registro, login, bloqueo de acciones antes de iniciar sesión, sesiones temporales opcionales y protección contra intentos repetidos.
 * Skins premium con caché, historial, favoritos, menú de selección, cooldowns y `/skull` para cabezas.
 * Homes, TPA, `/back` y RTP con delays configurables, cancelación por movimiento o daño y cooldown para teletransportes aleatorios.
 * Regiones de altura completa con propietarios, co-propietarios, miembros, PvP configurable, contenedores públicos opcionales, mejoras de tamaño y compra de cupos.
@@ -114,6 +114,7 @@ La instalación desde el juego está desactivada por defecto. Para preparar un J
 * Las regiones protegen altura completa y bloquean los vectores típicos de grief, no solo romper y colocar bloques.
 * Los teletransportes pueden cancelarse por movimiento o daño, según `Teleport/config.yml`.
 * Las tumbas guardan objetos en datos del plugin y se sincronizan al cerrar o recuperar inventarios.
+* Las sesiones de autenticación no guardan la IP en texto plano: guardan una firma privada generada con una clave local del servidor. Si la misma cuenta entra desde otra dirección, debe iniciar sesión otra vez.
 * Los resource packs están apagados por defecto. Activa `modules.resource-packs` solo después de configurar URLs directas a archivos `.zip` y el SHA-1 exacto de cada archivo.
 * Usa `/emsichill status`, `/emsichill inspect` y `/emsichill backup` como rutina antes de tocar configuración sensible.
 

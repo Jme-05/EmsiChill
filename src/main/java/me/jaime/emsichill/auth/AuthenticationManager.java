@@ -1,12 +1,9 @@
 package me.jaime.emsichill.auth;
 
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +58,7 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
     private int maxLoginAttempts;
     private long loginLockoutSeconds;
     private long loginTimeoutTicks;
+    private String sessionSecret;
     private Set<String> allowedCommands = ConcurrentHashMap.newKeySet();
     private boolean configurationLoaded;
     private boolean moduleWasEnabled;
@@ -87,6 +85,7 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
         this.maxLoginAttempts = Math.max(1, config.getInt("settings.max-login-attempts", 5));
         this.loginLockoutSeconds = Math.max(5L, config.getLong("settings.login-lockout-seconds", 30L));
         this.loginTimeoutTicks = Math.max(5L, config.getLong("settings.login-timeout-seconds", 60L)) * 20L;
+        this.sessionSecret = this.ensureSessionSecret(config);
 
         List<String> configuredCommands = new ArrayList<>(config.getStringList("blocking.allowed-commands"));
         boolean removedSpanishAliases = configuredCommands.removeIf(value -> value.equalsIgnoreCase("iniciar")
@@ -624,7 +623,7 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
         }
         SessionRecord session = this.repository.session(player.getName());
         if (session == null || session.expiresAt() < Instant.now().getEpochSecond()
-            || !session.addressHash().equals(this.hashAddress(this.address(player)))) {
+            || !session.addressHash().equals(this.addressSignature(player))) {
             return false;
         }
         return this.repository.hasAccount(player.getName());
@@ -636,7 +635,7 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
         }
         long minutes = Math.max(1L, this.configFile.yaml().getLong("sessions.duration-minutes", 30L));
         this.repository.putSession(player.getName(),
-            new SessionRecord(this.hashAddress(this.address(player)), Instant.now().plusSeconds(minutes * 60L).getEpochSecond()));
+            new SessionRecord(this.addressSignature(player), Instant.now().plusSeconds(minutes * 60L).getEpochSecond()));
         this.repository.saveSessions();
     }
 
@@ -644,13 +643,19 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
         return player.getAddress() == null ? "unknown" : player.getAddress().getAddress().getHostAddress();
     }
 
-    private String hashAddress(final String address) {
-        try {
-            byte[] hash = MessageDigest.getInstance("SHA-256").digest(address.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException(exception);
+    private String addressSignature(final Player player) {
+        return SessionFingerprint.addressSignature(this.sessionSecret, this.address(player));
+    }
+
+    private String ensureSessionSecret(final YamlConfiguration config) {
+        String secret = config.getString("sessions.address-secret", "").trim();
+        if (!secret.isEmpty()) {
+            return secret;
         }
+        secret = SessionFingerprint.generateSecret();
+        config.set("sessions.address-secret", secret);
+        this.configFile.save();
+        return secret;
     }
 
     private String userKey(final String name) {
