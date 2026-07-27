@@ -147,14 +147,21 @@ final class GitHubReleaseClient {
         }
     }
 
-    private static String readArrayField(final String json, final String field) {
+    static String readArrayField(final String json, final String field) {
         int position = findValueStart(json, field);
         if (position < 0 || json.charAt(position) != '[') return null;
         int end = matchingEnd(json, position, '[', ']');
         return end < 0 ? null : json.substring(position + 1, end);
     }
 
-    private static List<String> readObjects(final String array) {
+    static String readObjectField(final String json, final String field) {
+        int position = findValueStart(json, field);
+        if (position < 0 || json.charAt(position) != '{') return null;
+        int end = matchingEnd(json, position, '{', '}');
+        return end < 0 ? null : json.substring(position, end + 1);
+    }
+
+    static List<String> readObjects(final String array) {
         List<String> objects = new ArrayList<>();
         int position = 0;
         while ((position = array.indexOf('{', position)) >= 0) {

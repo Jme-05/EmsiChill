@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import me.jaime.emsichill.Main;
 
-/** Programa comprobaciones automáticas y entrega cada aviso una sola vez por Release. */
+/** Schedules update checks and sends each notice only once per target. */
 public final class UpdateNotifier implements Listener {
     private static final long STARTUP_DELAY_TICKS = 100L;
     private static final long JOIN_DELAY_TICKS = 40L;
@@ -18,11 +18,16 @@ public final class UpdateNotifier implements Listener {
     private final Main plugin;
     private final UpdateService updates;
     private final UpdateNoticeTracker notices = new UpdateNoticeTracker();
+    private final UpdateNoticeTracker paperNotices = new UpdateNoticeTracker();
 
     private volatile UpdateResult cachedResult;
+    private volatile PaperUpdateResult cachedPaperResult;
     private volatile long cachedAtMillis;
+    private volatile long cachedPaperAtMillis;
     private volatile boolean checking;
+    private volatile boolean checkingPaper;
     private boolean failureLogged;
+    private boolean paperFailureLogged;
     private BukkitTask task;
 
     public UpdateNotifier(final Main plugin, final UpdateService updates) {
@@ -32,12 +37,15 @@ public final class UpdateNotifier implements Listener {
 
     public void start() {
         this.stop();
-        if (!this.automaticChecksEnabled()) return;
+        if (!this.automaticChecksEnabled() && !this.paperAutomaticChecksEnabled()) return;
 
         long period = this.checkIntervalMinutes() * TICKS_PER_MINUTE;
         this.task = Bukkit.getScheduler().runTaskTimer(
             this.plugin,
-            this::requestCheck,
+            () -> {
+                this.requestCheck();
+                this.requestPaperCheck();
+            },
             STARTUP_DELAY_TICKS,
             period
         );
@@ -56,15 +64,21 @@ public final class UpdateNotifier implements Listener {
 
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
-        if (!this.automaticChecksEnabled() || !this.notifyAdmins()) return;
+        if ((!this.automaticChecksEnabled() && !this.paperAutomaticChecksEnabled())
+            || (!this.notifyAdmins() && !this.paperNotifyAdmins())) return;
         Player player = event.getPlayer();
         if (!player.hasPermission("emsichill.admin.update")) return;
 
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.notifyPlayer(player);
+            this.notifyPaperPlayer(player);
             if (this.checkOnAdminJoin() && shouldCheckOnJoin(this.cachedAtMillis,
                 System.currentTimeMillis(), this.joinCacheMaxAgeMillis())) {
                 this.requestCheck();
+            }
+            if (this.paperCheckOnAdminJoin() && shouldCheckOnJoin(this.cachedPaperAtMillis,
+                System.currentTimeMillis(), this.paperJoinCacheMaxAgeMillis())) {
+                this.requestPaperCheck();
             }
         }, JOIN_DELAY_TICKS);
     }
@@ -95,6 +109,32 @@ public final class UpdateNotifier implements Listener {
         }));
     }
 
+    private void requestPaperCheck() {
+        if (this.checkingPaper || !this.paperAutomaticChecksEnabled()) return;
+        this.checkingPaper = true;
+        this.updates.checkPaper().whenComplete((result, failure) -> Bukkit.getScheduler().runTask(this.plugin, () -> {
+            this.checkingPaper = false;
+            if (!this.paperAutomaticChecksEnabled()) return;
+            if (failure != null) {
+                this.logPaperFailure(failure.getMessage());
+                return;
+            }
+            this.cachedPaperResult = result;
+            if (result.status() == PaperUpdateResult.Status.FAILED) {
+                this.logPaperFailure(result.error());
+                return;
+            }
+            this.cachedPaperAtMillis = System.currentTimeMillis();
+            this.paperFailureLogged = false;
+            if (result.status() != PaperUpdateResult.Status.UPDATE_AVAILABLE) return;
+            if (this.updates.isPaperSuppressed(result.latest())) return;
+            this.notifyPaperConsole(result);
+            if (this.paperNotifyAdmins()) {
+                Bukkit.getOnlinePlayers().forEach(this::notifyPaperPlayer);
+            }
+        }));
+    }
+
     private void notifyConsole(final UpdateResult result) {
         if (!this.plugin.settings().getBoolean("updates.automatic.notify-console", true)) return;
         if (!this.notices.markConsole(result.release().tag())) return;
@@ -116,10 +156,41 @@ public final class UpdateNotifier implements Listener {
         this.plugin.messages().sendUpdateActions(player, result.release().tag());
     }
 
+    private void notifyPaperConsole(final PaperUpdateResult result) {
+        if (!this.plugin.settings().getBoolean("updates.paper.automatic.notify-console", true)) return;
+        if (!this.paperNotices.markConsole(result.latest().identifier())) return;
+        this.plugin.messages().sendLink(Bukkit.getConsoleSender(), "update.paper-automatic-available",
+            result.latest().pageUrl(),
+            "{current}", result.current().label(),
+            "{version}", result.latest().minecraftVersion(),
+            "{build}", Integer.toString(result.latest().build()),
+            "{channel}", result.latest().channel());
+    }
+
+    private void notifyPaperPlayer(final Player player) {
+        if (!this.paperAutomaticChecksEnabled() || !this.paperNotifyAdmins()) return;
+        if (!player.isOnline() || !player.hasPermission("emsichill.admin.update")) return;
+        PaperUpdateResult result = this.cachedPaperResult;
+        if (result == null || result.status() != PaperUpdateResult.Status.UPDATE_AVAILABLE) return;
+        if (!this.paperNotices.markPlayer(result.latest().identifier(), player.getUniqueId())) return;
+        this.plugin.messages().sendLink(player, "update.paper-automatic-available", result.latest().pageUrl(),
+            "{current}", result.current().label(),
+            "{version}", result.latest().minecraftVersion(),
+            "{build}", Integer.toString(result.latest().build()),
+            "{channel}", result.latest().channel());
+        this.plugin.messages().sendPaperUpdateActions(player, result.latest().minecraftVersion(), result.latest().build());
+    }
+
     private void logFailure(final String detail) {
         if (this.failureLogged) return;
         this.failureLogged = true;
-        this.plugin.getLogger().warning("No se pudo comprobar automáticamente la actualización: " + detail);
+        this.plugin.getLogger().warning("No se pudo comprobar automaticamente la actualizacion: " + detail);
+    }
+
+    private void logPaperFailure(final String detail) {
+        if (this.paperFailureLogged) return;
+        this.paperFailureLogged = true;
+        this.plugin.getLogger().warning("No se pudo comprobar automaticamente PaperMC: " + detail);
     }
 
     private boolean automaticChecksEnabled() {
@@ -127,12 +198,25 @@ public final class UpdateNotifier implements Listener {
             && this.plugin.settings().getBoolean("updates.automatic.enabled", true);
     }
 
+    private boolean paperAutomaticChecksEnabled() {
+        return this.plugin.settings().getBoolean("updates.paper.enabled", true)
+            && this.plugin.settings().getBoolean("updates.paper.automatic.enabled", true);
+    }
+
     private boolean notifyAdmins() {
         return this.plugin.settings().getBoolean("updates.automatic.notify-admins", true);
     }
 
+    private boolean paperNotifyAdmins() {
+        return this.plugin.settings().getBoolean("updates.paper.automatic.notify-admins", true);
+    }
+
     private boolean checkOnAdminJoin() {
         return this.plugin.settings().getBoolean("updates.automatic.check-on-admin-join", true);
+    }
+
+    private boolean paperCheckOnAdminJoin() {
+        return this.plugin.settings().getBoolean("updates.paper.automatic.check-on-admin-join", true);
     }
 
     private long joinCacheMaxAgeMillis() {
@@ -141,12 +225,23 @@ public final class UpdateNotifier implements Listener {
         return seconds * 1_000L;
     }
 
+    private long paperJoinCacheMaxAgeMillis() {
+        long seconds = Math.max(15L, Math.min(3_600L,
+            this.plugin.settings().getLong("updates.paper.automatic.join-cache-max-age-seconds", 60L)));
+        return seconds * 1_000L;
+    }
+
     static boolean shouldCheckOnJoin(final long cachedAt, final long now, final long maxAge) {
         return cachedAt <= 0L || now < cachedAt || now - cachedAt >= maxAge;
     }
 
     private long checkIntervalMinutes() {
-        return Math.max(5L, Math.min(1440L,
+        long pluginInterval = Math.max(5L, Math.min(1440L,
             this.plugin.settings().getLong("updates.automatic.interval-minutes", 30L)));
+        long paperInterval = Math.max(5L, Math.min(1440L,
+            this.plugin.settings().getLong("updates.paper.automatic.interval-minutes", pluginInterval)));
+        if (!this.automaticChecksEnabled()) return paperInterval;
+        if (!this.paperAutomaticChecksEnabled()) return pluginInterval;
+        return Math.min(pluginInterval, paperInterval);
     }
 }

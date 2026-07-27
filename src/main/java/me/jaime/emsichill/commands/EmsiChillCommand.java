@@ -28,6 +28,8 @@ import me.jaime.emsichill.staff.StaffService;
 import me.jaime.emsichill.staff.ModerationService;
 import me.jaime.emsichill.storage.DataStore;
 import me.jaime.emsichill.teleport.TeleportManager;
+import me.jaime.emsichill.update.PaperUpdateInstallResult;
+import me.jaime.emsichill.update.PaperUpdateResult;
 import me.jaime.emsichill.update.UpdateResult;
 import me.jaime.emsichill.update.ReleaseNotesFormatter;
 import me.jaime.emsichill.update.UpdateInstallResult;
@@ -102,6 +104,18 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             return this.checkUpdates(sender);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("update")
+            && args[1].equalsIgnoreCase("paper") && args[2].equalsIgnoreCase("check")) {
+            return this.checkPaperUpdates(sender);
+        }
+        if (args.length == 5 && args[0].equalsIgnoreCase("update")
+            && args[1].equalsIgnoreCase("paper") && args[2].equalsIgnoreCase("download")) {
+            return this.downloadPaperUpdate(sender, args[3], args[4]);
+        }
+        if (args.length == 5 && args[0].equalsIgnoreCase("update")
+            && args[1].equalsIgnoreCase("paper") && args[2].equalsIgnoreCase("ignore")) {
+            return this.ignorePaperUpdate(sender, args[3], args[4]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("update")
             && args[1].equalsIgnoreCase("install")) {
             return this.installUpdate(sender, args[2]);
         }
@@ -129,6 +143,128 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         this.sendHelp(sender, "principal");
+        return true;
+    }
+
+    private boolean checkPaperUpdates(final CommandSender sender) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        this.messages.send(sender, "update.paper-checking");
+        this.updates.checkPaper().whenComplete((result, failure) -> Bukkit.getScheduler().runTask(this.plugin, () -> {
+            if (failure != null) {
+                this.plugin.getLogger().warning("Fallo la comprobacion de PaperMC: " + failure.getMessage());
+                this.messages.send(sender, "update.paper-failed");
+                return;
+            }
+            if (result.status() == PaperUpdateResult.Status.UPDATE_AVAILABLE) {
+                this.messages.sendLink(sender, "update.paper-available", result.latest().pageUrl(),
+                    "{current}", result.current().label(),
+                    "{version}", result.latest().minecraftVersion(),
+                    "{build}", Integer.toString(result.latest().build()),
+                    "{channel}", result.latest().channel());
+                if (sender instanceof Player player) {
+                    this.messages.sendPaperUpdateActions(player, result.latest().minecraftVersion(),
+                        result.latest().build());
+                }
+                return;
+            }
+            if (result.status() == PaperUpdateResult.Status.UP_TO_DATE) {
+                this.messages.send(sender, "update.paper-up-to-date",
+                    "{current}", result.current().label(),
+                    "{version}", result.latest().minecraftVersion(),
+                    "{build}", Integer.toString(result.latest().build()));
+                return;
+            }
+            this.plugin.getLogger().warning("No se pudo comprobar PaperMC: " + result.error());
+            this.messages.send(sender, "update.paper-failed");
+        }));
+        return true;
+    }
+
+    private boolean downloadPaperUpdate(
+        final CommandSender sender,
+        final String version,
+        final String buildValue
+    ) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        int build;
+        try {
+            build = Integer.parseInt(buildValue);
+        } catch (NumberFormatException exception) {
+            this.messages.send(sender, "update.paper-build-invalid");
+            return true;
+        }
+        if (build <= 0) {
+            this.messages.send(sender, "update.paper-build-invalid");
+            return true;
+        }
+        this.messages.send(sender, "update.paper-download-started",
+            "{version}", version,
+            "{build}", Integer.toString(build));
+        this.updates.downloadPaper(version, build).whenComplete((result, failure) ->
+            Bukkit.getScheduler().runTask(this.plugin, () -> this.finishPaperDownload(sender, result, failure)));
+        return true;
+    }
+
+    private void finishPaperDownload(
+        final CommandSender sender,
+        final PaperUpdateInstallResult result,
+        final Throwable failure
+    ) {
+        if (failure != null || result == null) {
+            this.plugin.getLogger().warning("Fallo la descarga de Paper: "
+                + (failure == null ? "resultado vacio" : failure.getMessage()));
+            this.messages.send(sender, "update.paper-download-failed");
+            return;
+        }
+        switch (result.status()) {
+            case PREPARED -> {
+                this.updates.markPaperStaged(result.target());
+                this.messages.send(sender, "update.paper-download-prepared",
+                    "{target}", result.target(),
+                    "{file}", result.file().toString());
+                this.audit.log("PAPER_UPDATE_PREPARED", "actor=" + sender.getName()
+                    + " target=" + result.target() + " file=" + result.file());
+            }
+            case NO_UPDATE -> this.messages.send(sender, "update.paper-no-update");
+            case VERSION_CHANGED -> this.messages.send(sender, "update.paper-version-changed",
+                "{target}", result.target());
+            case IN_PROGRESS -> this.messages.send(sender, "update.paper-download-in-progress");
+            case DISABLED -> this.messages.send(sender, "update.paper-download-disabled");
+            case FAILED -> {
+                this.plugin.getLogger().warning("No se pudo preparar Paper " + result.target()
+                    + ": " + result.error());
+                this.messages.send(sender, "update.paper-download-failed");
+            }
+        }
+    }
+
+    private boolean ignorePaperUpdate(final CommandSender sender, final String version, final String buildValue) {
+        if (!sender.hasPermission("emsichill.admin.update")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        int build;
+        try {
+            build = Integer.parseInt(buildValue);
+        } catch (NumberFormatException exception) {
+            this.messages.send(sender, "update.paper-build-invalid");
+            return true;
+        }
+        if (!this.updates.ignorePaper(version, build)) {
+            this.messages.send(sender, "update.paper-ignore-failed");
+            return true;
+        }
+        this.messages.send(sender, "update.paper-ignored",
+            "{version}", version,
+            "{build}", Integer.toString(build));
+        this.audit.log("PAPER_UPDATE_IGNORED", "actor=" + sender.getName()
+            + " target=" + version + "#" + build);
         return true;
     }
 
@@ -416,7 +552,11 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("update")
             && sender.hasPermission("emsichill.admin.update")) {
-            return CommandSuggestions.filter(List.of("check", "changes", "install", "ignore"), args[1]);
+            return CommandSuggestions.filter(List.of("check", "changes", "install", "ignore", "paper"), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("paper")
+            && sender.hasPermission("emsichill.admin.update")) {
+            return CommandSuggestions.filter(List.of("check", "download", "ignore"), args[2]);
         }
         return Collections.emptyList();
     }

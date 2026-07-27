@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 17
+  text-revision: 18
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -223,6 +223,25 @@ update:
   ignore-failed: "&cNo se pudo guardar la versión ignorada."
   up-to-date: "&aEmsiChill {version} es la versión más reciente publicada."
   failed: "&cNo se pudo comprobar la actualización. Revisa la consola."
+  paper-checking: "&eComprobando builds de PaperMC..."
+  paper-available: "&aHay una build nueva de Paper: &f{version} #{build} &7({channel}) &a. Actual: &f{current}&a. {url}"
+  paper-automatic-available: "&dNueva build de Paper disponible: &f{version} #{build} &7({channel}) &d. Actual: &f{current}&d. {url}"
+  paper-up-to-date: "&aPaper ya esta al dia: &f{current}&a. Ultima build publicada: &f{version} #{build}&a."
+  paper-failed: "&cNo se pudo comprobar PaperMC. Revisa la consola."
+  paper-download-button: "&a&l[Descargar Paper]"
+  paper-download-hover: "&eDescarga y verifica esta build para actualizar en el proximo reinicio."
+  paper-ignore-button: "&c&l[Ignorar]"
+  paper-ignore-hover: "&eOculta los avisos automaticos de esta build de Paper."
+  paper-build-invalid: "&cLa build de Paper debe ser un numero valido."
+  paper-download-started: "&eDescargando y verificando Paper {version} build #{build}..."
+  paper-download-prepared: "&aPaper {target} quedo descargado en {file}. Cambia el jar del servidor por ese archivo y reinicia."
+  paper-download-failed: "&cNo se pudo preparar la build de Paper. Revisa la consola."
+  paper-download-in-progress: "&eYa hay una build de Paper descargandose."
+  paper-download-disabled: "&cLa descarga de Paper esta desactivada en config.yml."
+  paper-version-changed: "&eLa build mas reciente cambio a {target}. Vuelve a comprobar PaperMC."
+  paper-no-update: "&aEste servidor ya tiene la build de Paper mas reciente."
+  paper-ignored: "&eSe ignoraran los avisos automaticos de Paper {version} build #{build}."
+  paper-ignore-failed: "&cNo se pudo guardar la build de Paper ignorada."
 
 region:
   help: "&eUsa /region help para ver los comandos de protección de terrenos."

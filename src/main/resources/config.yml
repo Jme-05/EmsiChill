@@ -36,3 +36,29 @@ updates:
     allow-feed-fallback: false
     timeout-seconds: 60
     max-download-megabytes: 25
+  paper:
+    # Checks for new Paper/Minecraft builds using PaperMC's official downloads service.
+    enabled: true
+    project: paper
+    timeout-seconds: 8
+    user-agent: "EmsiChill/${version} (https://github.com/Jme-05/EmsiChill)"
+    # false = STABLE builds only. true = allows BETA/experimental builds too.
+    include-experimental-builds: false
+    # How many recent Minecraft versions to scan when the newest one has no acceptable build yet.
+    max-version-search: 12
+    ignored-build: ""
+    staged-build: ""
+    automatic:
+      enabled: true
+      interval-minutes: 30
+      check-on-admin-join: true
+      join-cache-max-age-seconds: 60
+      notify-console: true
+      notify-admins: true
+    download:
+      # Downloads paper-*.jar into this folder. It does not replace the running server jar.
+      enabled: true
+      directory: server-updates
+      timeout-seconds: 180
+      max-download-megabytes: 120
+      keep-old-downloads: false

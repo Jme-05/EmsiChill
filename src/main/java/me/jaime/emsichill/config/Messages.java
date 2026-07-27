@@ -128,6 +128,17 @@ public final class Messages {
             .append(install).append(Component.text("  ")).append(ignore));
     }
 
+    public void sendPaperUpdateActions(final Player player, final String version, final int build) {
+        if (!player.hasPermission("emsichill.admin.update")) return;
+        Component download = this.unprefixed("update.paper-download-button")
+            .clickEvent(ClickEvent.runCommand("/emsichill update paper download " + version + " " + build))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("update.paper-download-hover")));
+        Component ignore = this.unprefixed("update.paper-ignore-button")
+            .clickEvent(ClickEvent.runCommand("/emsichill update paper ignore " + version + " " + build))
+            .hoverEvent(HoverEvent.showText(this.unprefixed("update.paper-ignore-hover")));
+        player.sendMessage(Component.text("  ").append(download).append(Component.text("  ")).append(ignore));
+    }
+
     public void sendTeleportRequestActions(final Player player) {
         Component accept = this.unprefixed("teleport.accept-button")
             .clickEvent(ClickEvent.runCommand("/tpaccept"))

@@ -14,11 +14,13 @@ public final class UpdateService {
 
     private final Main plugin;
     private final UpdateInstaller installer;
+    private final PaperUpdateService paperUpdates;
     private final AtomicBoolean installing = new AtomicBoolean();
 
     public UpdateService(final Main plugin) {
         this.plugin = plugin;
         this.installer = new UpdateInstaller(plugin);
+        this.paperUpdates = new PaperUpdateService(plugin);
         this.clearResolvedPreferences();
     }
 
@@ -91,6 +93,26 @@ public final class UpdateService {
 
     public boolean matchesVersion(final String first, final String second) {
         return sameVersion(first, second);
+    }
+
+    public CompletableFuture<PaperUpdateResult> checkPaper() {
+        return this.paperUpdates.check();
+    }
+
+    public CompletableFuture<PaperUpdateInstallResult> downloadPaper(final String version, final int build) {
+        return this.paperUpdates.download(version, build);
+    }
+
+    public boolean ignorePaper(final String version, final int build) {
+        return this.paperUpdates.ignore(version, build);
+    }
+
+    public void markPaperStaged(final String target) {
+        this.paperUpdates.markStaged(target);
+    }
+
+    public boolean isPaperSuppressed(final PaperBuildInfo build) {
+        return this.paperUpdates.isSuppressed(build);
     }
 
     private void clearResolvedPreferences() {

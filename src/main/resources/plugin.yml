@@ -34,7 +34,7 @@ commands:
     usage: /auth <unregister|changepassword|reload>
   emsichill:
     description: Información y recarga de EmsiChill
-    usage: /emsichill <help|reload|status|inspect|backup|migrate|update <check|changes|install|ignore>|rtp cooldown>
+    usage: /emsichill <help|reload|status|inspect|backup|migrate|update <check|changes|install|ignore|paper>|rtp cooldown>
     aliases: [emsi]
   home:
     description: Te teletransporta a uno de tus homes
@@ -194,7 +194,7 @@ permissions:
     description: Permite diagnosticar, respaldar y migrar los datos de EmsiChill
     default: op
   emsichill.admin.update:
-    description: Permite comprobar, ignorar y preparar Releases nuevas
+    description: Permite comprobar, ignorar y preparar Releases nuevas de EmsiChill y builds de Paper
     default: op
   emsichill.home:
     description: Permite usar /home y /homes
@@ -408,6 +408,9 @@ documentation:
     - {section: configuration, category: admin, command: "/emsichill update changes <versión>", description: "Muestra dentro del juego un resumen de las notas de la Release."}
     - {section: configuration, category: admin, command: "/emsichill update install <versión>", description: "Si la instalación está habilitada, descarga, valida y prepara una Release."}
     - {section: configuration, category: admin, command: "/emsichill update ignore <versión>", description: "Oculta los avisos automáticos de una Release concreta."}
+    - {section: configuration, category: admin, command: "/emsichill update paper check", description: "Comprueba si PaperMC publico una build nueva para Paper/Minecraft."}
+    - {section: configuration, category: admin, command: "/emsichill update paper download <version> <build>", description: "Descarga y verifica una build nueva de Paper para aplicarla en el siguiente reinicio."}
+    - {section: configuration, category: admin, command: "/emsichill update paper ignore <version> <build>", description: "Oculta los avisos automaticos de una build concreta de Paper."}
     - {section: configuration, category: admin, command: "/emsichill reload", description: "Recarga las configuraciones del plugin."}
     - {section: configuration, category: admin, command: "/emsichill status", description: "Muestra el estado de los módulos."}
     - {section: configuration, category: admin, command: "/emsichill inspect", description: "Busca problemas en datos y configuración."}
