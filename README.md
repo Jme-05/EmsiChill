@@ -47,7 +47,7 @@ No se garantiza soporte para Spigot, Bukkit u otros forks que no sigan el compor
 - **Posturas y social**: `/sit`, `/crawl`, `/stand`, `/whereami`, `/seen` y tiempo jugado.
 - **Resource packs**: envío automático de packs con URL directa y SHA-1.
 - **Staff**: vanish, staffmode, staffchat, invsee, enderchestsee, freeze, mute y warn.
-- **Mantenimiento**: reload, status, inspect, backup, migración y avisos de updates.
+- **Mantenimiento**: reload, status, inspect, backup, migración, updates de EmsiChill y avisos de builds nuevas de Paper.
 
 ## Instalación rápida
 
@@ -89,61 +89,157 @@ Después de cambiar YAML puedes probar:
 
 Para cambiar el JAR, actualizar dependencias o tocar configuraciones críticas, reinicia el servidor completo.
 
-## Comandos básicos
+<!-- EMSICHILL_COMMANDS_START -->
 
-### Jugadores
+## Comandos para jugadores
 
-| Comando | Uso |
-| --- | --- |
-| `/register <contraseña> <contraseña>` | Registra una cuenta en servidores offline/cracked. |
+| Comando | Descripción |
+|---|---|
+| `/register <contraseña> <contraseña>` | Registra una cuenta. |
 | `/login <contraseña>` | Inicia sesión. |
 | `/changepassword <actual> <nueva> <nueva>` | Cambia la contraseña. |
+| `/unregister <contraseña>` | Elimina el registro propio. |
 | `/skin <nombre>` | Aplica la skin de una cuenta premium. |
-| `/skull <nombre>` | Obtiene una cabeza con textura premium. |
+| `/skin random` | Aplica una skin premium aleatoria. |
+| `/skin reset` | Restablece la skin. |
+| `/skin save <nombre>` | Guarda una skin como favorita. |
+| `/skin unsave <nombre>` | Elimina una skin de favoritos. |
+| `/skin favorites` | Abre el menú de skins favoritas. |
+| `/skin history` | Abre el historial de skins. |
+| `/skin clearhistory` | Elimina el historial propio. |
+| `/skull <nombre>` | Obtiene la cabeza de una cuenta premium. |
 | `/sethome [nombre]` | Guarda un home. |
-| `/home [nombre]` | Vuelve a un home. |
-| `/tpa <jugador>` | Solicita teletransportarte a otro jugador. |
-| `/tpaccept` / `/tpdeny` | Acepta o rechaza una solicitud TPA. |
-| `/back` | Regresa a tu ubicación anterior o tumba. |
-| `/rtp` | Busca un punto aleatorio seguro. |
-| `/grave list` | Lista tus tumbas activas. |
+| `/home [nombre]` | Se teletransporta a un home respetando el delay configurado. |
+| `/delhome <nombre>` | Elimina un home. |
+| `/homes` | Muestra todos los homes propios. |
+| `/tpa <jugador>` | Solicita teletransportarse a otro jugador. |
+| `/tpahere <jugador>` | Solicita que otro jugador vaya hacia ti. |
+| `/tpaccept` | Acepta una solicitud de teletransporte. |
+| `/tpdeny` | Rechaza una solicitud de teletransporte. |
+| `/tpcancel` | Cancela una solicitud enviada. |
+| `/tptoggle` | Activa o bloquea las solicitudes. |
+| `/back` | Regresa a la ubicación anterior o a la tumba. |
+| `/rtp` | Busca un lugar aleatorio seguro. |
+| `/playtime [jugador]` | Consulta el tiempo jugado. |
+| `/playtimetop` | Muestra la clasificación de tiempo jugado. |
+| `/seen [jugador]` | Consulta la última conexión. |
+| `/sit` | Activa o desactiva la postura sentada. |
+| `/crawl` | Activa o desactiva la postura de gateo. |
+| `/stand` | Recupera la postura normal. |
+| `/whereami` | Comparte dimensión y coordenadas en el chat. |
+| `/grave list` | Muestra las tumbas activas. |
 | `/grave locate <id>` | Muestra la ubicación de una tumba. |
-| `/sit` / `/crawl` / `/stand` | Cambia o restaura posturas. |
-| `/whereami` | Comparte dimensión y coordenadas. |
+| `/grave recover <id>` | Recupera una tumba propia. |
 
-### Regiones
+## Comandos de regiones
 
-| Comando | Uso |
-| --- | --- |
+| Comando | Descripción |
+|---|---|
 | `/region claim <nombre>` | Reclama una región centrada en tu posición. |
-| `/region list` | Lista tus regiones. |
+| `/region list` | Lista tus regiones y coordenadas. |
 | `/region info [nombre]` | Muestra información de una región. |
-| `/region view [nombre]` | Muestra temporalmente los límites. |
-| `/region add <jugador>` | Agrega un miembro. |
-| `/region remove <jugador>` | Quita un miembro. |
-| `/region settings [nombre]` | Abre ajustes de protección. |
-| `/region upgrade [nombre]` | Mejora el radio de una región. |
-| `/region delete <nombre> confirm` | Elimina una región de forma permanente. |
+| `/region teleport <nombre>` | Se teletransporta a una región propia. |
+| `/region view [nombre]` | Muestra temporalmente sus límites. |
+| `/region build` | Abre el menú para comprar más regiones. |
+| `/region upgrade [nombre]` | Abre el menú de ampliación. |
+| `/region settings [nombre]` | Abre la configuración de la región. |
+| `/region add <jugador>` | Permite construir a un miembro. |
+| `/region remove <jugador>` | Elimina a un miembro. |
+| `/region owner <jugador>` | Añade un propietario secundario. |
+| `/region unowner <jugador>` | Elimina un propietario secundario. |
+| `/region transfer <jugador>` | Transfiere el propietario principal. |
+| `/region delete <nombre> confirm` | Elimina permanentemente una región. |
+| `/region help` | Muestra la ayuda de regiones. |
 
-### Staff y administración
+## Comandos para administradores y moderadores
 
-| Comando | Uso |
-| --- | --- |
-| `/staffchat toggle` | Activa o desactiva el chat de staff. |
-| `/vanish [jugador]` | Activa o desactiva vanish. |
-| `/staffmode [jugador]` | Activa herramientas de moderación. |
-| `/invsee <jugador>` | Abre inventario de un jugador. |
-| `/enderchestsee <jugador>` | Abre Ender Chest de un jugador. |
-| `/freeze <jugador> [segundos]` | Congela o libera jugadores. |
-| `/mute <jugador> [tiempo]` | Silencia temporal o permanentemente. |
-| `/warn <jugador> <motivo>` | Registra una advertencia. |
-| `/auth unregister <jugador>` | Elimina administrativamente un registro. |
-| `/grave admin recover <jugador>` | Recupera una tumba administrativamente. |
-| `/emsichill reload` | Recarga configuraciones. |
-| `/emsichill status` | Muestra estado de módulos. |
-| `/emsichill inspect` | Revisa datos y configuración. |
-| `/emsichill backup` | Crea un respaldo. |
-| `/emsichill update check` | Busca una nueva Release. |
+| Comando | Descripción |
+|---|---|
+| `/invsee <jugador>` | Abre inventario, armadura y mano secundaria; modificarlo requiere un permiso adicional. |
+| `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
+| `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación con duración definida. |
+| `/mute <jugador> [tiempo]` | Silencia permanentemente o durante 30s, 10m, 2h o 1d. |
+| `/unmute <jugador>` | Retira el silencio activo de un jugador. |
+| `/warn <jugador> <motivo>` | Registra una advertencia con fecha, moderador y motivo. |
+| `/warnings <jugador>` | Muestra el historial reciente de sanciones. |
+| `/staffchat toggle` | Activa o desactiva el chat administrativo. |
+| `/staffchat <mensaje>` | Envía un mensaje al equipo. |
+| `/vanish [jugador]` | Activa o desactiva el modo invisible. |
+| `/vanishlist` | Lista los jugadores invisibles. |
+| `/staffmode [jugador]` | Activa las herramientas de moderación. |
+| `/skin <jugador> <skin>` | Cambia la skin de otro jugador. |
+| `/home <jugador> [home]` | Lista o utiliza homes ajenos, incluso de jugadores desconectados. |
+| `/back <jugador>` | Envía a otro jugador a su ubicación anterior. |
+| `/auth unregister <jugador>` | Elimina administrativamente el registro de una cuenta. |
+| `/auth changepassword <jugador> <nueva>` | Cambia administrativamente una contraseña. |
+| `/grave admin recover <jugador>` | Recupera administrativamente una tumba. |
+
+## Configuración mediante comandos administrativos
+
+| Comando | Descripción |
+|---|---|
+| `/emsichill homes limit <cantidad>` | Cambia el límite predeterminado de homes. |
+| `/emsichill rtp cooldown <minutos>` | Cambia el cooldown global de RTP. |
+| `/deathcontrol default <grave\|keep\|drop>` | Cambia el modo de muerte predeterminado. |
+| `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador. |
+| `/auth reload` | Recarga el módulo de autenticación. |
+| `/emsichill update check` | Comprueba si existe una Release nueva sin instalarla. |
+| `/emsichill update changes <versión>` | Muestra dentro del juego un resumen de las notas de la Release. |
+| `/emsichill update install <versión>` | Si la instalación está habilitada, descarga, valida y prepara una Release. |
+| `/emsichill update ignore <versión>` | Oculta los avisos automáticos de una Release concreta. |
+| `/emsichill update paper check` | Comprueba si PaperMC publico una build nueva para Paper/Minecraft. |
+| `/emsichill update paper download <version> <build>` | Descarga y verifica una build nueva de Paper para aplicarla en el siguiente reinicio. |
+| `/emsichill update paper ignore <version> <build>` | Oculta los avisos automaticos de una build concreta de Paper. |
+| `/emsichill reload` | Recarga las configuraciones del plugin. |
+| `/emsichill status` | Muestra el estado de los módulos. |
+| `/emsichill inspect` | Busca problemas en datos y configuración. |
+| `/emsichill backup` | Crea un respaldo de los datos. |
+| `/emsichill migrate` | Guarda y normaliza los datos actuales. |
+| `/emsichill help <categoría>` | Muestra ayuda generada por categorías. |
+
+<!-- EMSICHILL_COMMANDS_END -->
+
+## Actualizaciones de Paper/Minecraft
+
+EmsiChill puede revisar automáticamente si PaperMC publicó una build nueva de Paper para Minecraft. Si encuentra una build más reciente, avisa en consola y a los administradores con permiso `emsichill.admin.update`.
+
+Por seguridad, el plugin **no reemplaza el JAR del servidor mientras está corriendo**. Solo descarga el nuevo `paper-*.jar`, comprueba su tamaño y SHA-256, y lo deja preparado en una carpeta para que el administrador lo aplique en el siguiente reinicio.
+
+Flujo recomendado:
+
+```mcfunction
+/emsichill update paper check
+/emsichill update paper download <version> <build>
+```
+
+Después de descargarlo:
+
+1. Apaga el servidor.
+2. Ve a la carpeta `server-updates/`.
+3. Reemplaza el JAR actual del servidor por el `paper-*.jar` descargado.
+4. Inicia el servidor otra vez.
+5. Revisa la consola y usa `/emsichill inspect`.
+
+Configuración principal en `plugins/EmsiChill/config.yml`:
+
+```yaml
+updates:
+  paper:
+    enabled: true
+    project: paper
+    include-experimental-builds: false
+    automatic:
+      enabled: true
+      interval-minutes: 30
+      notify-console: true
+      notify-admins: true
+    download:
+      enabled: true
+      directory: server-updates
+      max-download-megabytes: 120
+```
+
+`include-experimental-builds: false` usa solo builds estables. Si lo cambias a `true`, EmsiChill también podrá detectar builds beta o experimentales, pero no es lo ideal para un servidor público.
 
 ## Datos guardados
 
