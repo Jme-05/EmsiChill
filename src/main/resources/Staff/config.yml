@@ -10,5 +10,5 @@ staffmode:
   disable-vanish-on-exit: true
 
 moderation:
-  # Conserva las sanciones más recientes de cada jugador sin dejar crecer el archivo sin límite.
+  # Keeps recent sanctions per player without letting the file grow forever.
   max-history-per-player: 100

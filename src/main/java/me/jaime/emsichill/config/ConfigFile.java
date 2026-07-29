@@ -47,7 +47,7 @@ public final class ConfigFile {
                 if (updated) this.save();
             }
         } catch (IOException exception) {
-            this.plugin.getLogger().warning("No se pudieron cargar los valores por defecto de " + this.resourcePath);
+            this.plugin.getLogger().warning("Could not load defaults for " + this.resourcePath);
         }
     }
 

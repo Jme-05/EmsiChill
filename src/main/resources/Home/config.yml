@@ -1,4 +1,4 @@
-# Usa /emsichill reload para aplicar los cambios.
+# Use /emsichill reload to apply changes.
 homes:
   default-limit: 2
   permission-limits:

@@ -1,4 +1,4 @@
-# Sit usa un asiento temporal y crawl mantiene el estado de gateo del jugador.
+# Sit uses a temporary seat and crawl keeps the player crawling while active.
 poses:
   enabled: true
 

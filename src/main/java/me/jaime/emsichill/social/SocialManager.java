@@ -200,7 +200,7 @@ public final class SocialManager implements CommandExecutor, Listener {
 
     private String dimensionName(final World world) {
         return switch (world.getEnvironment()) {
-            case NORMAL -> "Mundo normal";
+            case NORMAL -> "Overworld";
             case NETHER -> "Nether";
             case THE_END -> "End";
             default -> world.getName();

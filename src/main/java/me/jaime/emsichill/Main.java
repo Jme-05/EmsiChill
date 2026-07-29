@@ -77,7 +77,7 @@ public final class Main extends JavaPlugin {
         this.registerCommands(maintenance);
         this.registerListeners();
         this.startModules();
-        getLogger().info("EmsiChill se ha habilitado correctamente.");
+        getLogger().info("EmsiChill enabled successfully.");
     }
 
     private void initializeInfrastructure() {
@@ -183,7 +183,7 @@ public final class Main extends JavaPlugin {
         if (this.socialManager != null) this.socialManager.stop();
         if (this.updateNotifier != null) this.updateNotifier.stop();
         if (this.dataStore != null) this.dataStore.close();
-        getLogger().info("EmsiChill se ha deshabilitado correctamente.");
+        getLogger().info("EmsiChill disabled successfully.");
     }
 
     private void registerAll(
@@ -197,7 +197,7 @@ public final class Main extends JavaPlugin {
     }
 
     private void register(final String name, final CommandExecutor executor, final TabCompleter completer) {
-        PluginCommand command = Objects.requireNonNull(getCommand(name), "Falta /" + name + " en plugin.yml");
+        PluginCommand command = Objects.requireNonNull(getCommand(name), "Missing /" + name + " in plugin.yml");
         command.setExecutor(executor);
         if (completer != null) {
             command.setTabCompleter(completer);

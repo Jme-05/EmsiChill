@@ -1,30 +1,30 @@
-# Usa /emsichill reload para aplicar los cambios.
-# Este modulo solo envia packs al entrar. Minecraft necesita URLs directas a archivos .zip.
+# Use /emsichill reload to apply changes.
+# This module only sends packs on join. Minecraft requires direct .zip URLs.
 
-# Espera 2 segundos despues de que el jugador entra antes de enviar los packs.
+# Wait 2 seconds after the player joins before sending packs.
 send-delay-ticks: 40
 
-# Si otro plugin envio packs antes, puedes limpiar esos packs antes de enviar los de EmsiChill.
+# If another plugin sent packs first, EmsiChill can clear them before sending its own.
 clear-existing: false
 
-# Registra en consola si el jugador acepta, descarga, carga, rechaza o falla con un pack.
+# Logs whether the player accepts, downloads, loads, rejects or fails each pack.
 log-status: true
 
-# Si se activa, EmsiChill no reenvia packs que ese jugador ya cargo con el mismo SHA-1.
-# Ojo: si no se reenvia un pack, Minecraft puede no activarlo en esa nueva conexion.
-# Para mantenerlos activos al entrar, deja esto en false. El SHA-1 permite que el cliente use cache.
+# When enabled, EmsiChill does not resend packs the player already loaded with the same SHA-1.
+# Warning: if a pack is not resent, Minecraft may not activate it on the new connection.
+# Keep this false if you want packs to remain active every time a player joins.
 send-only-new-or-changed: false
 
-# Puedes definir uno o varios packs. Cada sha1 debe ser el hash SHA-1 del .zip final.
-# En Windows: Get-FileHash "C:\ruta\pack.zip" -Algorithm SHA1
+# Define one or more packs. Each sha1 must be the SHA-1 hash of the final .zip file.
+# Windows: Get-FileHash "C:\path\resource-pack.zip" -Algorithm SHA1
 packs: []
 
-# Ejemplo:
+# Example:
 # packs:
 #   - id: main
 #     enabled: true
 #     name: "Server Pack"
-#     url: "https://tusitio.com/resource-pack.zip"
+#     url: "https://example.com/resource-pack.zip"
 #     sha1: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 #     required: false
-#     prompt: "Este servidor usa un paquete de recursos personalizado."
+#     prompt: "This server uses a custom resource pack."

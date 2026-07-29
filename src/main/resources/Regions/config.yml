@@ -2,21 +2,21 @@ _meta:
   limit-revision: 1
 
 claims:
-  # Cantidad de regiones que puede tener cada jugador sin permisos especiales.
+  # Number of regions each player can own without special permissions.
   default-limit: 2
-  # Separación mínima entre una región nueva y las regiones de otros jugadores.
+  # Minimum distance between a new region and regions owned by other players.
   minimum-distance-blocks: 16
 
 purchases:
-  # /region build compra cupos adicionales; no reclama el terreno automáticamente.
+  # /region build buys extra slots; it does not claim land automatically.
   enabled: true
   base-cost-emeralds: 64
   cost-multiplier: 2
   maximum-extra-slots: 6
 
-# Cada radio se mide desde el bloque central hacia el norte, sur, este y oeste.
-# Por eso, un radio de 32 protege 65 x 65 bloques: 32 + centro + 32.
-# Para conservar configuraciones antiguas, también se acepta la clave "size".
+# Each radius is measured from the center block to north, south, east and west.
+# That means a radius of 32 protects 65 x 65 blocks: 32 + center + 32.
+# To preserve older configurations, the key "size" is also accepted.
 upgrades:
   - radius: 32
     cost-diamonds: 0
@@ -26,10 +26,10 @@ upgrades:
     cost-diamonds: 64
 
 view:
-  # Tiempo durante el que /region view dibuja el borde y el centro con partículas.
+  # How long /region view draws the border and center particles.
   duration-seconds: 10
-  # Distancia entre las partículas de las líneas horizontales del borde.
+  # Distance between horizontal border particles.
   border-spacing-blocks: 2
-  # Distancia entre los pilares verticales que hacen más visible el límite.
+  # Distance between vertical pillars that make the border more visible.
   pillar-spacing-blocks: 8
   pillar-height-blocks: 6

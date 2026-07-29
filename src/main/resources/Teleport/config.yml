@@ -14,14 +14,14 @@ tpa:
 
 rtp:
   delay-seconds: 3
-  # 30 minutos para jugadores normales. Los OP lo omiten por permiso.
+  # 30 minutes for normal players. OPs bypass it through permission.
   cooldown-seconds: 1800
   minimum-radius: 500
   maximum-radius: 5000
   maximum-attempts: 25
   use-world-border-center: true
-  # En Nether solo se buscan cuevas dentro de esta franja, nunca el techo de bedrock.
+  # In the Nether, caves are searched only in this vertical range, never on the bedrock roof.
   nether-minimum-y: 8
   nether-maximum-y: 120
-  # Una lista vacía permite el mundo actual. Agrega nombres para limitarlo.
+  # An empty list allows the current world. Add world names to restrict it.
   allowed-worlds: []

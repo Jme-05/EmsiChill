@@ -52,20 +52,20 @@ public final class MaintenanceService {
         List<String> issues = new ArrayList<>();
         File dataFolder = this.plugin.getDataFolder();
         if (!dataFolder.isDirectory() || !dataFolder.canRead() || !dataFolder.canWrite()) {
-            issues.add("La carpeta de datos no permite lectura y escritura.");
+            issues.add("The data folder is not readable and writable.");
             return issues;
         }
         try (java.util.stream.Stream<Path> paths = Files.walk(dataFolder.toPath())) {
             for (Path path : paths.filter(Files::isRegularFile).toList()) {
                 String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
-                if (fileName.endsWith(".tmp")) issues.add("Archivo temporal pendiente: " + dataFolder.toPath().relativize(path));
+                if (fileName.endsWith(".tmp")) issues.add("Pending temporary file: " + dataFolder.toPath().relativize(path));
                 if (fileName.endsWith(".yml")) this.validateYaml(path.toFile(), issues);
             }
         } catch (IOException exception) {
-            issues.add("No se pudo recorrer la carpeta de datos: " + exception.getMessage());
+            issues.add("Could not scan the data folder: " + exception.getMessage());
         }
         if (this.plugin.dataStore().pendingWrites() > 0) {
-            issues.add("Hay " + this.plugin.dataStore().pendingWrites() + " guardados pendientes.");
+            issues.add("There are " + this.plugin.dataStore().pendingWrites() + " pending saves.");
         }
         return issues;
     }

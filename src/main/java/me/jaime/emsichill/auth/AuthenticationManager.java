@@ -447,7 +447,7 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
                 PasswordRecord record = this.passwordHasher.create(playerName, password, this.hashIterations);
                 Bukkit.getScheduler().runTask(this.plugin, () -> callback.accept(record));
             } catch (GeneralSecurityException exception) {
-                this.plugin.getLogger().severe("No se pudo cifrar una contraseña: " + exception.getMessage());
+                this.plugin.getLogger().severe("Could not hash a password: " + exception.getMessage());
                 Bukkit.getScheduler().runTask(this.plugin, () -> callback.accept(null));
             } finally {
                 Arrays.fill(password, '\0');
@@ -467,7 +467,7 @@ public final class AuthenticationManager implements CommandExecutor, TabComplete
                     matches = verification.matches();
                     upgraded = verification.upgradedRecord();
                 } catch (GeneralSecurityException | IllegalArgumentException exception) {
-                    this.plugin.getLogger().warning("No se pudo comprobar la cuenta " + player.getName());
+                    this.plugin.getLogger().warning("Could not verify account " + player.getName());
                 }
             }
             Arrays.fill(password, '\0');

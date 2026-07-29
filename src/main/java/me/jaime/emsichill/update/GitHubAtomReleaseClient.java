@@ -76,7 +76,7 @@ final class GitHubAtomReleaseClient {
         } catch (IllegalStateException exception) {
             throw exception;
         } catch (Exception exception) {
-            throw new IllegalStateException("No se pudo leer el feed de Releases", exception);
+            throw new IllegalStateException("Could not read the Releases feed", exception);
         }
     }
 

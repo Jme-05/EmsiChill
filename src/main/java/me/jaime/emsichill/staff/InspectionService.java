@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -59,14 +60,15 @@ public final class InspectionService {
         final Player viewer,
         final InventoryView view,
         final int rawSlot,
+        final ClickType click,
         final boolean shiftClick,
         final InventoryAction action
     ) {
         InspectionSession session = this.sessions.get(viewer.getUniqueId());
         if (session == null || session.inventory() != view.getTopInventory()) return false;
         if (session.readOnly()) return true;
+        if (unsafeTransfer(click, shiftClick, action)) return true;
         if (session.type() != Type.INVENTORY) return false;
-        if (shiftClick || action == InventoryAction.COLLECT_TO_CURSOR) return true;
         return rawSlot >= 0 && rawSlot < view.getTopInventory().getSize() && !editableInventorySlot(rawSlot);
     }
 
@@ -104,7 +106,7 @@ public final class InspectionService {
     }
 
     private Inventory playerInventoryView(final Player target) {
-        Inventory inventory = Bukkit.createInventory(null, VIEW_SIZE, Component.text("Inventario de " + target.getName()));
+        Inventory inventory = Bukkit.createInventory(null, VIEW_SIZE, Component.text("Inventory of " + target.getName()));
         PlayerInventory source = target.getInventory();
         ItemStack[] storage = source.getStorageContents();
         for (int slot = 9; slot < storage.length; slot++) {
@@ -143,6 +145,20 @@ public final class InspectionService {
     private static boolean editableInventorySlot(final int slot) {
         return (slot >= 0 && slot < 36) || slot == HELMET_SLOT || slot == CHESTPLATE_SLOT
             || slot == LEGGINGS_SLOT || slot == BOOTS_SLOT || slot == OFF_HAND_SLOT;
+    }
+
+    private static boolean unsafeTransfer(
+        final ClickType click,
+        final boolean shiftClick,
+        final InventoryAction action
+    ) {
+        if (shiftClick || click == ClickType.NUMBER_KEY || click == ClickType.SWAP_OFFHAND
+            || click == ClickType.DROP || click == ClickType.CONTROL_DROP || click == ClickType.CREATIVE) return true;
+        return switch (action) {
+            case MOVE_TO_OTHER_INVENTORY, HOTBAR_MOVE_AND_READD, HOTBAR_SWAP, COLLECT_TO_CURSOR,
+                DROP_ALL_CURSOR, DROP_ONE_CURSOR, DROP_ALL_SLOT, DROP_ONE_SLOT, CLONE_STACK, UNKNOWN -> true;
+            default -> false;
+        };
     }
 
     private static ItemStack cloneItem(final ItemStack item) {

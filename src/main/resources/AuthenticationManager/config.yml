@@ -1,22 +1,22 @@
-# Usa /emsichill reload para aplicar los cambios.
+# Use /emsichill reload to apply changes.
 settings:
   login-timeout-seconds: 60
   max-login-attempts: 5
   login-lockout-seconds: 30
   min-password-length: 6
   max-password-length: 64
-  # Solo afecta a contraseñas nuevas. No se recomienda menos de 210000.
+  # Only affects new passwords. Values below 210000 are not recommended.
   password-hash-iterations: 210000
 
 sessions:
-  # Si se activa, permite restaurar temporalmente una sesión válida.
+  # Enables temporary session restore for a valid returning player.
   enabled: false
   duration-minutes: 30
-  # Se genera automaticamente. No lo compartas: protege la firma de la direccion del jugador.
+  # Generated automatically. Do not share it: it signs the player's address fingerprint.
   address-secret: ""
 
 visibility:
-  # Oculta del mundo y del TAB a quien todavía no se autenticó.
+  # Hides unauthenticated players from the world and TAB list.
   hide-until-authenticated: true
 
 authentication-location:

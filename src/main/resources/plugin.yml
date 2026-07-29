@@ -6,414 +6,421 @@ main: ${mainClass}
 version: ${version}
 commands:
   skin:
-    description: Cambia y guarda la skin de un jugador
+    description: Changes and saves player skins
     usage: /skin <name|random|reset>
     aliases: [skins]
     permission: emsichill.skin
   skull:
-    description: Entrega la cabeza de una cuenta premium
+    description: Gives the head of a premium account
     usage: /skull <name>
     permission: emsichill.skull
   login:
-    description: Inicia sesión en el servidor
+    description: Logs into the server
     usage: /login <password>
     aliases: [l]
   register:
-    description: Registra una cuenta
+    description: Registers an account
     usage: /register <password> <password>
     aliases: [reg]
   changepassword:
-    description: Cambia la contraseña de la cuenta
+    description: Changes the account password
     usage: /changepassword <current> <new> <new>
     aliases: [changepass]
   unregister:
-    description: Elimina el registro de la cuenta
+    description: Removes the account registration
     usage: /unregister <password>
   auth:
-    description: Administración del sistema de autenticación
+    description: Authentication administration
     usage: /auth <unregister|changepassword|reload>
+    permission: emsichill.auth.admin
   emsichill:
-    description: Información y recarga de EmsiChill
-    usage: /emsichill <help|reload|status|inspect|backup|migrate|update <check|changes|install|ignore|paper>|rtp cooldown>
+    description: EmsiChill help and settings
+    usage: /emsichill help [category]
     aliases: [emsi]
   home:
-    description: Te teletransporta a uno de tus homes
+    description: Teleports you to one of your homes
     usage: /home [name]
     permission: emsichill.home
   sethome:
-    description: Guarda un home
+    description: Saves a home
     usage: /sethome [name]
     permission: emsichill.sethome
   delhome:
-    description: Elimina un home
+    description: Deletes a home
     usage: /delhome <name>
     permission: emsichill.delhome
   homes:
-    description: Muestra tus homes
+    description: Lists your homes
     usage: /homes
     permission: emsichill.home
   tpa:
-    description: Solicita teletransportarte a un jugador
+    description: Requests a teleport to another player
     usage: /tpa <player>
     permission: emsichill.tpa
   tpahere:
-    description: Solicita traer a un jugador
+    description: Requests another player to teleport to you
     usage: /tpahere <player>
     permission: emsichill.tpa
   tpaccept:
-    description: Acepta una solicitud de teletransporte
+    description: Accepts a teleport request
     permission: emsichill.tpa
     usage: /tpaccept
   tpdeny:
-    description: Rechaza una solicitud de teletransporte
+    description: Denies a teleport request
     permission: emsichill.tpa
     usage: /tpdeny
   tpcancel:
-    description: Cancela una solicitud enviada
+    description: Cancels a sent teleport request
     permission: emsichill.tpa
     usage: /tpcancel
   tptoggle:
-    description: Activa o desactiva solicitudes
+    description: Toggles teleport requests
     permission: emsichill.tpa
     usage: /tptoggle
   back:
-    description: Vuelve a tu ubicación anterior
-    usage: /back [player]
+    description: Returns to your previous location
+    usage: /back
     permission: emsichill.back
   rtp:
-    description: Teletransporte aleatorio seguro
+    description: Safe random teleport
     permission: emsichill.rtp
     usage: /rtp
   playtime:
-    description: Muestra el tiempo jugado
+    description: Shows playtime
     usage: /playtime [player]
     permission: emsichill.playtime
   playtimetop:
-    description: Clasificación de tiempo jugado
+    description: Shows the playtime leaderboard
     usage: /playtimetop
     permission: emsichill.playtime
   seen:
-    description: Muestra la última conexión de un jugador
+    description: Shows a player's last seen time
     usage: /seen [player]
     permission: emsichill.seen
   staffchat:
-    description: Chat privado para moderadores
+    description: Private staff chat
     usage: /staffchat <message|toggle>
     aliases: [sc]
     permission: emsichill.staffchat
   vanish:
-    description: Oculta un moderador
+    description: Hides a moderator
     usage: /vanish [player]
     permission: emsichill.vanish
   vanishlist:
-    description: Lista jugadores ocultos
+    description: Lists vanished players
     usage: /vanishlist
     permission: emsichill.vanish.see
   staffmode:
-    description: Activa herramientas de moderación
+    description: Toggles moderation tools
     usage: /staffmode [player]
     permission: emsichill.staffmode
     aliases: [mod]
   invsee:
-    description: Abre el inventario, armadura y mano secundaria de un jugador conectado
+    description: Opens a player's inventory, armor and offhand
     usage: /invsee <player>
     permission: emsichill.invsee.view
   enderchestsee:
-    description: Abre el cofre de Ender de un jugador conectado
+    description: Opens a player's Ender Chest
     usage: /enderchestsee <player>
     aliases: [ecsee]
     permission: emsichill.enderchestsee.view
   freeze:
-    description: Congela, libera o aplica una congelación cronometrada
+    description: Freezes, unfreezes or applies a timed freeze
     usage: /freeze <player> [seconds]
     permission: emsichill.freeze
   mute:
-    description: Silencia permanentemente o durante un tiempo a un jugador
+    description: Permanently or temporarily mutes a player
     usage: /mute <player> [time]
     permission: emsichill.mute
   unmute:
-    description: Retira el silencio activo de un jugador
+    description: Removes an active mute
     usage: /unmute <player>
     permission: emsichill.unmute
   warn:
-    description: Registra una advertencia con su motivo
+    description: Records a warning with its reason
     usage: /warn <player> <reason>
     permission: emsichill.warn
   warnings:
-    description: Consulta el historial de sanciones de un jugador
+    description: Shows a player's moderation history
     usage: /warnings <player>
     permission: emsichill.warnings
   region:
-    description: Reclamos y protección de terrenos
+    description: Land claims and protection
     usage: /region <claim|build|teleport|view|upgrade|settings|add|owner|delete>
     permission: emsichill.region.use
   grave:
-    description: Administra tus tumbas
-    usage: /grave <list|locate|recover>
+    description: Manages graves
+    usage: /grave <list|locate|recover> [id]
     permission: emsichill.grave.use
   deathcontrol:
-    description: Control administrativo de pérdida de inventario
+    description: Administrative inventory-loss control
     usage: /deathcontrol <player|default> <grave|keep|drop>
     permission: emsichill.deathcontrol.admin
   sit:
-    description: Te permite sentarte usando una pose nativa
+    description: Lets you sit using a native pose
     usage: /sit
     permission: emsichill.pose
   crawl:
-    description: Te permite gatear por el suelo
+    description: Lets you crawl on the ground
     usage: /crawl
     permission: emsichill.pose
   stand:
-    description: Restablece tu postura normal
+    description: Resets your pose
     usage: /stand
     permission: emsichill.pose
   whereami:
-    description: Comparte tu dimensión y coordenadas en el chat
+    description: Shares your dimension and coordinates in chat
     usage: /whereami
     permission: emsichill.whereami
 permissions:
   emsichill.skin:
-    description: Permite usar /skin
+    description: Allows using /skin
     default: true
   emsichill.skull:
-    description: Permite obtener cabezas con /skull
+    description: Allows getting heads with /skull
     default: true
   emsichill.skin.others:
-    description: Permite cambiar la skin de otros jugadores
+    description: Allows changing other players' skins
     default: op
   emsichill.skin.bypasscooldown:
-    description: Ignora el tiempo entre cambios de skin
+    description: Bypasses the skin change cooldown
     default: op
   emsichill.auth.admin:
-    description: Permite administrar cuentas con /auth
+    description: Allows account administration with /auth
     default: op
   emsichill.admin.reload:
-    description: Permite recargar EmsiChill
+    description: Allows reloading EmsiChill
+    default: op
+  emsichill.admin.language:
+    description: Allows changing the main EmsiChill language
     default: op
   emsichill.admin.maintenance:
-    description: Permite diagnosticar, respaldar y migrar los datos de EmsiChill
+    description: Allows diagnosing, backing up and migrating EmsiChill data
     default: op
   emsichill.admin.update:
-    description: Permite comprobar, ignorar y preparar Releases nuevas de EmsiChill y builds de Paper
+    description: Allows checking, ignoring and preparing new EmsiChill releases and Paper builds
     default: op
   emsichill.home:
-    description: Permite usar /home y /homes
+    description: Allows using /home and /homes
     default: true
   emsichill.sethome:
-    description: Permite guardar homes con /sethome
+    description: Allows saving homes with /sethome
     default: true
   emsichill.delhome:
-    description: Permite eliminar homes con /delhome
+    description: Allows deleting homes with /delhome
     default: true
   emsichill.homes.3:
-    description: Eleva el límite personal a 3 homes
+    description: Raises the personal limit to 3 homes
     default: false
   emsichill.homes.5:
-    description: Eleva el límite personal a 5 homes
+    description: Raises the personal limit to 5 homes
     default: false
   emsichill.homes.unlimited:
-    description: Elimina el límite personal de homes
+    description: Removes the personal home limit
     default: op
   emsichill.homes.admin:
-    description: Permite cambiar el límite global de homes
+    description: Allows changing the global home limit
     default: op
   emsichill.homes.others:
-    description: Permite ver y usar homes de jugadores desconectados
+    description: Allows viewing and using offline players' homes
     default: op
   emsichill.tpa:
-    description: Permite usar solicitudes de teletransporte
+    description: Allows using teleport requests
     default: true
   emsichill.back:
-    description: Permite regresar a la ubicación anterior
+    description: Allows returning to the previous location
     default: true
   emsichill.back.others:
-    description: Permite ejecutar /back sobre otro jugador
+    description: Allows running /back on another player
     default: op
   emsichill.rtp:
-    description: Permite usar el teletransporte aleatorio
+    description: Allows using random teleport
     default: true
   emsichill.rtp.bypasscooldown:
-    description: Permite omitir los 30 minutos de espera de /rtp
+    description: Bypasses the /rtp cooldown
     default: op
   emsichill.rtp.admin:
-    description: Permite cambiar el cooldown de /rtp
+    description: Allows changing the /rtp cooldown
     default: op
   emsichill.teleport.bypassdelay:
-    description: Omite la espera antes de teletransportarse
+    description: Bypasses the teleport delay
     default: false
   emsichill.playtime:
-    description: Permite consultar tiempo jugado y clasificación
+    description: Allows checking playtime and leaderboard
     default: true
   emsichill.seen:
-    description: Permite consultar la última conexión
+    description: Allows checking last seen time
     default: true
   emsichill.staffchat:
-    description: Permite usar y recibir el chat del staff
+    description: Allows using and receiving staff chat
     default: op
   emsichill.vanish:
-    description: Permite alternar el modo invisible propio
+    description: Allows toggling your own vanish
     default: op
   emsichill.vanish.others:
-    description: Permite cambiar el modo invisible de otros jugadores
+    description: Allows changing other players' vanish
     default: op
   emsichill.vanish.see:
-    description: Permite ver y listar jugadores invisibles
+    description: Allows seeing and listing vanished players
     default: op
   emsichill.staffmode:
-    description: Permite activar el modo de staff propio
+    description: Allows toggling your own staff mode
     default: op
   emsichill.staffmode.others:
-    description: Permite cambiar el modo de staff de otros jugadores
+    description: Allows changing other players' staff mode
     default: op
   emsichill.invsee.view:
-    description: Permite abrir inventarios ajenos en modo de solo lectura
+    description: Allows opening other inventories in read-only mode
     default: op
   emsichill.invsee.modify:
-    description: Permite modificar inventarios abiertos con inspección
+    description: Allows editing inventories opened through inspection
     default: op
   emsichill.enderchestsee.view:
-    description: Permite abrir cofres de Ender ajenos en modo de solo lectura
+    description: Allows opening other Ender Chests in read-only mode
     default: op
   emsichill.enderchestsee.modify:
-    description: Permite modificar cofres de Ender abiertos con inspección
+    description: Allows editing Ender Chests opened through inspection
     default: op
   emsichill.freeze:
-    description: Permite congelar y liberar jugadores conectados
+    description: Allows freezing and unfreezing online players
     default: op
   emsichill.mute:
-    description: Permite silenciar jugadores
+    description: Allows muting players
     default: op
   emsichill.unmute:
-    description: Permite retirar silencios activos
+    description: Allows removing active mutes
     default: op
   emsichill.warn:
-    description: Permite advertir jugadores y registrar el motivo
+    description: Allows warning players and recording the reason
     default: op
   emsichill.warnings:
-    description: Permite consultar historiales de sanciones
+    description: Allows checking moderation histories
     default: op
   emsichill.skin.favorites.unlimited:
-    description: Elimina el límite de skins favoritas
+    description: Removes the favorite skin limit
     default: op
   emsichill.region.use:
-    description: Permite usar los comandos generales de regiones
+    description: Allows using general region commands
     default: true
   emsichill.region.claim:
-    description: Permite reclamar terrenos
+    description: Allows claiming land
     default: true
   emsichill.region.admin:
-    description: Permite administrar cualquier región
+    description: Allows administering any region
     default: op
   emsichill.region.unlimited:
-    description: Permite reclamar regiones sin límite de cantidad
+    description: Allows claiming unlimited regions
     default: op
   emsichill.grave.use:
-    description: Permite listar, localizar y recuperar tumbas propias
+    description: Allows listing, locating and recovering your own graves
     default: true
   emsichill.grave.admin:
-    description: Permite recuperar y abrir tumbas ajenas
+    description: Allows recovering and opening other players' graves
     default: op
   emsichill.deathcontrol.admin:
-    description: Permite configurar la pérdida de inventario
+    description: Allows configuring inventory loss
     default: op
   emsichill.pose:
-    description: Permite usar /sit, /crawl y /stand
+    description: Allows using /sit, /crawl and /stand
     default: true
   emsichill.whereami:
-    description: Permite compartir la ubicación con /whereami
+    description: Allows sharing location with /whereami
     default: true
 
-# Fuente única para README y /emsichill help.
+# Single source for README and /emsichill help.
 documentation:
   sections:
-    players: Comandos para jugadores
-    regions: Comandos de regiones
-    staff: Comandos para administradores y moderadores
-    configuration: Configuración mediante comandos administrativos
+    players: Player commands
+    regions: Region commands
+    staff: Staff and moderation commands
+    configuration: Administrative configuration commands
   entries:
-    - {section: players, category: auth, command: "/register <contraseña> <contraseña>", description: "Registra una cuenta."}
-    - {section: players, category: auth, command: "/login <contraseña>", description: "Inicia sesión."}
-    - {section: players, category: auth, command: "/changepassword <actual> <nueva> <nueva>", description: "Cambia la contraseña."}
-    - {section: players, category: auth, command: "/unregister <contraseña>", description: "Elimina el registro propio."}
-    - {section: players, category: skin, command: "/skin <nombre>", description: "Aplica la skin de una cuenta premium."}
-    - {section: players, category: skin, command: "/skin random", description: "Aplica una skin premium aleatoria."}
-    - {section: players, category: skin, command: "/skin reset", description: "Restablece la skin."}
-    - {section: players, category: skin, command: "/skin save <nombre>", description: "Guarda una skin como favorita."}
-    - {section: players, category: skin, command: "/skin unsave <nombre>", description: "Elimina una skin de favoritos."}
-    - {section: players, category: skin, command: "/skin favorites", description: "Abre el menú de skins favoritas."}
-    - {section: players, category: skin, command: "/skin history", description: "Abre el historial de skins."}
-    - {section: players, category: skin, command: "/skin clearhistory", description: "Elimina el historial propio."}
-    - {section: players, category: skin, command: "/skull <nombre>", description: "Obtiene la cabeza de una cuenta premium."}
-    - {section: players, category: teleport, command: "/sethome [nombre]", description: "Guarda un home."}
-    - {section: players, category: teleport, command: "/home [nombre]", description: "Se teletransporta a un home respetando el delay configurado."}
-    - {section: players, category: teleport, command: "/delhome <nombre>", description: "Elimina un home."}
-    - {section: players, category: teleport, command: "/homes", description: "Muestra todos los homes propios."}
-    - {section: players, category: teleport, command: "/tpa <jugador>", description: "Solicita teletransportarse a otro jugador."}
-    - {section: players, category: teleport, command: "/tpahere <jugador>", description: "Solicita que otro jugador vaya hacia ti."}
-    - {section: players, category: teleport, command: "/tpaccept", description: "Acepta una solicitud de teletransporte."}
-    - {section: players, category: teleport, command: "/tpdeny", description: "Rechaza una solicitud de teletransporte."}
-    - {section: players, category: teleport, command: "/tpcancel", description: "Cancela una solicitud enviada."}
-    - {section: players, category: teleport, command: "/tptoggle", description: "Activa o bloquea las solicitudes."}
-    - {section: players, category: teleport, command: "/back", description: "Regresa a la ubicación anterior o a la tumba."}
-    - {section: players, category: teleport, command: "/rtp", description: "Busca un lugar aleatorio seguro."}
-    - {section: players, category: social, command: "/playtime [jugador]", description: "Consulta el tiempo jugado."}
-    - {section: players, category: social, command: "/playtimetop", description: "Muestra la clasificación de tiempo jugado."}
-    - {section: players, category: social, command: "/seen [jugador]", description: "Consulta la última conexión."}
-    - {section: players, category: social, command: "/sit", description: "Activa o desactiva la postura sentada."}
-    - {section: players, category: social, command: "/crawl", description: "Activa o desactiva la postura de gateo."}
-    - {section: players, category: social, command: "/stand", description: "Recupera la postura normal."}
-    - {section: players, category: social, command: "/whereami", description: "Comparte dimensión y coordenadas en el chat."}
-    - {section: players, category: grave, command: "/grave list", description: "Muestra las tumbas activas."}
-    - {section: players, category: grave, command: "/grave locate <id>", description: "Muestra la ubicación de una tumba."}
-    - {section: players, category: grave, command: "/grave recover <id>", description: "Recupera una tumba propia."}
-    - {section: regions, category: region, command: "/region claim <nombre>", description: "Reclama una región centrada en tu posición."}
-    - {section: regions, category: region, command: "/region list", description: "Lista tus regiones y coordenadas."}
-    - {section: regions, category: region, command: "/region info [nombre]", description: "Muestra información de una región."}
-    - {section: regions, category: region, command: "/region teleport <nombre>", description: "Se teletransporta a una región propia."}
-    - {section: regions, category: region, command: "/region view [nombre]", description: "Muestra temporalmente sus límites."}
-    - {section: regions, category: region, command: "/region build", description: "Abre el menú para comprar más regiones."}
-    - {section: regions, category: region, command: "/region upgrade [nombre]", description: "Abre el menú de ampliación."}
-    - {section: regions, category: region, command: "/region settings [nombre]", description: "Abre la configuración de la región."}
-    - {section: regions, category: region, command: "/region add <jugador>", description: "Permite construir a un miembro."}
-    - {section: regions, category: region, command: "/region remove <jugador>", description: "Elimina a un miembro."}
-    - {section: regions, category: region, command: "/region owner <jugador>", description: "Añade un propietario secundario."}
-    - {section: regions, category: region, command: "/region unowner <jugador>", description: "Elimina un propietario secundario."}
-    - {section: regions, category: region, command: "/region transfer <jugador>", description: "Transfiere el propietario principal."}
-    - {section: regions, category: region, command: "/region delete <nombre> confirm", description: "Elimina permanentemente una región."}
-    - {section: regions, category: region, command: "/region help", description: "Muestra la ayuda de regiones."}
-    - {section: staff, category: staff, command: "/invsee <jugador>", description: "Abre inventario, armadura y mano secundaria; modificarlo requiere un permiso adicional."}
-    - {section: staff, category: staff, command: "/enderchestsee <jugador>", description: "Abre el cofre de Ender; modificarlo requiere un permiso adicional."}
-    - {section: staff, category: staff, command: "/freeze <jugador> [segundos]", description: "Congela, libera o aplica una congelación con duración definida."}
-    - {section: staff, category: staff, command: "/mute <jugador> [tiempo]", description: "Silencia permanentemente o durante 30s, 10m, 2h o 1d."}
-    - {section: staff, category: staff, command: "/unmute <jugador>", description: "Retira el silencio activo de un jugador."}
-    - {section: staff, category: staff, command: "/warn <jugador> <motivo>", description: "Registra una advertencia con fecha, moderador y motivo."}
-    - {section: staff, category: staff, command: "/warnings <jugador>", description: "Muestra el historial reciente de sanciones."}
-    - {section: staff, category: staff, command: "/staffchat toggle", description: "Activa o desactiva el chat administrativo."}
-    - {section: staff, category: staff, command: "/staffchat <mensaje>", description: "Envía un mensaje al equipo."}
-    - {section: staff, category: staff, command: "/vanish [jugador]", description: "Activa o desactiva el modo invisible."}
-    - {section: staff, category: staff, command: "/vanishlist", description: "Lista los jugadores invisibles."}
-    - {section: staff, category: staff, command: "/staffmode [jugador]", description: "Activa las herramientas de moderación."}
-    - {section: staff, category: staff, command: "/skin <jugador> <skin>", description: "Cambia la skin de otro jugador."}
-    - {section: staff, category: staff, command: "/home <jugador> [home]", description: "Lista o utiliza homes ajenos, incluso de jugadores desconectados."}
-    - {section: staff, category: staff, command: "/back <jugador>", description: "Envía a otro jugador a su ubicación anterior."}
-    - {section: staff, category: staff, command: "/auth unregister <jugador>", description: "Elimina administrativamente el registro de una cuenta."}
-    - {section: staff, category: staff, command: "/auth changepassword <jugador> <nueva>", description: "Cambia administrativamente una contraseña."}
-    - {section: staff, category: staff, command: "/grave admin recover <jugador>", description: "Recupera administrativamente una tumba."}
-    - {section: configuration, category: admin, command: "/emsichill homes limit <cantidad>", description: "Cambia el límite predeterminado de homes."}
-    - {section: configuration, category: admin, command: "/emsichill rtp cooldown <minutos>", description: "Cambia el cooldown global de RTP."}
-    - {section: configuration, category: admin, command: "/deathcontrol default <grave|keep|drop>", description: "Cambia el modo de muerte predeterminado."}
-    - {section: configuration, category: admin, command: "/deathcontrol <jugador> <grave|keep|drop>", description: "Cambia el modo de muerte de un jugador."}
-    - {section: configuration, category: admin, command: "/auth reload", description: "Recarga el módulo de autenticación."}
-    - {section: configuration, category: admin, command: "/emsichill update check", description: "Comprueba si existe una Release nueva sin instalarla."}
-    - {section: configuration, category: admin, command: "/emsichill update changes <versión>", description: "Muestra dentro del juego un resumen de las notas de la Release."}
-    - {section: configuration, category: admin, command: "/emsichill update install <versión>", description: "Si la instalación está habilitada, descarga, valida y prepara una Release."}
-    - {section: configuration, category: admin, command: "/emsichill update ignore <versión>", description: "Oculta los avisos automáticos de una Release concreta."}
-    - {section: configuration, category: admin, command: "/emsichill update paper check", description: "Comprueba si PaperMC publico una build nueva para Paper/Minecraft."}
-    - {section: configuration, category: admin, command: "/emsichill update paper download <version> <build>", description: "Descarga y verifica una build nueva de Paper para aplicarla en el siguiente reinicio."}
-    - {section: configuration, category: admin, command: "/emsichill update paper ignore <version> <build>", description: "Oculta los avisos automaticos de una build concreta de Paper."}
-    - {section: configuration, category: admin, command: "/emsichill reload", description: "Recarga las configuraciones del plugin."}
-    - {section: configuration, category: admin, command: "/emsichill status", description: "Muestra el estado de los módulos."}
-    - {section: configuration, category: admin, command: "/emsichill inspect", description: "Busca problemas en datos y configuración."}
-    - {section: configuration, category: admin, command: "/emsichill backup", description: "Crea un respaldo de los datos."}
-    - {section: configuration, category: admin, command: "/emsichill migrate", description: "Guarda y normaliza los datos actuales."}
-    - {section: configuration, category: admin, command: "/emsichill help <categoría>", description: "Muestra ayuda generada por categorías."}
+    - {section: players, category: auth, command: "/register <password> <password>", description: "Registers an account."}
+    - {section: players, category: auth, command: "/login <password>", description: "Logs into an account."}
+    - {section: players, category: auth, command: "/changepassword <current> <new> <new>", description: "Changes your password."}
+    - {section: players, category: auth, command: "/unregister <password>", description: "Removes your own registration."}
+    - {section: players, category: skin, command: "/skin <name>", description: "Applies the skin of a premium account."}
+    - {section: players, category: skin, command: "/skin random", description: "Applies a random premium skin."}
+    - {section: players, category: skin, command: "/skin reset", description: "Resets your skin."}
+    - {section: players, category: skin, command: "/skin save <name>", description: "Saves a skin as a favorite."}
+    - {section: players, category: skin, command: "/skin unsave <name>", description: "Removes a skin from favorites."}
+    - {section: players, category: skin, command: "/skin favorites", description: "Opens the favorite skins menu."}
+    - {section: players, category: skin, command: "/skin history", description: "Opens your skin history."}
+    - {section: players, category: skin, command: "/skin clearhistory", description: "Clears your own skin history."}
+    - {section: players, category: skin, command: "/skull <name>", description: "Gets the head of a premium account."}
+    - {section: players, category: teleport, command: "/sethome [name]", description: "Saves a home."}
+    - {section: players, category: teleport, command: "/home [name]", description: "Teleports to a home using the configured delay."}
+    - {section: players, category: teleport, command: "/delhome <name>", description: "Deletes a home."}
+    - {section: players, category: teleport, command: "/homes", description: "Lists your homes."}
+    - {section: players, category: teleport, command: "/tpa <player>", description: "Requests a teleport to another player."}
+    - {section: players, category: teleport, command: "/tpahere <player>", description: "Requests another player to teleport to you."}
+    - {section: players, category: teleport, command: "/tpaccept", description: "Accepts a teleport request."}
+    - {section: players, category: teleport, command: "/tpdeny", description: "Denies a teleport request."}
+    - {section: players, category: teleport, command: "/tpcancel", description: "Cancels a sent teleport request."}
+    - {section: players, category: teleport, command: "/tptoggle", description: "Toggles incoming teleport requests."}
+    - {section: players, category: teleport, command: "/back", description: "Returns to your previous location or grave."}
+    - {section: players, category: teleport, command: "/rtp", description: "Finds a safe random location."}
+    - {section: players, category: social, command: "/playtime [player]", description: "Checks playtime."}
+    - {section: players, category: social, command: "/playtimetop", description: "Shows the playtime leaderboard."}
+    - {section: players, category: social, command: "/seen [player]", description: "Checks the last seen time."}
+    - {section: players, category: social, command: "/sit", description: "Toggles the sitting pose."}
+    - {section: players, category: social, command: "/crawl", description: "Toggles the crawling pose."}
+    - {section: players, category: social, command: "/stand", description: "Resets your pose."}
+    - {section: players, category: social, command: "/whereami", description: "Shares your dimension and coordinates in chat."}
+    - {section: players, category: grave, command: "/grave list", description: "Lists active graves."}
+    - {section: players, category: grave, command: "/grave locate <id>", description: "Shows and visually marks one of your grave locations."}
+    - {section: players, category: grave, command: "/grave recover <id>", description: "Recovers one of your own graves."}
+    - {section: regions, category: region, command: "/region claim <name>", description: "Claims a region centered on your position."}
+    - {section: regions, category: region, command: "/region list", description: "Lists your regions and coordinates."}
+    - {section: regions, category: region, command: "/region info [name]", description: "Shows region information."}
+    - {section: regions, category: region, command: "/region teleport <name>", description: "Teleports to one of your regions."}
+    - {section: regions, category: region, command: "/region view [name]", description: "Temporarily displays region borders."}
+    - {section: regions, category: region, command: "/region build", description: "Opens the menu to buy more region slots."}
+    - {section: regions, category: region, command: "/region upgrade [name]", description: "Opens the region expansion menu."}
+    - {section: regions, category: region, command: "/region settings [name]", description: "Opens region settings."}
+    - {section: regions, category: region, command: "/region add <player>", description: "Allows a member to build."}
+    - {section: regions, category: region, command: "/region remove <player>", description: "Removes a member."}
+    - {section: regions, category: region, command: "/region owner <player>", description: "Adds a co-owner."}
+    - {section: regions, category: region, command: "/region unowner <player>", description: "Removes a co-owner."}
+    - {section: regions, category: region, command: "/region transfer <player>", description: "Transfers primary ownership."}
+    - {section: regions, category: region, command: "/region delete <name> confirm", description: "Permanently deletes a region."}
+    - {section: regions, category: region, command: "/region help", description: "Shows region help."}
+    - {section: staff, category: staff, command: "/invsee <player>", description: "Opens inventory, armor and offhand. Editing requires an extra permission."}
+    - {section: staff, category: staff, command: "/enderchestsee <player>", description: "Opens the Ender Chest. Editing requires an extra permission."}
+    - {section: staff, category: staff, command: "/freeze <player> [seconds]", description: "Freezes, unfreezes or applies a timed freeze."}
+    - {section: staff, category: staff, command: "/mute <player> [time]", description: "Mutes a player permanently or for 30s, 10m, 2h or 1d."}
+    - {section: staff, category: staff, command: "/unmute <player>", description: "Removes an active mute."}
+    - {section: staff, category: staff, command: "/warn <player> <reason>", description: "Records a warning with date, moderator and reason."}
+    - {section: staff, category: staff, command: "/warnings <player>", description: "Shows the recent moderation history."}
+    - {section: staff, category: staff, command: "/staffchat toggle", description: "Toggles staff chat."}
+    - {section: staff, category: staff, command: "/staffchat <message>", description: "Sends a message to staff."}
+    - {section: staff, category: staff, command: "/vanish [player]", description: "Toggles vanish mode."}
+    - {section: staff, category: staff, command: "/vanishlist", description: "Lists vanished players."}
+    - {section: staff, category: staff, command: "/staffmode [player]", description: "Toggles moderation tools."}
+    - {section: staff, category: staff, command: "/skin <player> <skin>", description: "Changes another player's skin."}
+    - {section: staff, category: staff, command: "/home <player> [home]", description: "Lists or uses homes from another player, including offline players."}
+    - {section: staff, category: staff, command: "/back <player>", description: "Sends another player to their previous location."}
+    - {section: staff, category: staff, command: "/auth unregister <player>", description: "Administratively removes an account registration."}
+    - {section: staff, category: staff, command: "/auth changepassword <player> <new>", description: "Administratively changes a password."}
+    - {section: staff, category: staff, command: "/grave locate <player>", description: "Lists and visually marks graves owned by a player."}
+    - {section: staff, category: staff, command: "/grave recover <player>", description: "Recovers all online graves owned by a player."}
+    - {section: staff, category: staff, command: "/grave admin recover <player>", description: "Administratively recovers a player's graves."}
+    - {section: configuration, category: admin, command: "/emsichill language <english|spanish>", description: "Changes the main plugin language and reloads messages."}
+    - {section: configuration, category: admin, command: "/emsichill homes limit <amount>", description: "Changes the default home limit."}
+    - {section: configuration, category: admin, command: "/emsichill rtp cooldown <minutes>", description: "Changes the global RTP cooldown."}
+    - {section: configuration, category: admin, command: "/deathcontrol default <grave|keep|drop>", description: "Changes the default death mode."}
+    - {section: configuration, category: admin, command: "/deathcontrol <player> <grave|keep|drop>", description: "Changes a player's death mode."}
+    - {section: configuration, category: admin, command: "/auth reload", description: "Reloads the authentication module."}
+    - {section: configuration, category: admin, command: "/emsichill update check", description: "Checks for a new Release without installing it."}
+    - {section: configuration, category: admin, command: "/emsichill update changes <version>", description: "Shows a short in-game summary of Release notes."}
+    - {section: configuration, category: admin, command: "/emsichill update install <version>", description: "Downloads, validates and stages a Release when installs are enabled."}
+    - {section: configuration, category: admin, command: "/emsichill update ignore <version>", description: "Hides automatic notices for a specific Release."}
+    - {section: configuration, category: admin, command: "/emsichill update paper check", description: "Checks whether PaperMC published a new Paper/Minecraft build."}
+    - {section: configuration, category: admin, command: "/emsichill update paper download <version> <build>", description: "Downloads and verifies a new Paper build for the next restart."}
+    - {section: configuration, category: admin, command: "/emsichill update paper ignore <version> <build>", description: "Hides automatic notices for a specific Paper build."}
+    - {section: configuration, category: admin, command: "/emsichill reload", description: "Reloads plugin configuration."}
+    - {section: configuration, category: admin, command: "/emsichill status", description: "Shows module status."}
+    - {section: configuration, category: admin, command: "/emsichill inspect", description: "Checks data and configuration for problems."}
+    - {section: configuration, category: admin, command: "/emsichill backup", description: "Creates a data backup."}
+    - {section: configuration, category: admin, command: "/emsichill migrate", description: "Saves and normalizes current data."}
+    - {section: configuration, category: admin, command: "/emsichill help <category>", description: "Shows generated help by category."}

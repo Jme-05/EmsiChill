@@ -194,7 +194,7 @@ final class RegionRepository {
                         this.purchasedSlots.put(UUID.fromString(value), purchased);
                     }
                 } catch (IllegalArgumentException exception) {
-                    this.plugin.getLogger().warning("Se ignoró un registro de cupos de región inválido: " + value);
+                    this.plugin.getLogger().warning("Ignored invalid purchased region slot entry: " + value);
                 }
             }
         }

@@ -63,7 +63,7 @@ public final class DataStore implements AutoCloseable {
             Thread.currentThread().interrupt();
             return false;
         } catch (ExecutionException | java.util.concurrent.TimeoutException exception) {
-            this.logger.warning("No se pudo completar el guardado de " + file.getAbsolutePath() + ": " + exception.getMessage());
+            this.logger.warning("Could not complete save for " + file.getAbsolutePath() + ": " + exception.getMessage());
             return false;
         } catch (RejectedExecutionException exception) {
             return this.write(write);
@@ -84,7 +84,7 @@ public final class DataStore implements AutoCloseable {
                 Files.writeString(file.toPath(), contents, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             } catch (IOException exception) {
-                this.logger.warning("No se pudo añadir contenido a " + file.getAbsolutePath() + ": " + exception.getMessage());
+                this.logger.warning("Could not append content to " + file.getAbsolutePath() + ": " + exception.getMessage());
             }
         });
     }
@@ -97,7 +97,7 @@ public final class DataStore implements AutoCloseable {
             Thread.currentThread().interrupt();
             return false;
         } catch (ExecutionException | java.util.concurrent.TimeoutException exception) {
-            this.logger.warning("No se pudo completar la cola de guardado: " + exception.getMessage());
+            this.logger.warning("Could not complete the save queue: " + exception.getMessage());
             return false;
         }
     }
@@ -131,7 +131,7 @@ public final class DataStore implements AutoCloseable {
             AtomicYamlStorage.write(pendingWrite.file(), pendingWrite.contents());
             return true;
         } catch (IOException exception) {
-            this.logger.severe("No se pudo guardar " + pendingWrite.file().getAbsolutePath() + ": " + exception.getMessage());
+            this.logger.severe("Could not save " + pendingWrite.file().getAbsolutePath() + ": " + exception.getMessage());
             return false;
         }
     }

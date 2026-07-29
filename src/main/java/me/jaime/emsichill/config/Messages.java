@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,10 +37,11 @@ public final class Messages {
     }
 
     public void reload() {
-        String language = this.plugin.settings().getString("language", "es").toLowerCase();
-        if (!language.equals("en")) {
-            language = "es";
-        }
+        String language = this.plugin.settings().getString("language", "en").toLowerCase(Locale.ROOT);
+        language = switch (language) {
+            case "es", "spanish", "espanol", "español" -> "es";
+            default -> "en";
+        };
         String resourcePath = "messages_" + language + ".yml";
         File existingFile = new File(this.plugin.getDataFolder(), resourcePath);
         int existingTextRevision = existingFile.exists()
@@ -52,11 +54,11 @@ public final class Messages {
             );
         } catch (java.io.IOException exception) {
             this.bundledFallback = new YamlConfiguration();
-            this.plugin.getLogger().warning("No se pudieron cargar los mensajes incluidos en EmsiChill.");
+            this.plugin.getLogger().warning("Could not load the bundled EmsiChill messages.");
         }
         // Las revisiones aplican correcciones importantes una vez y conservan cambios posteriores.
         int bundledTextRevision = this.bundledFallback.getInt("_meta.text-revision", 0);
-        if (language.equals("es") && existingTextRevision < bundledTextRevision) {
+        if (existingTextRevision < bundledTextRevision) {
             for (String key : this.bundledFallback.getKeys(true)) {
                 if (this.bundledFallback.isString(key)) {
                     this.messagesFile.yaml().set(key, this.bundledFallback.getString(key));
@@ -164,9 +166,9 @@ public final class Messages {
         // Una clave ausente usa el recurso incluido antes de mostrar un error genérico.
         if (text == null) {
             if (this.warnedMissingKeys.add(key)) {
-                this.plugin.getLogger().warning("Falta la clave de mensaje: " + key);
+                this.plugin.getLogger().warning("Missing message key: " + key);
             }
-            text = "&cNo se pudo completar este comando. Usa &e/emsichill help&c.";
+            text = "&cThis command could not be completed. Use &e/emsichill help&c.";
         }
         for (int index = 0; index + 1 < replacements.length; index += 2) {
             text = text.replace(replacements[index], replacements[index + 1]);

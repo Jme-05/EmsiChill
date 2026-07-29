@@ -217,6 +217,7 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
         final String alias,
         final String[] args
     ) {
+        if (!sender.hasPermission(permissionFor(command.getName()))) return Collections.emptyList();
         if (command.getName().equalsIgnoreCase("staffchat") && args.length == 1) {
             return CommandSuggestions.filter(List.of("toggle"), args[0]);
         }
@@ -228,5 +229,18 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
         List<String> names = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) names.add(player.getName());
         return CommandSuggestions.filter(names, args[0]);
+    }
+
+    private static String permissionFor(final String commandName) {
+        return switch (commandName.toLowerCase(Locale.ROOT)) {
+            case "staffchat" -> "emsichill.staffchat";
+            case "vanish" -> "emsichill.vanish";
+            case "vanishlist" -> "emsichill.vanish.see";
+            case "staffmode" -> "emsichill.staffmode";
+            case "invsee" -> "emsichill.invsee.view";
+            case "enderchestsee" -> "emsichill.enderchestsee.view";
+            case "freeze" -> "emsichill.freeze";
+            default -> "";
+        };
     }
 }

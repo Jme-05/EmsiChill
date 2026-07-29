@@ -30,7 +30,7 @@ public final class CommandDocumentation {
                 new InputStreamReader(stream, StandardCharsets.UTF_8));
             return from(yaml);
         } catch (java.io.IOException exception) {
-            plugin.getLogger().warning("No se pudo cargar la documentación de comandos.");
+            plugin.getLogger().warning("Could not load command documentation.");
             return empty();
         }
     }

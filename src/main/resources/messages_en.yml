@@ -1,3 +1,6 @@
+_meta:
+  text-revision: 1
+
 general:
   no-permission: "&cYou do not have permission."
   only-players: "&cThis command can only be used in game."
@@ -8,7 +11,7 @@ general:
 help:
   header: "&a--- EmsiChill Help ---"
   main: "&eUse &f/emsichill help &efor categories. Quick commands: &f/home, /tpa, /rtp, /back, /skin, /region, /grave, /sit and /whereami&e."
-  categories: "&eCategories: &fauth, teleport, skin, region, grave, social, staff and admin&e."
+  categories: "&eCategories: &f{categories}&e."
   account: "&eAccount: &f/register <password> <password>, /login <password>, /changepassword <current> <new> <new>, /unregister <password>"
   teleports: "&eTeleports: &f/home [name], /sethome [name], /delhome <name>, /tpa <player>, /tpaccept, /back [player], /rtp"
   skins: "&eSkins: &f/skin <name>, /skin random, /skin reset, /skin save <name>, /skin favorites, /skin history and /skull <name>"
@@ -16,7 +19,12 @@ help:
   graves: "&eGraves: &f/grave list, /grave locate <id>, /grave recover <id>. Shift-click collects all items that fit."
   social: "&eSocial: &f/sit and /crawl &echange your pose; &f/stand &eresets it; &f/whereami &eshares your dimension and coordinates."
   staff: "&eStaff: &f/staffchat <message|toggle>, /vanish [player], /vanishlist, /staffmode [player]"
-  admin: "&eAdmin: &f/emsichill reload|status|inspect|backup|migrate, /emsichill rtp cooldown <minutes>, /emsichill homes limit <number>, /auth, /deathcontrol and /back <player>"
+  admin: "&eAdmin: &f/emsichill reload|status|inspect|backup|migrate|language, /emsichill rtp cooldown <minutes>, /emsichill homes limit <number>, /auth, /deathcontrol and /back <player>"
+language:
+  english: "English"
+  spanish: "Spanish"
+  changed: "&aMain language changed to {language}. Configuration and messages were reloaded."
+  invalid: "&cInvalid language. Use &fenglish &cor &fspanish&c."
 auth:
   login-locked: "&cToo many attempts. Wait {seconds} seconds before trying again."
   already-registered: "&cThis account is registered. Use /login <password>."
@@ -309,7 +317,8 @@ grave:
   list-header: "&ePending graves: &f{count}"
   list-entry: "&8- &f{id} &7| &b{dimension} &7({world}) &f{x}, {y}, {z} &7| Expires in &e{time}"
   not-found: "&cThat grave was not found."
-  location: "&eGrave {id}: {world}, {x}, {y}, {z}."
+  location: "&eGrave {id} ({player}): {world}, {x}, {y}, {z}."
+  location-header: "&eFound {count} graves for {player}:"
   private: "&cThis grave belongs to {player} and is still private."
   already-open: "&cThis grave is already open."
   collected-all: "&aYou collected every item from the grave."

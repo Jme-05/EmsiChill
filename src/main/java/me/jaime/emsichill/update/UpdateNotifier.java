@@ -184,13 +184,13 @@ public final class UpdateNotifier implements Listener {
     private void logFailure(final String detail) {
         if (this.failureLogged) return;
         this.failureLogged = true;
-        this.plugin.getLogger().warning("No se pudo comprobar automaticamente la actualizacion: " + detail);
+        this.plugin.getLogger().warning("Could not check for updates automatically: " + detail);
     }
 
     private void logPaperFailure(final String detail) {
         if (this.paperFailureLogged) return;
         this.paperFailureLogged = true;
-        this.plugin.getLogger().warning("No se pudo comprobar automaticamente PaperMC: " + detail);
+        this.plugin.getLogger().warning("Could not check PaperMC automatically: " + detail);
     }
 
     private boolean automaticChecksEnabled() {

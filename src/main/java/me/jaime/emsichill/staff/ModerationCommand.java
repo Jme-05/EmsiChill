@@ -198,6 +198,7 @@ public final class ModerationCommand implements CommandExecutor, TabCompleter {
         final String alias,
         final String[] args
     ) {
+        if (!sender.hasPermission(permissionFor(command.getName()))) return Collections.emptyList();
         if (command.getName().equalsIgnoreCase("mute") && args.length == 2) {
             return CommandSuggestions.filter(MUTE_DURATIONS, args[1]);
         }
@@ -207,5 +208,15 @@ public final class ModerationCommand implements CommandExecutor, TabCompleter {
             if (player.getName() != null) names.add(player.getName());
         }
         return CommandSuggestions.filter(names, args[0]);
+    }
+
+    private static String permissionFor(final String commandName) {
+        return switch (commandName.toLowerCase(Locale.ROOT)) {
+            case "mute" -> "emsichill.mute";
+            case "unmute" -> "emsichill.unmute";
+            case "warn" -> "emsichill.warn";
+            case "warnings" -> "emsichill.warnings";
+            default -> "";
+        };
     }
 }

@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -39,6 +41,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import me.jaime.emsichill.Main;
@@ -178,6 +181,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         this.repository.put(grave);
         if (marker != null) {
             this.placeMarker(grave);
+            this.playGraveEffect(grave);
             this.plugin.rememberGraveBackLocation(player, marker);
         }
         this.repository.save();
@@ -229,7 +233,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         if (location == null) return;
         location.getBlock().setType(Material.CHEST, false);
         if (location.getBlock().getState() instanceof Chest chest) {
-            chest.customName(Component.text("Tumba (" + grave.ownerName() + ")"));
+            chest.customName(Component.text("Grave (" + grave.ownerName() + ")"));
             chest.update(true);
         }
         this.graveBlocks.put(this.blockKey(location), grave.id());
@@ -242,7 +246,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         Location location = grave.location();
         if (location == null) return;
         double height = this.configFile.yaml().getDouble("graves.name-display.height", 1.45);
-        String format = this.configFile.yaml().getString("graves.name-display.text", "Tumba de {player}");
+        String format = this.configFile.yaml().getString("graves.name-display.text", "Grave of {player}");
         String text = format.replace("{player}", grave.ownerName());
         TextDisplay display = location.getWorld().spawn(location.clone().add(0.5, height, 0.5), TextDisplay.class, entity -> {
             entity.text(Component.text(text, NamedTextColor.YELLOW));
@@ -270,7 +274,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             if (location != null) {
                 if (location.getBlock().getType().isAir()) location.getBlock().setType(Material.CHEST, false);
                 if (location.getBlock().getState() instanceof Chest chest) {
-                    chest.customName(Component.text("Tumba (" + grave.ownerName() + ")"));
+                    chest.customName(Component.text("Grave (" + grave.ownerName() + ")"));
                     chest.update(true);
                 }
                 this.graveBlocks.put(this.blockKey(location), grave.id());
@@ -302,7 +306,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             return;
         }
         GraveHolder holder = new GraveHolder(id);
-        Inventory inventory = Bukkit.createInventory(holder, 54, Component.text("Tumba (" + grave.ownerName() + ")"));
+        Inventory inventory = Bukkit.createInventory(holder, 54, Component.text("Grave (" + grave.ownerName() + ")"));
         holder.setInventory(inventory);
         for (ItemStack item : grave.items()) inventory.addItem(item.clone());
         if (grave.experience() > 0) {
@@ -449,7 +453,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         World world = Bukkit.getWorld(worldName);
         if (world == null) return worldName;
         return switch (world.getEnvironment()) {
-            case NORMAL -> "Mundo normal";
+            case NORMAL -> "Overworld";
             case NETHER -> "Nether";
             case THE_END -> "End";
             default -> worldName;
@@ -467,16 +471,46 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     }
 
     private boolean locate(final Player player, final String partialId) {
-        Grave grave = this.findOwnedGrave(player, partialId);
-        if (grave == null) this.plugin.messages().send(player, "grave.not-found");
-        else this.plugin.messages().send(player, "grave.location", "{id}", grave.id(), "{world}", grave.world(),
-            "{x}", Integer.toString(grave.x()), "{y}", Integer.toString(grave.y()), "{z}", Integer.toString(grave.z()));
+        List<Grave> matches = new ArrayList<>();
+        Grave owned = this.findOwnedGrave(player, partialId);
+        if (owned != null) matches.add(owned);
+        if (matches.isEmpty() && player.hasPermission("emsichill.grave.admin")) {
+            matches.addAll(this.findGravesByOwnerName(partialId));
+            if (matches.isEmpty()) {
+                Grave grave = this.findGrave(partialId);
+                if (grave != null) matches.add(grave);
+            }
+        }
+        if (matches.isEmpty()) {
+            this.plugin.messages().send(player, "grave.not-found");
+            return true;
+        }
+        matches.sort((first, second) -> Long.compare(second.createdAt(), first.createdAt()));
+        if (matches.size() > 1) {
+            this.plugin.messages().send(player, "grave.location-header", "{count}", Integer.toString(matches.size()),
+                "{player}", matches.getFirst().ownerName());
+        }
+        for (Grave grave : matches) {
+            this.plugin.messages().send(player, "grave.location", "{id}", grave.id(), "{player}", grave.ownerName(),
+                "{world}", grave.world(), "{x}", Integer.toString(grave.x()), "{y}", Integer.toString(grave.y()),
+                "{z}", Integer.toString(grave.z()));
+        }
+        this.highlightGrave(player, matches.getFirst());
         return true;
     }
 
     private boolean recoverById(final Player actor, final String partialId, final Player receiver) {
         Grave grave = this.findOwnedGrave(actor, partialId);
-        if (grave == null && actor.hasPermission("emsichill.grave.admin")) grave = this.findGrave(partialId);
+        if (grave == null && actor.hasPermission("emsichill.grave.admin")) {
+            Player target = Bukkit.getPlayerExact(partialId);
+            if (target != null) return this.recoverPlayerGraves(actor, target);
+            List<Grave> namedGraves = this.findGravesByOwnerName(partialId);
+            if (!namedGraves.isEmpty()) {
+                this.plugin.messages().send(actor, "grave.player-offline");
+                return true;
+            }
+            grave = this.findGrave(partialId);
+        }
         if (grave == null) {
             this.plugin.messages().send(actor, "grave.not-found");
             return true;
@@ -496,11 +530,15 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             this.plugin.messages().send(admin, "grave.player-offline");
             return true;
         }
-        List<Grave> owned = new ArrayList<>();
-        for (Grave grave : this.repository.all()) if (grave.owner().equals(target.getUniqueId())) owned.add(grave);
+        return this.recoverPlayerGraves(admin, target);
+    }
+
+    private boolean recoverPlayerGraves(final Player admin, final Player target) {
+        List<Grave> owned = this.findGravesByOwner(target.getUniqueId());
         int recovered = 0;
         for (Grave grave : owned) if (this.recover(grave, target)) recovered++;
-        this.plugin.messages().send(admin, "grave.admin-recovered", "{count}", Integer.toString(recovered), "{player}", target.getName());
+        this.plugin.messages().send(admin, "grave.admin-recovered", "{count}", Integer.toString(recovered),
+            "{player}", target.getName());
         return true;
     }
 
@@ -607,9 +645,63 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         return null;
     }
 
+    private List<Grave> findGravesByOwner(final UUID owner) {
+        List<Grave> matches = new ArrayList<>();
+        for (Grave grave : this.repository.all()) if (grave.owner().equals(owner)) matches.add(grave);
+        matches.sort((first, second) -> Long.compare(second.createdAt(), first.createdAt()));
+        return matches;
+    }
+
+    private List<Grave> findGravesByOwnerName(final String playerName) {
+        String requested = playerName.toLowerCase(Locale.ROOT);
+        List<Grave> exact = new ArrayList<>();
+        List<Grave> partial = new ArrayList<>();
+        for (Grave grave : this.repository.all()) {
+            String ownerName = grave.ownerName().toLowerCase(Locale.ROOT);
+            if (ownerName.equals(requested)) exact.add(grave);
+            else if (ownerName.startsWith(requested)) partial.add(grave);
+        }
+        List<Grave> matches = exact.isEmpty() ? partial : exact;
+        matches.sort((first, second) -> Long.compare(second.createdAt(), first.createdAt()));
+        return matches;
+    }
+
     private Grave findGrave(final String partial) {
         for (Grave grave : this.repository.all()) if (grave.id().startsWith(partial)) return grave;
         return null;
+    }
+
+    private void playGraveEffect(final Grave grave) {
+        Location location = grave.location();
+        if (location == null || !this.configFile.yaml().getBoolean("graves.visuals.effects", true)) return;
+        Location center = location.clone().add(0.5, 1.05, 0.5);
+        location.getWorld().spawnParticle(Particle.END_ROD, center, 18, 0.35, 0.45, 0.35, 0.01);
+        location.getWorld().spawnParticle(Particle.SOUL, center, 10, 0.25, 0.25, 0.25, 0.01);
+        location.getWorld().playSound(center, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 0.85F);
+    }
+
+    private void highlightGrave(final Player viewer, final Grave grave) {
+        Location location = grave.location();
+        if (location == null || !this.configFile.yaml().getBoolean("graves.visuals.locate-marker", true)) return;
+        int seconds = Math.max(1, this.configFile.yaml().getInt("graves.visuals.locate-marker-seconds", 8));
+        int interval = 10;
+        int durationTicks = seconds * 20;
+        new BukkitRunnable() {
+            private int elapsed;
+
+            @Override
+            public void run() {
+                if (!viewer.isOnline() || this.elapsed > durationTicks) {
+                    this.cancel();
+                    return;
+                }
+                Location center = location.clone().add(0.5, 1.15, 0.5);
+                viewer.spawnParticle(Particle.END_ROD, center, 14, 0.38, 0.5, 0.38, 0.01);
+                viewer.spawnParticle(Particle.SOUL, center, 8, 0.25, 0.35, 0.25, 0.01);
+                if (this.elapsed == 0) viewer.playSound(center, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.2F);
+                this.elapsed += interval;
+            }
+        }.runTaskTimer(this.plugin, 0L, interval);
     }
 
     private String newId() {
@@ -633,15 +725,16 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
 
     private String displayMode(final LossMode mode) {
         return switch (mode) {
-            case GRAVE -> "tumba";
-            case KEEP -> "conservar";
-            case DROP -> "soltar";
+            case GRAVE -> "grave";
+            case KEEP -> "keep";
+            case DROP -> "drop";
         };
     }
 
     @Override
     public List<String> onTabComplete(final CommandSender sender, final Command command, final String alias, final String[] args) {
         if (command.getName().equalsIgnoreCase("deathcontrol")) {
+            if (!sender.hasPermission("emsichill.deathcontrol.admin")) return Collections.emptyList();
             if (args.length == 1) {
                 List<String> values = new ArrayList<>(List.of("default"));
                 for (Player player : Bukkit.getOnlinePlayers()) values.add(player.getName());
@@ -649,17 +742,27 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             }
             if (args.length == 2) return CommandSuggestions.filter(List.of("grave", "keep", "drop"), args[1]);
         } else {
-            if (args.length == 1) return CommandSuggestions.filter(List.of("list", "locate", "recover", "admin"), args[0]);
+            if (args.length == 1) {
+                List<String> actions = new ArrayList<>(List.of("list", "locate", "recover"));
+                if (sender.hasPermission("emsichill.grave.admin")) actions.add("admin");
+                return CommandSuggestions.filter(actions, args[0]);
+            }
             if (args.length == 2 && (args[0].equalsIgnoreCase("locate") || args[0].equalsIgnoreCase("recover"))) {
                 List<String> ids = new ArrayList<>();
                 if (sender instanceof Player player) {
                     for (Grave grave : this.repository.all()) if (grave.owner().equals(player.getUniqueId())) ids.add(grave.id());
                 }
+                if (sender.hasPermission("emsichill.grave.admin")) {
+                    for (Player player : Bukkit.getOnlinePlayers()) ids.add(player.getName());
+                    for (Grave grave : this.repository.all()) ids.add(grave.ownerName());
+                }
                 return CommandSuggestions.filter(ids, args[1]);
             }
-            if (args.length == 2 && args[0].equalsIgnoreCase("admin")) return CommandSuggestions.filter(List.of("recover"), args[1]);
+            if (args.length == 2 && args[0].equalsIgnoreCase("admin") && sender.hasPermission("emsichill.grave.admin")) {
+                return CommandSuggestions.filter(List.of("recover"), args[1]);
+            }
             if (args.length == 3 && args[0].equalsIgnoreCase("admin")
-                && args[1].equalsIgnoreCase("recover")) {
+                && args[1].equalsIgnoreCase("recover") && sender.hasPermission("emsichill.grave.admin")) {
                 List<String> names = new ArrayList<>();
                 for (Player player : Bukkit.getOnlinePlayers()) names.add(player.getName());
                 return CommandSuggestions.filter(names, args[2]);

@@ -28,7 +28,7 @@ final class SessionFingerprint {
             mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM));
             return Base64.getEncoder().encodeToString(mac.doFinal(address.getBytes(StandardCharsets.UTF_8)));
         } catch (GeneralSecurityException exception) {
-            throw new IllegalStateException("No se pudo firmar la sesion de autenticacion", exception);
+            throw new IllegalStateException("Could not sign the authentication session", exception);
         }
     }
 }

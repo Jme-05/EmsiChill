@@ -1,4 +1,4 @@
-# Usa /emsichill reload para aplicar los cambios.
+# Use /emsichill reload to apply changes.
 settings:
   mojang-request-timeout-seconds: 10
   cache-duration-hours: 24
@@ -11,7 +11,7 @@ history:
   maximum-entries: 20
   ignore-consecutive-duplicates: true
 
-# /skin random obtiene una textura firmada de una cuenta premium al azar.
+# /skin random fetches a signed texture from a random premium account.
 random:
   use-public-catalog: true
   maximum-attempts: 6

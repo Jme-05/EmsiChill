@@ -18,7 +18,7 @@ public final class ReadmeGenerator {
     }
 
     public static void main(final String[] args) throws IOException {
-        if (args.length != 2) throw new IllegalArgumentException("Uso: <plugin.yml> <README.md>");
+        if (args.length != 2) throw new IllegalArgumentException("Usage: <plugin.yml> <README.md>");
         generate(Path.of(args[0]), Path.of(args[1]));
     }
 
@@ -34,7 +34,7 @@ public final class ReadmeGenerator {
             var entries = documentation.entriesForSection(section.getKey());
             if (entries.isEmpty()) continue;
             markdown.append("## ").append(section.getValue()).append("\n\n")
-                .append("| Comando | Descripción |\n|---|---|\n");
+                .append("| Command | Description |\n|---|---|\n");
             for (CommandDoc entry : entries) {
                 markdown.append("| `").append(entry.command().replace("|", "\\|"))
                     .append("` | ").append(entry.description().replace("|", "\\|"))
@@ -49,7 +49,7 @@ public final class ReadmeGenerator {
         String contents = Files.readString(readme, StandardCharsets.UTF_8);
         int start = contents.indexOf(START);
         int end = contents.indexOf(END);
-        if (start < 0 || end < start) throw new IOException("README.md no contiene los marcadores de documentación");
+        if (start < 0 || end < start) throw new IOException("README.md does not contain documentation markers");
         String replacement = START + "\n\n" + generated + "\n\n" + END;
         String updated = contents.substring(0, start) + replacement + contents.substring(end + END.length());
         writeIfChanged(readme, updated);

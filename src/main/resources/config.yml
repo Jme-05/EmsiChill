@@ -1,4 +1,4 @@
-language: es
+language: en
 prefix: "&8[&5EmsiChill&8] "
 
 modules:
@@ -30,9 +30,9 @@ updates:
     notify-console: true
     notify-admins: true
   install:
-    # Mantén la instalación apagada salvo que confíes plenamente en el repositorio configurado.
+    # Keep install disabled unless you fully trust the configured repository.
     enabled: false
-    # El feed solo sirve para avisos; instalar requiere tamaño y SHA-256 de la API de GitHub.
+    # The feed is only used for notices; installs require size and SHA-256 data from the GitHub API.
     allow-feed-fallback: false
     timeout-seconds: 60
     max-download-megabytes: 25
@@ -42,7 +42,7 @@ updates:
     project: paper
     timeout-seconds: 8
     user-agent: "EmsiChill/${version} (https://github.com/Jme-05/EmsiChill)"
-    # false = STABLE builds only. true = allows BETA/experimental builds too.
+    # false = stable builds only. true = allows beta/experimental builds too.
     include-experimental-builds: false
     # How many recent Minecraft versions to scan when the newest one has no acceptable build yet.
     max-version-search: 12

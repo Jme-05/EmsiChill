@@ -351,17 +351,17 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
         }
         int cost = this.buildCost(purchased);
         BuildHolder holder = new BuildHolder(player.getUniqueId(), purchased, cost);
-        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("Comprar cupo de región"));
+        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("Buy region slot"));
         holder.setInventory(inventory);
         ItemStack item = new ItemStack(Material.EMERALD);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text("Comprar cupo adicional", NamedTextColor.GREEN));
+        meta.displayName(Component.text("Buy extra slot", NamedTextColor.GREEN));
         meta.lore(List.of(
-            Component.text("Costo: " + cost + " esmeraldas", NamedTextColor.WHITE),
-            Component.text("Límite actual: " + this.claimLimitWithoutUnlimited(player), NamedTextColor.GRAY),
-            Component.text("Nuevo límite: " + (this.claimLimitWithoutUnlimited(player) + 1), NamedTextColor.AQUA),
+            Component.text("Cost: " + cost + " emeralds", NamedTextColor.WHITE),
+            Component.text("Current limit: " + this.claimLimitWithoutUnlimited(player), NamedTextColor.GRAY),
+            Component.text("New limit: " + (this.claimLimitWithoutUnlimited(player) + 1), NamedTextColor.AQUA),
             Component.empty(),
-            Component.text("Haz clic para confirmar la compra.", NamedTextColor.YELLOW)));
+            Component.text("Click to confirm purchase.", NamedTextColor.YELLOW)));
         item.setItemMeta(meta);
         inventory.setItem(13, item);
         player.openInventory(inventory);
@@ -562,21 +562,21 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
             return true;
         }
         UpgradeHolder holder = new UpgradeHolder(region.id(), next.radius(), next.cost());
-        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("Ampliar " + region.name()));
+        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("Upgrade " + region.name()));
         holder.setInventory(inventory);
         ItemStack item = new ItemStack(Material.DIAMOND_BLOCK);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text("Radio " + next.radius() + " (" + diameter(next.radius()) + " x "
+        meta.displayName(Component.text("Radius " + next.radius() + " (" + diameter(next.radius()) + " x "
             + diameter(next.radius()) + ")", NamedTextColor.AQUA));
         meta.lore(List.of(
-            Component.text("Radio actual: " + region.radius() + " bloques", NamedTextColor.GRAY),
-            Component.text("Área actual: " + region.diameter() + " x " + region.diameter(), NamedTextColor.GRAY),
-            Component.text("Nuevo radio: " + next.radius() + " bloques", NamedTextColor.WHITE),
-            Component.text("Área nueva: " + diameter(next.radius()) + " x " + diameter(next.radius()), NamedTextColor.WHITE),
-            Component.text("Protege desde la altura mínima hasta la máxima.", NamedTextColor.GRAY),
+            Component.text("Current radius: " + region.radius() + " blocks", NamedTextColor.GRAY),
+            Component.text("Current area: " + region.diameter() + " x " + region.diameter(), NamedTextColor.GRAY),
+            Component.text("New radius: " + next.radius() + " blocks", NamedTextColor.WHITE),
+            Component.text("New area: " + diameter(next.radius()) + " x " + diameter(next.radius()), NamedTextColor.WHITE),
+            Component.text("Protects from minimum to maximum height.", NamedTextColor.GRAY),
             Component.empty(),
-            Component.text("Costo: " + next.cost() + " diamantes", NamedTextColor.YELLOW),
-            Component.text("Haz clic para confirmar la mejora.", NamedTextColor.GREEN)));
+            Component.text("Cost: " + next.cost() + " diamonds", NamedTextColor.YELLOW),
+            Component.text("Click to confirm upgrade.", NamedTextColor.GREEN)));
         item.setItemMeta(meta);
         inventory.setItem(13, item);
         player.openInventory(inventory);
@@ -590,14 +590,14 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
             return true;
         }
         SettingsHolder holder = new SettingsHolder(region.id());
-        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("Ajustes de " + region.name()));
+        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("Settings: " + region.name()));
         holder.setInventory(inventory);
-        inventory.setItem(11, this.settingItem(Material.IRON_SWORD, "Combate entre jugadores", region.pvp(),
-            "Permite que los jugadores se hagan daño", "dentro de esta región."));
-        inventory.setItem(13, this.settingItem(Material.CHEST, "Contenedores públicos", region.publicContainers(),
-            "Permite que visitantes abran cofres,", "barriles y otros contenedores."));
-        inventory.setItem(15, this.settingItem(Material.LEVER, "Interacciones públicas", region.publicInteractions(),
-            "Permite que visitantes usen puertas,", "botones, palancas y entidades."));
+        inventory.setItem(11, this.settingItem(Material.IRON_SWORD, "Player combat", region.pvp(),
+            "Allows players to damage each other", "inside this region."));
+        inventory.setItem(13, this.settingItem(Material.CHEST, "Public containers", region.publicContainers(),
+            "Allows visitors to open chests,", "barrels and other containers."));
+        inventory.setItem(15, this.settingItem(Material.LEVER, "Public interactions", region.publicInteractions(),
+            "Allows visitors to use doors,", "buttons, levers and entities."));
         player.openInventory(inventory);
         return true;
     }
@@ -605,12 +605,12 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
     private ItemStack settingItem(final Material material, final String name, final boolean enabled, final String... description) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(name + ": " + (enabled ? "ACTIVADO" : "DESACTIVADO"),
+        meta.displayName(Component.text(name + ": " + (enabled ? "ENABLED" : "DISABLED"),
             enabled ? NamedTextColor.GREEN : NamedTextColor.RED));
         List<Component> lore = new ArrayList<>();
         for (String line : description) lore.add(Component.text(line, NamedTextColor.GRAY));
         lore.add(Component.empty());
-        lore.add(Component.text(enabled ? "Haz clic para bloquearlo." : "Haz clic para permitirlo.", NamedTextColor.YELLOW));
+        lore.add(Component.text(enabled ? "Click to block it." : "Click to allow it.", NamedTextColor.YELLOW));
         meta.lore(lore);
         item.setItemMeta(meta);
         return item;
@@ -894,14 +894,14 @@ public final class RegionManager implements CommandExecutor, TabCompleter, Liste
     }
 
     private String status(final boolean enabled) {
-        return enabled ? "Activado" : "Desactivado";
+        return enabled ? "Enabled" : "Disabled";
     }
 
     private String dimensionName(final Region region) {
         World world = Bukkit.getWorld(region.world());
         if (world == null) return region.world();
         return switch (world.getEnvironment()) {
-            case NORMAL -> "Mundo normal";
+            case NORMAL -> "Overworld";
             case NETHER -> "Nether";
             case THE_END -> "End";
             default -> world.getName();

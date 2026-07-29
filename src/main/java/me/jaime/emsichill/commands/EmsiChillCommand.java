@@ -100,6 +100,9 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("homes") && args[1].equalsIgnoreCase("limit")) {
             return this.changeHomeLimit(sender, args[2]);
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("language")) {
+            return this.changeLanguage(sender, args[1]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("check")) {
             return this.checkUpdates(sender);
         }
@@ -154,7 +157,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.messages.send(sender, "update.paper-checking");
         this.updates.checkPaper().whenComplete((result, failure) -> Bukkit.getScheduler().runTask(this.plugin, () -> {
             if (failure != null) {
-                this.plugin.getLogger().warning("Fallo la comprobacion de PaperMC: " + failure.getMessage());
+                this.plugin.getLogger().warning("PaperMC check failed: " + failure.getMessage());
                 this.messages.send(sender, "update.paper-failed");
                 return;
             }
@@ -177,7 +180,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                     "{build}", Integer.toString(result.latest().build()));
                 return;
             }
-            this.plugin.getLogger().warning("No se pudo comprobar PaperMC: " + result.error());
+            this.plugin.getLogger().warning("Could not check PaperMC: " + result.error());
             this.messages.send(sender, "update.paper-failed");
         }));
         return true;
@@ -217,8 +220,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         final Throwable failure
     ) {
         if (failure != null || result == null) {
-            this.plugin.getLogger().warning("Fallo la descarga de Paper: "
-                + (failure == null ? "resultado vacio" : failure.getMessage()));
+            this.plugin.getLogger().warning("Paper download failed: "
+                + (failure == null ? "empty result" : failure.getMessage()));
             this.messages.send(sender, "update.paper-download-failed");
             return;
         }
@@ -237,7 +240,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             case IN_PROGRESS -> this.messages.send(sender, "update.paper-download-in-progress");
             case DISABLED -> this.messages.send(sender, "update.paper-download-disabled");
             case FAILED -> {
-                this.plugin.getLogger().warning("No se pudo preparar Paper " + result.target()
+                this.plugin.getLogger().warning("Could not prepare Paper " + result.target()
                     + ": " + result.error());
                 this.messages.send(sender, "update.paper-download-failed");
             }
@@ -297,6 +300,39 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean changeLanguage(final CommandSender sender, final String value) {
+        if (!sender.hasPermission("emsichill.admin.language")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        String language = normalizeLanguage(value);
+        if (language == null) {
+            this.messages.send(sender, "language.invalid");
+            return true;
+        }
+        this.plugin.settings().set("language", language);
+        if (!this.plugin.saveSettings()) {
+            this.messages.send(sender, "general.save-error");
+            return true;
+        }
+        this.plugin.reloadPlugin();
+        this.audit.log("LANGUAGE_CHANGE", "actor=" + sender.getName() + " language=" + language);
+        this.messages.send(sender, "language.changed", "{language}", this.languageName(language));
+        return true;
+    }
+
+    private static String normalizeLanguage(final String value) {
+        return switch (value.toLowerCase(Locale.ROOT)) {
+            case "en", "english" -> "en";
+            case "es", "spanish", "espanol", "español" -> "es";
+            default -> null;
+        };
+    }
+
+    private String languageName(final String language) {
+        return language.equals("es") ? this.messages.plain("language.spanish") : this.messages.plain("language.english");
+    }
+
     private boolean reload(final CommandSender sender) {
         if (!sender.hasPermission("emsichill.admin.reload")) {
             this.messages.send(sender, "general.no-permission");
@@ -316,7 +352,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.messages.send(sender, "update.checking");
         this.updates.check().whenComplete((result, failure) -> Bukkit.getScheduler().runTask(this.plugin, () -> {
             if (failure != null) {
-                this.plugin.getLogger().warning("Falló la comprobación de actualizaciones: " + failure.getMessage());
+                this.plugin.getLogger().warning("Update check failed: " + failure.getMessage());
                 this.messages.send(sender, "update.failed");
                 return;
             }
@@ -333,7 +369,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 this.messages.send(sender, "update.up-to-date", "{version}", result.currentVersion());
                 return;
             }
-            this.plugin.getLogger().warning("No se pudo comprobar la actualización: " + result.error());
+            this.plugin.getLogger().warning("Could not check for updates: " + result.error());
             this.messages.send(sender, "update.failed");
         }));
         return true;
@@ -356,8 +392,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         final Throwable failure
     ) {
         if (failure != null || result == null) {
-            this.plugin.getLogger().warning("Falló la preparación de la actualización: "
-                + (failure == null ? "resultado vacío" : failure.getMessage()));
+            this.plugin.getLogger().warning("Update preparation failed: "
+                + (failure == null ? "empty result" : failure.getMessage()));
             this.messages.send(sender, "update.install-failed");
             return;
         }
@@ -374,7 +410,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             case IN_PROGRESS -> this.messages.send(sender, "update.install-in-progress");
             case DISABLED -> this.messages.send(sender, "update.install-disabled");
             case FAILED -> {
-                this.plugin.getLogger().warning("No se pudo preparar EmsiChill " + result.version()
+                this.plugin.getLogger().warning("Could not prepare EmsiChill " + result.version()
                     + ": " + result.error());
                 this.messages.send(sender, "update.install-failed");
             }
@@ -502,16 +538,83 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         String category = requestedCategory.toLowerCase(Locale.ROOT);
         this.messages.send(sender, "help.header");
         if (category.equals("categories")) {
-            this.messages.send(sender, "help.categories");
+            this.messages.send(sender, "help.categories", "{categories}", String.join(", ", this.visibleHelpCategories(sender)));
+            return;
+        }
+        if (!this.canViewHelpCategory(sender, category)) {
+            this.messages.send(sender, "general.no-permission");
             return;
         }
         if (!this.documentation.hasCategory(category)) {
             this.messages.send(sender, "help.main");
             return;
         }
+        int shown = 0;
         for (CommandDoc entry : this.documentation.entriesForCategory(category)) {
+            if (!this.canViewHelpEntry(sender, entry)) continue;
             this.messages.sendText(sender, "&e" + entry.command() + " &7- " + entry.description());
+            shown++;
         }
+        if (shown == 0) this.messages.send(sender, "general.no-permission");
+    }
+
+    private List<String> visibleHelpCategories(final CommandSender sender) {
+        List<String> categories = new ArrayList<>(List.of("auth", "teleport", "skin", "region", "grave", "social"));
+        if (this.canViewHelpCategory(sender, "staff")) categories.add("staff");
+        if (this.canViewHelpCategory(sender, "admin")) categories.add("admin");
+        return categories;
+    }
+
+    private boolean canViewHelpCategory(final CommandSender sender, final String category) {
+        return switch (category.toLowerCase(Locale.ROOT)) {
+            case "staff" -> this.hasAnyPermission(sender, "emsichill.staffchat", "emsichill.vanish",
+                "emsichill.vanish.see", "emsichill.staffmode", "emsichill.invsee.view",
+                "emsichill.enderchestsee.view", "emsichill.freeze", "emsichill.mute",
+                "emsichill.unmute", "emsichill.warn", "emsichill.warnings",
+                "emsichill.skin.others", "emsichill.homes.others", "emsichill.back.others",
+                "emsichill.auth.admin", "emsichill.grave.admin");
+            case "admin" -> this.hasAnyPermission(sender, "emsichill.admin.reload", "emsichill.admin.maintenance",
+                "emsichill.admin.update", "emsichill.admin.language", "emsichill.homes.admin",
+                "emsichill.rtp.admin", "emsichill.deathcontrol.admin", "emsichill.auth.admin");
+            default -> true;
+        };
+    }
+
+    private boolean hasAnyPermission(final CommandSender sender, final String... permissions) {
+        for (String permission : permissions) if (sender.hasPermission(permission)) return true;
+        return false;
+    }
+
+    private boolean canViewHelpEntry(final CommandSender sender, final CommandDoc entry) {
+        if (!entry.category().equalsIgnoreCase("staff") && !entry.category().equalsIgnoreCase("admin")) return true;
+        String command = entry.command().toLowerCase(Locale.ROOT);
+        if (command.startsWith("/staffchat")) return sender.hasPermission("emsichill.staffchat");
+        if (command.startsWith("/vanishlist")) return sender.hasPermission("emsichill.vanish.see");
+        if (command.startsWith("/vanish")) return sender.hasPermission("emsichill.vanish");
+        if (command.startsWith("/staffmode")) return sender.hasPermission("emsichill.staffmode");
+        if (command.startsWith("/invsee")) return sender.hasPermission("emsichill.invsee.view");
+        if (command.startsWith("/enderchestsee")) return sender.hasPermission("emsichill.enderchestsee.view");
+        if (command.startsWith("/freeze")) return sender.hasPermission("emsichill.freeze");
+        if (command.startsWith("/mute")) return sender.hasPermission("emsichill.mute");
+        if (command.startsWith("/unmute")) return sender.hasPermission("emsichill.unmute");
+        if (command.startsWith("/warn ")) return sender.hasPermission("emsichill.warn");
+        if (command.startsWith("/warnings")) return sender.hasPermission("emsichill.warnings");
+        if (command.startsWith("/skin <player>")) return sender.hasPermission("emsichill.skin.others");
+        if (command.startsWith("/home <player>")) return sender.hasPermission("emsichill.homes.others");
+        if (command.startsWith("/back <player>")) return sender.hasPermission("emsichill.back.others");
+        if (command.startsWith("/auth")) return sender.hasPermission("emsichill.auth.admin");
+        if (command.startsWith("/grave")) return sender.hasPermission("emsichill.grave.admin");
+        if (command.startsWith("/deathcontrol")) return sender.hasPermission("emsichill.deathcontrol.admin");
+        if (command.startsWith("/emsichill language")) return sender.hasPermission("emsichill.admin.language");
+        if (command.startsWith("/emsichill homes")) return sender.hasPermission("emsichill.homes.admin");
+        if (command.startsWith("/emsichill rtp")) return sender.hasPermission("emsichill.rtp.admin");
+        if (command.startsWith("/emsichill update")) return sender.hasPermission("emsichill.admin.update");
+        if (command.startsWith("/emsichill reload")) return sender.hasPermission("emsichill.admin.reload");
+        if (command.startsWith("/emsichill status") || command.startsWith("/emsichill inspect")
+            || command.startsWith("/emsichill backup") || command.startsWith("/emsichill migrate")) {
+            return sender.hasPermission("emsichill.admin.maintenance");
+        }
+        return false;
     }
 
     @Override
@@ -526,6 +629,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("emsichill.homes.admin")) actions.add("homes");
             if (sender.hasPermission("emsichill.rtp.admin")) actions.add("rtp");
             if (sender.hasPermission("emsichill.admin.reload")) actions.add("reload");
+            if (sender.hasPermission("emsichill.admin.language")) actions.add("language");
             if (sender.hasPermission("emsichill.admin.maintenance")) {
                 actions.addAll(List.of("status", "inspect", "backup", "migrate"));
             }
@@ -546,9 +650,14 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 return CommandSuggestions.filter(List.of("0", "5", "15", "30", "60"), args[2]);
             }
         }
+        if (args.length == 2 && args[0].equalsIgnoreCase("language")
+            && sender.hasPermission("emsichill.admin.language")) {
+            return CommandSuggestions.filter(List.of("english", "spanish"), args[1]);
+        }
         if (args.length == 2 && args[0].equalsIgnoreCase("help")) {
-            return CommandSuggestions.filter(List.of("categories", "auth", "teleport", "skin", "region",
-                "grave", "social", "staff", "admin"), args[1]);
+            List<String> categories = new ArrayList<>(List.of("categories"));
+            categories.addAll(this.visibleHelpCategories(sender));
+            return CommandSuggestions.filter(categories, args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("update")
             && sender.hasPermission("emsichill.admin.update")) {

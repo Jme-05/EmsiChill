@@ -32,13 +32,13 @@ public final class AtomicYamlStorage {
             if (backup.exists()) {
                 try {
                     YamlConfiguration recovered = loadExact(backup);
-                    logger.warning("Se recuperó " + file.getName() + " desde su copia de seguridad.");
+                    logger.warning("Recovered " + file.getName() + " from its backup copy.");
                     return recovered;
                 } catch (IOException | InvalidConfigurationException backupFailure) {
                     primaryFailure.addSuppressed(backupFailure);
                 }
             }
-            logger.severe("No se pudo cargar " + file.getAbsolutePath() + ": " + primaryFailure.getMessage());
+            logger.severe("Could not load " + file.getAbsolutePath() + ": " + primaryFailure.getMessage());
             return new YamlConfiguration();
         }
     }

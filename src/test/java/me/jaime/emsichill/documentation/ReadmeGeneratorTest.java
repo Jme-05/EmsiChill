@@ -26,12 +26,13 @@ class ReadmeGeneratorTest {
         ReadmeGenerator.generate(pluginYml, readme);
 
         String generatedReadme = Files.readString(readme, StandardCharsets.UTF_8);
-        assertTrue(generatedReadme.contains("/invsee <jugador>"));
+        assertTrue(generatedReadme.contains("/invsee <player>"));
         assertTrue(generatedReadme.contains("/crawl"));
-        assertTrue(generatedReadme.contains("/skull <nombre>"));
-        assertTrue(generatedReadme.contains("/region delete <nombre> confirm"));
+        assertTrue(generatedReadme.contains("/skull <name>"));
+        assertTrue(generatedReadme.contains("/region delete <name> confirm"));
         assertTrue(generatedReadme.contains("/emsichill update check"));
-        assertTrue(generatedReadme.contains("/emsichill update install <versión>"));
+        assertTrue(generatedReadme.contains("/emsichill update install <version>"));
+        assertTrue(generatedReadme.contains("/emsichill language <english\\|spanish>"));
     }
 
     @Test
@@ -44,7 +45,7 @@ class ReadmeGeneratorTest {
 
         for (String command : yaml.getConfigurationSection("commands").getKeys(false)) {
             assertTrue(documented.stream().anyMatch(usage -> usage.startsWith("/" + command)),
-                () -> "Falta documentar /" + command);
+                () -> "Missing documentation for /" + command);
         }
         var permissions = yaml.getConfigurationSection("permissions");
         int described = 0;
@@ -52,9 +53,9 @@ class ReadmeGeneratorTest {
             if (!permissions.isConfigurationSection(permission) || !permissions.isSet(permission + ".default")) continue;
             described++;
             assertTrue(permissions.isString(permission + ".description"),
-                () -> "Falta describir " + permission);
+                () -> "Missing description for " + permission);
         }
-        assertTrue(described > 0, "No se encontraron permisos documentados");
+        assertTrue(described > 0, "No documented permissions were found");
     }
 
     @Test

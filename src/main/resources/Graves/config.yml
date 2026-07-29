@@ -1,16 +1,20 @@
 inventory-loss:
-  # grave: crea una tumba; keep: conserva todo; drop: usa el comportamiento normal.
+  # grave: creates a protected grave; keep: keeps the full inventory; drop: uses vanilla drops.
   default-mode: grave
 
 graves:
   lifetime-minutes: 30
   private-minutes: 5
-  # Distancia horizontal y vertical máxima para buscar un lugar seguro para el cofre.
+  # Maximum horizontal and vertical distance used to find a safe chest location.
   marker-search-radius: 6
   marker-vertical-radius: 4
   name-display:
     enabled: true
     height: 1.45
-    text: "Tumba de {player}"
-  # drop suelta los objetos; delete los elimina.
+    text: "Grave of {player}"
+  visuals:
+    effects: true
+    locate-marker: true
+    locate-marker-seconds: 8
+  # drop leaves items in the world; delete removes them.
   on-expire: drop

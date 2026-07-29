@@ -6,221 +6,229 @@
 
 # EmsiChill
 
-**Suite modular para servidores Paper**
+**Modular suite for Paper servers**
 
-Autenticación, skins, homes, teletransportes, regiones, tumbas, posturas, resource packs, información de jugadores y herramientas de staff en un solo plugin.
+Authentication, skins, homes, teleports, regions, graves, poses, resource packs, player info and staff tools in one plugin.
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper_API-26.2-blue?style=flat-square)
-![Version](https://img.shields.io/badge/version-5.1.5-brightgreen?style=flat-square)
+![Version](https://img.shields.io/badge/version-5.2.0-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT--0-lightgrey?style=flat-square)
 
 </div>
 
 ---
 
-## Qué es EmsiChill
+## What is EmsiChill
 
-EmsiChill es un plugin para servidores **Paper** que junta varias funciones comunes de un servidor survival o semi-survival en un solo JAR. Está pensado para servidores pequeños o medianos que quieren una base ordenada sin depender de muchos plugins separados para autenticación, teleports, regiones, tumbas, staff y datos simples.
+EmsiChill is a modular **Paper** plugin that bundles common survival and semi-survival server features into one JAR. It is designed for small and medium servers that want authentication, teleports, regions, graves, staff tools and simple player data without stacking many separate plugins.
 
-El plugin trabaja por módulos. Puedes activar o desactivar funciones desde `plugins/EmsiChill/config.yml` sin borrar los datos guardados de cada módulo.
+Every major feature is a module. You can enable or disable modules from `plugins/EmsiChill/config.yml` without deleting saved module data.
 
-> La documentación completa y explicada con más detalle estará en la página del portafolio. Este README solo resume lo importante para GitHub.
+## Requirements
 
-## Requisitos
-
-| Requisito | Versión |
-| --- | --- |
+| Requirement | Version |
+|---|---|
 | Java | `25` |
-| Servidor | `Paper` |
+| Server | `Paper` |
 | Paper API | `26.2` |
 
-No se garantiza soporte para Spigot, Bukkit u otros forks que no sigan el comportamiento de Paper.
+Spigot, Bukkit and forks that do not follow Paper behavior are not guaranteed to work.
 
-## Funciones principales
+## Main Features
 
-- **Auth**: registro, login, cambio de contraseña y sesiones temporales opcionales.
-- **Skins**: skins premium, favoritas, historial, skins aleatorias y cabezas con `/skull`.
-- **Homes y teleport**: `/home`, `/sethome`, TPA, `/back` y RTP seguro.
-- **Regiones**: claims con miembros, co-owners, upgrades, settings y protecciones contra grief.
-- **Tumbas**: recuperación de items al morir, privacidad temporal y expiración configurable.
-- **Posturas y social**: `/sit`, `/crawl`, `/stand`, `/whereami`, `/seen` y tiempo jugado.
-- **Resource packs**: envío automático de packs con URL directa y SHA-1.
-- **Staff**: vanish, staffmode, staffchat, invsee, enderchestsee, freeze, mute y warn.
-- **Mantenimiento**: reload, status, inspect, backup, migración, updates de EmsiChill y avisos de builds nuevas de Paper.
+- **Authentication**: register, login, password changes and optional temporary sessions.
+- **Skins**: premium skins, favorites, history, random skins and `/skull`.
+- **Homes and teleport**: `/home`, `/sethome`, TPA, `/back` and safe RTP.
+- **Regions**: claims with members, co-owners, upgrades, settings and grief protection.
+- **Graves**: item recovery on death, temporary privacy, expiration and visible grave markers.
+- **Social tools**: `/sit`, `/crawl`, `/stand`, `/whereami`, `/seen` and playtime tracking.
+- **Resource packs**: automatic pack sending with direct URLs and SHA-1 validation.
+- **Staff tools**: vanish, staffmode, staffchat, invsee, enderchestsee, freeze, mute and warn.
+- **Maintenance**: reload, status, inspect, backup, migration, EmsiChill updates and Paper build notices.
 
-## Instalación rápida
+## Quick Install
 
-1. Descarga el `.jar` desde la sección de Releases.
-2. Apaga el servidor.
-3. Coloca el `.jar` en la carpeta `plugins/`.
-4. Inicia el servidor para generar `plugins/EmsiChill/`.
-5. Revisa la configuración antes de abrir el servidor al público.
-6. Usa `/emsichill inspect` para detectar problemas básicos.
+1. Download the `.jar` from Releases.
+2. Stop the server.
+3. Put the `.jar` inside `plugins/`.
+4. Start the server to generate `plugins/EmsiChill/`.
+5. Review the generated configuration before opening the server publicly.
+6. Run `/emsichill inspect` to catch basic data or configuration problems.
 
-Para actualizar una instalación existente, crea un respaldo antes:
+For an existing installation, create a backup first:
 
 ```mcfunction
 /emsichill backup
 ```
 
-## Configuración
+## Configuration
 
-La configuración se guarda dentro de `plugins/EmsiChill/`.
+Configuration lives inside `plugins/EmsiChill/`.
 
-Archivos importantes:
+Important files:
 
-- `config.yml`: idioma, prefijo, módulos activos, auditoría y updates.
-- `messages_es.yml` / `messages_en.yml`: mensajes visibles del plugin.
-- `AuthenticationManager/config.yml`: registro, login, sesiones y bloqueos antes de iniciar sesión.
-- `Skin/config.yml`: caché, cooldowns, favoritas, historial y skins aleatorias.
-- `Teleport/config.yml`: TPA, `/back`, RTP, delays y cancelaciones.
-- `Home/config.yml`: límite base de homes y límites por permiso.
-- `Regions/config.yml`: claims, radios, upgrades, settings y límites.
-- `Graves/config.yml`: modo de muerte, tumbas, privacidad y expiración.
-- `Staff/config.yml`: staffchat, vanish, staffmode y moderación.
-- `ResourcePacks/config.yml`: packs enviados al entrar, URL, SHA-1 y modo obligatorio/opcional.
+- `config.yml`: language, prefix, active modules, audit log and update settings.
+- `messages_en.yml` / `messages_es.yml`: visible plugin messages.
+- `AuthenticationManager/config.yml`: registration, login, sessions and pre-login blocking.
+- `Skin/config.yml`: cache, cooldowns, favorites, history and random skins.
+- `Teleport/config.yml`: TPA, `/back`, RTP, delays and cancellation rules.
+- `Home/config.yml`: default home limit and permission-based limits.
+- `Regions/config.yml`: claims, radii, upgrades, settings and limits.
+- `Graves/config.yml`: death mode, graves, privacy, expiration and visual markers.
+- `Staff/config.yml`: staffchat, vanish, staffmode and moderation history.
+- `ResourcePacks/config.yml`: packs sent on join, URL, SHA-1 and required/optional mode.
 
-Después de cambiar YAML puedes probar:
+After changing YAML files, reload with:
 
 ```mcfunction
 /emsichill reload
 ```
 
-Para cambiar el JAR, actualizar dependencias o tocar configuraciones críticas, reinicia el servidor completo.
+To switch the main plugin language:
+
+```mcfunction
+/emsichill language english
+/emsichill language spanish
+```
+
+Restart the server when replacing the JAR, updating Paper or changing critical runtime settings.
 
 <!-- EMSICHILL_COMMANDS_START -->
 
-## Comandos para jugadores
+## Player commands
 
-| Comando | Descripción |
+| Command | Description |
 |---|---|
-| `/register <contraseña> <contraseña>` | Registra una cuenta. |
-| `/login <contraseña>` | Inicia sesión. |
-| `/changepassword <actual> <nueva> <nueva>` | Cambia la contraseña. |
-| `/unregister <contraseña>` | Elimina el registro propio. |
-| `/skin <nombre>` | Aplica la skin de una cuenta premium. |
-| `/skin random` | Aplica una skin premium aleatoria. |
-| `/skin reset` | Restablece la skin. |
-| `/skin save <nombre>` | Guarda una skin como favorita. |
-| `/skin unsave <nombre>` | Elimina una skin de favoritos. |
-| `/skin favorites` | Abre el menú de skins favoritas. |
-| `/skin history` | Abre el historial de skins. |
-| `/skin clearhistory` | Elimina el historial propio. |
-| `/skull <nombre>` | Obtiene la cabeza de una cuenta premium. |
-| `/sethome [nombre]` | Guarda un home. |
-| `/home [nombre]` | Se teletransporta a un home respetando el delay configurado. |
-| `/delhome <nombre>` | Elimina un home. |
-| `/homes` | Muestra todos los homes propios. |
-| `/tpa <jugador>` | Solicita teletransportarse a otro jugador. |
-| `/tpahere <jugador>` | Solicita que otro jugador vaya hacia ti. |
-| `/tpaccept` | Acepta una solicitud de teletransporte. |
-| `/tpdeny` | Rechaza una solicitud de teletransporte. |
-| `/tpcancel` | Cancela una solicitud enviada. |
-| `/tptoggle` | Activa o bloquea las solicitudes. |
-| `/back` | Regresa a la ubicación anterior o a la tumba. |
-| `/rtp` | Busca un lugar aleatorio seguro. |
-| `/playtime [jugador]` | Consulta el tiempo jugado. |
-| `/playtimetop` | Muestra la clasificación de tiempo jugado. |
-| `/seen [jugador]` | Consulta la última conexión. |
-| `/sit` | Activa o desactiva la postura sentada. |
-| `/crawl` | Activa o desactiva la postura de gateo. |
-| `/stand` | Recupera la postura normal. |
-| `/whereami` | Comparte dimensión y coordenadas en el chat. |
-| `/grave list` | Muestra las tumbas activas. |
-| `/grave locate <id>` | Muestra la ubicación de una tumba. |
-| `/grave recover <id>` | Recupera una tumba propia. |
+| `/register <password> <password>` | Registers an account. |
+| `/login <password>` | Logs into an account. |
+| `/changepassword <current> <new> <new>` | Changes your password. |
+| `/unregister <password>` | Removes your own registration. |
+| `/skin <name>` | Applies the skin of a premium account. |
+| `/skin random` | Applies a random premium skin. |
+| `/skin reset` | Resets your skin. |
+| `/skin save <name>` | Saves a skin as a favorite. |
+| `/skin unsave <name>` | Removes a skin from favorites. |
+| `/skin favorites` | Opens the favorite skins menu. |
+| `/skin history` | Opens your skin history. |
+| `/skin clearhistory` | Clears your own skin history. |
+| `/skull <name>` | Gets the head of a premium account. |
+| `/sethome [name]` | Saves a home. |
+| `/home [name]` | Teleports to a home using the configured delay. |
+| `/delhome <name>` | Deletes a home. |
+| `/homes` | Lists your homes. |
+| `/tpa <player>` | Requests a teleport to another player. |
+| `/tpahere <player>` | Requests another player to teleport to you. |
+| `/tpaccept` | Accepts a teleport request. |
+| `/tpdeny` | Denies a teleport request. |
+| `/tpcancel` | Cancels a sent teleport request. |
+| `/tptoggle` | Toggles incoming teleport requests. |
+| `/back` | Returns to your previous location or grave. |
+| `/rtp` | Finds a safe random location. |
+| `/playtime [player]` | Checks playtime. |
+| `/playtimetop` | Shows the playtime leaderboard. |
+| `/seen [player]` | Checks the last seen time. |
+| `/sit` | Toggles the sitting pose. |
+| `/crawl` | Toggles the crawling pose. |
+| `/stand` | Resets your pose. |
+| `/whereami` | Shares your dimension and coordinates in chat. |
+| `/grave list` | Lists active graves. |
+| `/grave locate <id>` | Shows and visually marks one of your grave locations. |
+| `/grave recover <id>` | Recovers one of your own graves. |
 
-## Comandos de regiones
+## Region commands
 
-| Comando | Descripción |
+| Command | Description |
 |---|---|
-| `/region claim <nombre>` | Reclama una región centrada en tu posición. |
-| `/region list` | Lista tus regiones y coordenadas. |
-| `/region info [nombre]` | Muestra información de una región. |
-| `/region teleport <nombre>` | Se teletransporta a una región propia. |
-| `/region view [nombre]` | Muestra temporalmente sus límites. |
-| `/region build` | Abre el menú para comprar más regiones. |
-| `/region upgrade [nombre]` | Abre el menú de ampliación. |
-| `/region settings [nombre]` | Abre la configuración de la región. |
-| `/region add <jugador>` | Permite construir a un miembro. |
-| `/region remove <jugador>` | Elimina a un miembro. |
-| `/region owner <jugador>` | Añade un propietario secundario. |
-| `/region unowner <jugador>` | Elimina un propietario secundario. |
-| `/region transfer <jugador>` | Transfiere el propietario principal. |
-| `/region delete <nombre> confirm` | Elimina permanentemente una región. |
-| `/region help` | Muestra la ayuda de regiones. |
+| `/region claim <name>` | Claims a region centered on your position. |
+| `/region list` | Lists your regions and coordinates. |
+| `/region info [name]` | Shows region information. |
+| `/region teleport <name>` | Teleports to one of your regions. |
+| `/region view [name]` | Temporarily displays region borders. |
+| `/region build` | Opens the menu to buy more region slots. |
+| `/region upgrade [name]` | Opens the region expansion menu. |
+| `/region settings [name]` | Opens region settings. |
+| `/region add <player>` | Allows a member to build. |
+| `/region remove <player>` | Removes a member. |
+| `/region owner <player>` | Adds a co-owner. |
+| `/region unowner <player>` | Removes a co-owner. |
+| `/region transfer <player>` | Transfers primary ownership. |
+| `/region delete <name> confirm` | Permanently deletes a region. |
+| `/region help` | Shows region help. |
 
-## Comandos para administradores y moderadores
+## Staff and moderation commands
 
-| Comando | Descripción |
+| Command | Description |
 |---|---|
-| `/invsee <jugador>` | Abre inventario, armadura y mano secundaria; modificarlo requiere un permiso adicional. |
-| `/enderchestsee <jugador>` | Abre el cofre de Ender; modificarlo requiere un permiso adicional. |
-| `/freeze <jugador> [segundos]` | Congela, libera o aplica una congelación con duración definida. |
-| `/mute <jugador> [tiempo]` | Silencia permanentemente o durante 30s, 10m, 2h o 1d. |
-| `/unmute <jugador>` | Retira el silencio activo de un jugador. |
-| `/warn <jugador> <motivo>` | Registra una advertencia con fecha, moderador y motivo. |
-| `/warnings <jugador>` | Muestra el historial reciente de sanciones. |
-| `/staffchat toggle` | Activa o desactiva el chat administrativo. |
-| `/staffchat <mensaje>` | Envía un mensaje al equipo. |
-| `/vanish [jugador]` | Activa o desactiva el modo invisible. |
-| `/vanishlist` | Lista los jugadores invisibles. |
-| `/staffmode [jugador]` | Activa las herramientas de moderación. |
-| `/skin <jugador> <skin>` | Cambia la skin de otro jugador. |
-| `/home <jugador> [home]` | Lista o utiliza homes ajenos, incluso de jugadores desconectados. |
-| `/back <jugador>` | Envía a otro jugador a su ubicación anterior. |
-| `/auth unregister <jugador>` | Elimina administrativamente el registro de una cuenta. |
-| `/auth changepassword <jugador> <nueva>` | Cambia administrativamente una contraseña. |
-| `/grave admin recover <jugador>` | Recupera administrativamente una tumba. |
+| `/invsee <player>` | Opens inventory, armor and offhand. Editing requires an extra permission. |
+| `/enderchestsee <player>` | Opens the Ender Chest. Editing requires an extra permission. |
+| `/freeze <player> [seconds]` | Freezes, unfreezes or applies a timed freeze. |
+| `/mute <player> [time]` | Mutes a player permanently or for 30s, 10m, 2h or 1d. |
+| `/unmute <player>` | Removes an active mute. |
+| `/warn <player> <reason>` | Records a warning with date, moderator and reason. |
+| `/warnings <player>` | Shows the recent moderation history. |
+| `/staffchat toggle` | Toggles staff chat. |
+| `/staffchat <message>` | Sends a message to staff. |
+| `/vanish [player]` | Toggles vanish mode. |
+| `/vanishlist` | Lists vanished players. |
+| `/staffmode [player]` | Toggles moderation tools. |
+| `/skin <player> <skin>` | Changes another player's skin. |
+| `/home <player> [home]` | Lists or uses homes from another player, including offline players. |
+| `/back <player>` | Sends another player to their previous location. |
+| `/auth unregister <player>` | Administratively removes an account registration. |
+| `/auth changepassword <player> <new>` | Administratively changes a password. |
+| `/grave locate <player>` | Lists and visually marks graves owned by a player. |
+| `/grave recover <player>` | Recovers all online graves owned by a player. |
+| `/grave admin recover <player>` | Administratively recovers a player's graves. |
 
-## Configuración mediante comandos administrativos
+## Administrative configuration commands
 
-| Comando | Descripción |
+| Command | Description |
 |---|---|
-| `/emsichill homes limit <cantidad>` | Cambia el límite predeterminado de homes. |
-| `/emsichill rtp cooldown <minutos>` | Cambia el cooldown global de RTP. |
-| `/deathcontrol default <grave\|keep\|drop>` | Cambia el modo de muerte predeterminado. |
-| `/deathcontrol <jugador> <grave\|keep\|drop>` | Cambia el modo de muerte de un jugador. |
-| `/auth reload` | Recarga el módulo de autenticación. |
-| `/emsichill update check` | Comprueba si existe una Release nueva sin instalarla. |
-| `/emsichill update changes <versión>` | Muestra dentro del juego un resumen de las notas de la Release. |
-| `/emsichill update install <versión>` | Si la instalación está habilitada, descarga, valida y prepara una Release. |
-| `/emsichill update ignore <versión>` | Oculta los avisos automáticos de una Release concreta. |
-| `/emsichill update paper check` | Comprueba si PaperMC publico una build nueva para Paper/Minecraft. |
-| `/emsichill update paper download <version> <build>` | Descarga y verifica una build nueva de Paper para aplicarla en el siguiente reinicio. |
-| `/emsichill update paper ignore <version> <build>` | Oculta los avisos automaticos de una build concreta de Paper. |
-| `/emsichill reload` | Recarga las configuraciones del plugin. |
-| `/emsichill status` | Muestra el estado de los módulos. |
-| `/emsichill inspect` | Busca problemas en datos y configuración. |
-| `/emsichill backup` | Crea un respaldo de los datos. |
-| `/emsichill migrate` | Guarda y normaliza los datos actuales. |
-| `/emsichill help <categoría>` | Muestra ayuda generada por categorías. |
+| `/emsichill language <english\|spanish>` | Changes the main plugin language and reloads messages. |
+| `/emsichill homes limit <amount>` | Changes the default home limit. |
+| `/emsichill rtp cooldown <minutes>` | Changes the global RTP cooldown. |
+| `/deathcontrol default <grave\|keep\|drop>` | Changes the default death mode. |
+| `/deathcontrol <player> <grave\|keep\|drop>` | Changes a player's death mode. |
+| `/auth reload` | Reloads the authentication module. |
+| `/emsichill update check` | Checks for a new Release without installing it. |
+| `/emsichill update changes <version>` | Shows a short in-game summary of Release notes. |
+| `/emsichill update install <version>` | Downloads, validates and stages a Release when installs are enabled. |
+| `/emsichill update ignore <version>` | Hides automatic notices for a specific Release. |
+| `/emsichill update paper check` | Checks whether PaperMC published a new Paper/Minecraft build. |
+| `/emsichill update paper download <version> <build>` | Downloads and verifies a new Paper build for the next restart. |
+| `/emsichill update paper ignore <version> <build>` | Hides automatic notices for a specific Paper build. |
+| `/emsichill reload` | Reloads plugin configuration. |
+| `/emsichill status` | Shows module status. |
+| `/emsichill inspect` | Checks data and configuration for problems. |
+| `/emsichill backup` | Creates a data backup. |
+| `/emsichill migrate` | Saves and normalizes current data. |
+| `/emsichill help <category>` | Shows generated help by category. |
 
 <!-- EMSICHILL_COMMANDS_END -->
 
-## Actualizaciones de Paper/Minecraft
+## Paper/Minecraft Updates
 
-EmsiChill puede revisar automáticamente si PaperMC publicó una build nueva de Paper para Minecraft. Si encuentra una build más reciente, avisa en consola y a los administradores con permiso `emsichill.admin.update`.
+EmsiChill can automatically check whether PaperMC has published a newer Paper build for Minecraft. When it finds one, it notifies the console and admins with `emsichill.admin.update`.
 
-Por seguridad, el plugin **no reemplaza el JAR del servidor mientras está corriendo**. Solo descarga el nuevo `paper-*.jar`, comprueba su tamaño y SHA-256, y lo deja preparado en una carpeta para que el administrador lo aplique en el siguiente reinicio.
+For safety, the plugin **does not replace the running server JAR**. It downloads the new `paper-*.jar`, validates size and SHA-256, and stages it in a folder so an administrator can apply it on the next restart.
 
-Flujo recomendado:
+Recommended flow:
 
 ```mcfunction
 /emsichill update paper check
 /emsichill update paper download <version> <build>
 ```
 
-Después de descargarlo:
+After downloading:
 
-1. Apaga el servidor.
-2. Ve a la carpeta `server-updates/`.
-3. Reemplaza el JAR actual del servidor por el `paper-*.jar` descargado.
-4. Inicia el servidor otra vez.
-5. Revisa la consola y usa `/emsichill inspect`.
+1. Stop the server.
+2. Open the `server-updates/` folder.
+3. Replace the current server JAR with the downloaded `paper-*.jar`.
+4. Start the server again.
+5. Check the console and run `/emsichill inspect`.
 
-Configuración principal en `plugins/EmsiChill/config.yml`:
+Main configuration in `plugins/EmsiChill/config.yml`:
 
 ```yaml
 updates:
@@ -239,34 +247,36 @@ updates:
       max-download-megabytes: 120
 ```
 
-`include-experimental-builds: false` usa solo builds estables. Si lo cambias a `true`, EmsiChill también podrá detectar builds beta o experimentales, pero no es lo ideal para un servidor público.
+`include-experimental-builds: false` only accepts stable builds. Setting it to `true` also allows beta or experimental builds, which is not recommended for public servers.
 
-## Datos guardados
+## Saved Data
 
-EmsiChill usa archivos YAML locales dentro de `plugins/EmsiChill/`.
+EmsiChill stores local YAML data inside `plugins/EmsiChill/`.
 
-Ejemplos de datos guardados:
+Examples:
 
-- usuarios registrados y sesiones de auth;
-- skins elegidas, favoritas e historial;
-- homes, cooldowns y preferencias de teleport;
-- regiones, miembros, owners y settings;
-- tumbas activas;
-- sanciones, mutes, warnings y staffmode;
-- playtime, first seen y last seen.
+- registered accounts and auth sessions;
+- selected skins, favorites and history;
+- homes, cooldowns and teleport preferences;
+- regions, members, owners and settings;
+- active graves;
+- sanctions, mutes, warnings and staffmode;
+- playtime, first seen and last seen.
 
-Las contraseñas no se guardan en texto plano. El módulo de auth usa hash con sal para guardar credenciales de forma más segura.
+Passwords are not stored as plain text. The auth module uses salted hashes for safer credential storage.
 
-## Notas importantes
+## Important Notes
 
-- Los módulos desactivados desde `config.yml` no deberían seguir ejecutando comandos ni listeners activos.
-- Los resource packs están pensados para URL directa a `.zip` y SHA-1 real del archivo.
-- `/region delete` requiere `confirm` para evitar borrados accidentales.
-- `/emsichill reload` no reemplaza un reinicio cuando cambias el JAR o actualizas Paper.
-- Para servidores públicos, revisa permisos antes de abrir el servidor.
+- Modules disabled from `config.yml` should not keep active commands or listeners running.
+- Resource packs need direct `.zip` URLs and the real SHA-1 hash of the final file.
+- `/invsee` opens inventory, armor and offhand; editing requires `emsichill.invsee.modify`.
+- `/grave locate <player>` and `/grave recover <player>` are admin-only variants.
+- `/region delete` requires `confirm` to avoid accidental deletion.
+- `/emsichill reload` does not replace a full restart when changing the JAR or updating Paper.
+- Review permissions before opening a public server.
 
-## Licencia
+## License
 
-EmsiChill usa licencia **MIT No Attribution (MIT-0)**.
+EmsiChill uses the **MIT No Attribution (MIT-0)** license.
 
-Consulta [`LICENSE`](LICENSE) para ver los términos completos.
+See [`LICENSE`](LICENSE) for the full terms.

@@ -89,8 +89,8 @@ public final class ResourcePackManager implements Listener {
             try {
                 player.addResourcePack(pack.id(), pack.url(), pack.sha1(), pack.prompt(), pack.required());
             } catch (IllegalArgumentException exception) {
-                this.plugin.getLogger().warning("No se pudo enviar el resource pack " + pack.name()
-                    + " a " + player.getName() + ": " + exception.getMessage());
+                this.plugin.getLogger().warning("Could not send resource pack " + pack.name()
+                    + " to " + player.getName() + ": " + exception.getMessage());
             }
         }
     }

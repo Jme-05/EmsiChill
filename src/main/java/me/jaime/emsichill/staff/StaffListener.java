@@ -95,7 +95,7 @@ public final class StaffListener implements Listener {
         if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.shouldCancelClick(player,
-            event.getView(), event.getRawSlot(), event.isShiftClick(), event.getAction())) {
+            event.getView(), event.getRawSlot(), event.getClick(), event.isShiftClick(), event.getAction())) {
             event.setCancelled(true);
         }
     }
