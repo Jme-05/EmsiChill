@@ -117,11 +117,11 @@ commands:
     aliases: [mod]
   invsee:
     description: Opens a player's inventory, armor and offhand
-    usage: /invsee <player>
+    usage: /invsee [player]
     permission: emsichill.invsee.view
   enderchestsee:
     description: Opens a player's Ender Chest
-    usage: /enderchestsee <player>
+    usage: /enderchestsee [player]
     aliases: [ecsee]
     permission: emsichill.enderchestsee.view
   freeze:
@@ -149,9 +149,10 @@ commands:
     usage: /region <claim|build|teleport|view|upgrade|settings|add|owner|delete>
     permission: emsichill.region.use
   grave:
-    description: Manages graves
-    usage: /grave <list|locate|recover> [id]
-    permission: emsichill.grave.use
+    description: Administrative grave management
+    usage: /grave <list|locate|recover> [player|id]
+    aliases: [graves]
+    permission: emsichill.grave.admin
   deathcontrol:
     description: Administrative inventory-loss control
     usage: /deathcontrol <player|default> <grave|keep|drop>
@@ -192,7 +193,7 @@ permissions:
     description: Allows reloading EmsiChill
     default: op
   emsichill.admin.language:
-    description: Allows changing the main EmsiChill language
+    description: Allows changing the global fallback EmsiChill language from console/admin tools
     default: op
   emsichill.admin.maintenance:
     description: Allows diagnosing, backing up and migrating EmsiChill data
@@ -311,11 +312,8 @@ permissions:
   emsichill.region.unlimited:
     description: Allows claiming unlimited regions
     default: op
-  emsichill.grave.use:
-    description: Allows listing, locating and recovering your own graves
-    default: true
   emsichill.grave.admin:
-    description: Allows recovering and opening other players' graves
+    description: Allows grave commands and access to other players' graves
     default: op
   emsichill.deathcontrol.admin:
     description: Allows configuring inventory loss
@@ -367,9 +365,7 @@ documentation:
     - {section: players, category: social, command: "/crawl", description: "Toggles the crawling pose."}
     - {section: players, category: social, command: "/stand", description: "Resets your pose."}
     - {section: players, category: social, command: "/whereami", description: "Shares your dimension and coordinates in chat."}
-    - {section: players, category: grave, command: "/grave list", description: "Lists active graves."}
-    - {section: players, category: grave, command: "/grave locate <id>", description: "Shows and visually marks one of your grave locations."}
-    - {section: players, category: grave, command: "/grave recover <id>", description: "Recovers one of your own graves."}
+    - {section: players, category: social, command: "/emsichill language <english|spanish>", description: "Changes your personal plugin language."}
     - {section: regions, category: region, command: "/region claim <name>", description: "Claims a region centered on your position."}
     - {section: regions, category: region, command: "/region list", description: "Lists your regions and coordinates."}
     - {section: regions, category: region, command: "/region info [name]", description: "Shows region information."}
@@ -385,8 +381,8 @@ documentation:
     - {section: regions, category: region, command: "/region transfer <player>", description: "Transfers primary ownership."}
     - {section: regions, category: region, command: "/region delete <name> confirm", description: "Permanently deletes a region."}
     - {section: regions, category: region, command: "/region help", description: "Shows region help."}
-    - {section: staff, category: staff, command: "/invsee <player>", description: "Opens inventory, armor and offhand. Editing requires an extra permission."}
-    - {section: staff, category: staff, command: "/enderchestsee <player>", description: "Opens the Ender Chest. Editing requires an extra permission."}
+    - {section: staff, category: staff, command: "/invsee [player]", description: "Opens inventory, armor and offhand. Editing requires an extra permission."}
+    - {section: staff, category: staff, command: "/enderchestsee [player]", description: "Opens the Ender Chest. Editing requires an extra permission."}
     - {section: staff, category: staff, command: "/freeze <player> [seconds]", description: "Freezes, unfreezes or applies a timed freeze."}
     - {section: staff, category: staff, command: "/mute <player> [time]", description: "Mutes a player permanently or for 30s, 10m, 2h or 1d."}
     - {section: staff, category: staff, command: "/unmute <player>", description: "Removes an active mute."}
@@ -402,10 +398,10 @@ documentation:
     - {section: staff, category: staff, command: "/back <player>", description: "Sends another player to their previous location."}
     - {section: staff, category: staff, command: "/auth unregister <player>", description: "Administratively removes an account registration."}
     - {section: staff, category: staff, command: "/auth changepassword <player> <new>", description: "Administratively changes a password."}
-    - {section: staff, category: staff, command: "/grave locate <player>", description: "Lists and visually marks graves owned by a player."}
-    - {section: staff, category: staff, command: "/grave recover <player>", description: "Recovers all online graves owned by a player."}
-    - {section: staff, category: staff, command: "/grave admin recover <player>", description: "Administratively recovers a player's graves."}
-    - {section: configuration, category: admin, command: "/emsichill language <english|spanish>", description: "Changes the main plugin language and reloads messages."}
+    - {section: staff, category: grave, command: "/grave list", description: "Lists the administrator's active graves."}
+    - {section: staff, category: grave, command: "/grave locate <player>", description: "Lists and visually marks graves owned by a player."}
+    - {section: staff, category: grave, command: "/grave recover <player>", description: "Recovers all online graves owned by a player."}
+    - {section: staff, category: grave, command: "/grave admin recover <player>", description: "Administratively recovers a player's graves."}
     - {section: configuration, category: admin, command: "/emsichill homes limit <amount>", description: "Changes the default home limit."}
     - {section: configuration, category: admin, command: "/emsichill rtp cooldown <minutes>", description: "Changes the global RTP cooldown."}
     - {section: configuration, category: admin, command: "/deathcontrol default <grave|keep|drop>", description: "Changes the default death mode."}

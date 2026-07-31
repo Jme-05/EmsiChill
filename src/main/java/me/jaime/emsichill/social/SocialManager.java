@@ -190,11 +190,14 @@ public final class SocialManager implements CommandExecutor, Listener {
             this.plugin.messages().send(player, "general.no-permission");
             return true;
         }
-        Bukkit.broadcast(this.plugin.messages().component("social.whereami", "{player}", player.getName(),
-            "{dimension}", this.dimensionName(player.getWorld()), "{world}", player.getWorld().getName(),
-            "{x}", Integer.toString(player.getLocation().getBlockX()),
-            "{y}", Integer.toString(player.getLocation().getBlockY()),
-            "{z}", Integer.toString(player.getLocation().getBlockZ())));
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            viewer.sendMessage(this.plugin.messages().component(viewer, "social.whereami",
+                "{player}", player.getName(),
+                "{dimension}", this.dimensionName(player.getWorld()), "{world}", player.getWorld().getName(),
+                "{x}", Integer.toString(player.getLocation().getBlockX()),
+                "{y}", Integer.toString(player.getLocation().getBlockY()),
+                "{z}", Integer.toString(player.getLocation().getBlockZ())));
+        }
         return true;
     }
 
@@ -263,7 +266,10 @@ public final class SocialManager implements CommandExecutor, Listener {
         Player player = event.getPlayer();
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             if (player.isOnline() && player.isSleeping() && !this.activePoses.containsKey(player.getUniqueId())) {
-                Bukkit.broadcast(this.plugin.messages().component("social.went-to-sleep", "{player}", player.getName()));
+                for (Player viewer : Bukkit.getOnlinePlayers()) {
+                    viewer.sendMessage(this.plugin.messages().component(viewer, "social.went-to-sleep",
+                        "{player}", player.getName()));
+                }
             }
         });
     }

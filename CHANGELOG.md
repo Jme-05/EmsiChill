@@ -1,5 +1,35 @@
 # Changelog
 
+## EmsiChill 5.2.1 - 2026-07-31
+
+### Changed
+
+- Updated the plugin version to `5.2.1`.
+- Kept this release as the current package for all changes added after `5.1.5`.
+- Changed `/emsichill language <english|spanish>` to save a personal language per player.
+- Added `player-languages.yml` for per-player language preferences.
+- Added `/graves` as an alias for `/grave`.
+- Restricted `/grave` and `/graves` to administrators with `emsichill.grave.admin`.
+- Rebuilt grave markers as upright headstones with a stepped stone base, plaque and restrained soul-lantern accent.
+- Removed the visible chest from graves; an invisible protected interaction block now keeps opening and collection reliable.
+- Reduced each grave label to the owner's name and removed the instruction line, dark text background and excessive effects.
+- Simplified grave command output to a restrained gray, white and error-color palette.
+- Removed redundant chat confirmations when opening `/invsee` or `/enderchestsee`.
+- Improved the `/invsee` layout with clean, unlabeled separators for inventory, hotbar, armor and offhand.
+
+### Fixed
+
+- Fixed the English private-grave message so it includes the remaining private time.
+- Fixed Spanish message accents in visible help, language, Paper update and grave text.
+- Allowed `/invsee` and `/enderchestsee` to target yourself when no player name is provided.
+- Fixed editable `/invsee` shift-click transfers so admins can take items from another player's inspected inventory.
+- Fixed editable `/invsee` shift-click transfers so admins can move items from their inventory into the inspected player inventory without using the fake armor/offhand slots.
+- Fixed editable `/enderchestsee` shift-click transfers so admins can move items in and out of another player's Ender Chest.
+- Kept self `/invsee` read-only to avoid duplicating or deleting items while the inspected inventory and the real player inventory belong to the same admin.
+- Fixed `/grave` and `/graves` appearing in command suggestions for players without administrative permission.
+- Fixed grave interactions running once per hand and sending the private-grave warning twice.
+- Fixed grave displays disappearing after a server restart or chunk unload while the grave itself remained usable.
+
 ## EmsiChill 5.2.0 - 2026-07-29
 
 ### Added
@@ -34,6 +64,7 @@
 - Simplified the public `/emsichill` usage text to avoid exposing administrative subcommands through Bukkit help.
 - Simplified `/back` usage text so the admin-only player variant is not shown to normal users.
 - Updated region menus, grave titles and visible module text to use English wording.
+- Improved grave markers with a richer memorial style: floating title, soul lantern, side chains and stronger locate particles.
 
 ### Fixed
 

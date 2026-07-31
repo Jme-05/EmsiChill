@@ -26,7 +26,7 @@ class ReadmeGeneratorTest {
         ReadmeGenerator.generate(pluginYml, readme);
 
         String generatedReadme = Files.readString(readme, StandardCharsets.UTF_8);
-        assertTrue(generatedReadme.contains("/invsee <player>"));
+        assertTrue(generatedReadme.contains("/invsee [player]"));
         assertTrue(generatedReadme.contains("/crawl"));
         assertTrue(generatedReadme.contains("/skull <name>"));
         assertTrue(generatedReadme.contains("/region delete <name> confirm"));
@@ -56,6 +56,17 @@ class ReadmeGeneratorTest {
                 () -> "Missing description for " + permission);
         }
         assertTrue(described > 0, "No documented permissions were found");
+    }
+
+    @Test
+    void keepsGraveCommandsAdministrative() {
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(
+            Path.of("src/main/resources/plugin.yml").toFile());
+        assertTrue("emsichill.grave.admin".equals(yaml.getString("commands.grave.permission")));
+        assertTrue("op".equalsIgnoreCase(yaml.getString("permissions.emsichill.grave.admin.default")));
+        assertTrue(yaml.getMapList("documentation.entries").stream().noneMatch(entry ->
+            "players".equals(String.valueOf(entry.get("section")))
+                && String.valueOf(entry.get("command")).startsWith("/grave")));
     }
 
     @Test

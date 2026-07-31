@@ -5,16 +5,34 @@ inventory-loss:
 graves:
   lifetime-minutes: 30
   private-minutes: 5
-  # Maximum horizontal and vertical distance used to find a safe chest location.
+  # Maximum horizontal and vertical distance used to find a safe grave location.
   marker-search-radius: 6
   marker-vertical-radius: 4
+  # Legacy text display options kept for compatibility.
   name-display:
     enabled: true
-    height: 1.45
-    text: "Grave of {player}"
+    height: 1.58
+    text: "{player}"
   visuals:
     effects: true
     locate-marker: true
     locate-marker-seconds: 8
+    marker:
+      enabled: true
+      style-version: 3
+      title-height: 1.58
+      title-scale: 0.5
+      title: "{player}"
+      base: true
+      base-material: "POLISHED_DEEPSLATE"
+      step: true
+      step-material: "DEEPSLATE_TILES"
+      headstone: true
+      headstone-material: "DEEPSLATE_BRICKS"
+      trim-material: "POLISHED_BLACKSTONE"
+      plaque: true
+      plaque-material: "CHISELED_DEEPSLATE"
+      soul-lantern: true
+      soul-lantern-material: "SOUL_LANTERN"
   # drop leaves items in the world; delete removes them.
   on-expire: drop

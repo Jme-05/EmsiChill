@@ -83,19 +83,14 @@ public final class StaffListener implements Listener {
         InspectionService.OpenResult result = this.inspections.open(viewer, target, type);
         if (result == InspectionService.OpenResult.NO_PERMISSION) {
             this.plugin.messages().send(viewer, "general.no-permission");
-            return;
         }
-        String mode = result == InspectionService.OpenResult.OPENED_EDITABLE ? "editable" : "read-only";
-        this.plugin.messages().send(viewer, "staff.inspection-opened-" + mode,
-            "{player}", target.getName());
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(final InventoryClickEvent event) {
         if (!this.enabled()) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.shouldCancelClick(player,
-            event.getView(), event.getRawSlot(), event.getClick(), event.isShiftClick(), event.getAction())) {
+        if (this.freezes.isFrozen(player.getUniqueId()) || this.inspections.handleClick(player, event)) {
             event.setCancelled(true);
         }
     }

@@ -11,19 +11,21 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,11 +40,17 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Transformation;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
 import me.jaime.emsichill.Main;
 import me.jaime.emsichill.config.ConfigFile;
@@ -50,15 +58,12 @@ import me.jaime.emsichill.util.CommandSuggestions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-/**
- * Controla muertes, cofres de tumba, recogida de objetos, marcadores visibles y protección del
- * bloque mientras la tumba permanece activa.
- */
+/** Controls deaths, grave storage, item recovery, visible markers and marker protection. */
 public final class GraveManager implements CommandExecutor, TabCompleter, Listener {
     private final Main plugin;
     private final GraveRepository repository;
     private final Map<String, String> graveBlocks = new ConcurrentHashMap<>();
-    private final Map<String, TextDisplay> graveDisplays = new ConcurrentHashMap<>();
+    private final Map<String, List<Display>> graveDisplays = new ConcurrentHashMap<>();
     private final Set<String> openGraves = ConcurrentHashMap.newKeySet();
     private ConfigFile configFile;
     private BukkitTask cleanupTask;
@@ -72,6 +77,42 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     public void reloadConfiguration() {
         if (this.configFile == null) this.configFile = new ConfigFile(this.plugin, "Graves/config.yml");
         else this.configFile.reload();
+        this.migrateVisualDefaults();
+        if (this.repository != null && this.enabled()) this.restoreMarkers();
+    }
+
+    private void migrateVisualDefaults() {
+        boolean changed = false;
+        String markerPath = "graves.visuals.marker.";
+        if (this.configFile.yaml().getInt(markerPath + "style-version", 0) < 3) {
+            this.configFile.yaml().set(markerPath + "style-version", 3);
+            this.configFile.yaml().set(markerPath + "title-height", 1.58D);
+            this.configFile.yaml().set(markerPath + "title-scale", 0.5D);
+            this.configFile.yaml().set(markerPath + "title", "{player}");
+            this.configFile.yaml().set(markerPath + "base", true);
+            this.configFile.yaml().set(markerPath + "base-material", "POLISHED_DEEPSLATE");
+            this.configFile.yaml().set(markerPath + "step", true);
+            this.configFile.yaml().set(markerPath + "step-material", "DEEPSLATE_TILES");
+            this.configFile.yaml().set(markerPath + "headstone", true);
+            this.configFile.yaml().set(markerPath + "headstone-material", "DEEPSLATE_BRICKS");
+            this.configFile.yaml().set(markerPath + "trim-material", "POLISHED_BLACKSTONE");
+            this.configFile.yaml().set(markerPath + "plaque", true);
+            this.configFile.yaml().set(markerPath + "plaque-material", "CHISELED_DEEPSLATE");
+            this.configFile.yaml().set(markerPath + "soul-lantern", true);
+            this.configFile.yaml().set(markerPath + "soul-lantern-material", "SOUL_LANTERN");
+            this.configFile.yaml().set(markerPath + "subtitle", null);
+            this.configFile.yaml().set(markerPath + "lid", null);
+            this.configFile.yaml().set(markerPath + "lid-material", null);
+            this.configFile.yaml().set(markerPath + "front-plaque", null);
+            this.configFile.yaml().set(markerPath + "front-plaque-material", null);
+            this.configFile.yaml().set(markerPath + "cap-material", null);
+            this.configFile.yaml().set(markerPath + "relic", null);
+            this.configFile.yaml().set(markerPath + "relic-material", null);
+            this.configFile.yaml().set(markerPath + "side-chains", null);
+            this.configFile.yaml().set(markerPath + "side-material", null);
+            changed = true;
+        }
+        if (changed) this.configFile.save();
     }
 
     public void start() {
@@ -83,8 +124,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
 
     public void stop() {
         if (this.cleanupTask != null) this.cleanupTask.cancel();
-        for (TextDisplay display : this.graveDisplays.values()) if (display.isValid()) display.remove();
-        this.graveDisplays.clear();
+        this.clearGraveDisplays();
         this.repository.save();
     }
 
@@ -98,6 +138,10 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             return true;
         }
         if (command.getName().equalsIgnoreCase("deathcontrol")) return this.deathControl(sender, args);
+        if (!sender.hasPermission("emsichill.grave.admin")) {
+            this.plugin.messages().send(sender, "general.no-permission");
+            return true;
+        }
         if (!(sender instanceof Player player)) {
             this.plugin.messages().send(sender, "general.only-players");
             return true;
@@ -189,7 +233,7 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             "{x}", Integer.toString(grave.x()), "{y}", Integer.toString(grave.y()), "{z}", Integer.toString(grave.z()));
     }
 
-    // Busca un bloque cercano que pueda alojar el cofre sin reemplazar construcciones.
+    // Finds a nearby empty block for the protected interaction point.
     private Location findMarkerLocation(final Location origin) {
         World world = origin.getWorld();
         if (world == null) return null;
@@ -231,61 +275,227 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     private void placeMarker(final Grave grave) {
         Location location = grave.location();
         if (location == null) return;
-        location.getBlock().setType(Material.CHEST, false);
-        if (location.getBlock().getState() instanceof Chest chest) {
-            chest.customName(Component.text("Grave (" + grave.ownerName() + ")"));
-            chest.update(true);
-        }
+        location.getBlock().setType(Material.BARRIER, false);
         this.graveBlocks.put(this.blockKey(location), grave.id());
-        this.placeNameDisplay(grave);
+        this.placeGraveDisplays(grave);
     }
 
-    private void placeNameDisplay(final Grave grave) {
-        this.removeNameDisplay(grave.id());
-        if (!this.configFile.yaml().getBoolean("graves.name-display.enabled", true)) return;
+    private void placeGraveDisplays(final Grave grave) {
+        this.removeGraveDisplays(grave.id());
+        if (!this.configFile.yaml().getBoolean("graves.visuals.marker.enabled", true)) return;
         Location location = grave.location();
         if (location == null) return;
-        double height = this.configFile.yaml().getDouble("graves.name-display.height", 1.45);
-        String format = this.configFile.yaml().getString("graves.name-display.text", "Grave of {player}");
-        String text = format.replace("{player}", grave.ownerName());
-        TextDisplay display = location.getWorld().spawn(location.clone().add(0.5, height, 0.5), TextDisplay.class, entity -> {
-            entity.text(Component.text(text, NamedTextColor.YELLOW));
-            entity.setBillboard(Display.Billboard.CENTER);
-            entity.setSeeThrough(true);
-            entity.setShadowed(true);
-            entity.setInvulnerable(true);
-            entity.setPersistent(false);
-        });
-        this.graveDisplays.put(grave.id(), display);
+
+        List<Display> displays = new ArrayList<>();
+        if (this.configFile.yaml().getBoolean("graves.name-display.enabled", true)) {
+            displays.add(this.spawnTitleDisplay(grave, location));
+        }
+        if (this.configFile.yaml().getBoolean("graves.visuals.marker.base", true)) {
+            Material base = this.blockMarkerMaterial("graves.visuals.marker.base-material",
+                "POLISHED_DEEPSLATE", Material.COBBLESTONE);
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.05, 0.02, 0.18), base,
+                new Vector3f(0.9F, 0.14F, 0.64F), 0.0F));
+        }
+        if (this.configFile.yaml().getBoolean("graves.visuals.marker.step", true)) {
+            Material step = this.blockMarkerMaterial("graves.visuals.marker.step-material",
+                "DEEPSLATE_TILES", Material.COBBLESTONE);
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.12, 0.16, 0.23), step,
+                new Vector3f(0.76F, 0.13F, 0.54F), 0.0F));
+        }
+        if (this.configFile.yaml().getBoolean("graves.visuals.marker.headstone", true)) {
+            Material headstone = this.blockMarkerMaterial("graves.visuals.marker.headstone-material",
+                "DEEPSLATE_BRICKS", Material.COBBLESTONE);
+            Material trim = this.blockMarkerMaterial("graves.visuals.marker.trim-material",
+                "POLISHED_BLACKSTONE", Material.COBBLESTONE);
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.25, 0.27, 0.41), headstone,
+                new Vector3f(0.5F, 0.7F, 0.18F), 0.0F));
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.18, 0.88, 0.39), headstone,
+                new Vector3f(0.64F, 0.2F, 0.22F), 0.0F));
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.26, 1.06, 0.39), headstone,
+                new Vector3f(0.48F, 0.2F, 0.22F), 0.0F));
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.34, 1.24, 0.4), trim,
+                new Vector3f(0.32F, 0.13F, 0.2F), 0.0F));
+        }
+        if (this.configFile.yaml().getBoolean("graves.visuals.marker.plaque", true)) {
+            Material plaque = this.blockMarkerMaterial("graves.visuals.marker.plaque-material",
+                "CHISELED_DEEPSLATE", Material.COBBLESTONE);
+            displays.add(this.spawnBlockDisplay(location.clone().add(0.34, 0.56, 0.365), plaque,
+                new Vector3f(0.32F, 0.29F, 0.055F), 0.0F));
+        }
+        if (this.configFile.yaml().getBoolean("graves.visuals.marker.soul-lantern", true)) {
+            Material lantern = this.itemMarkerMaterial("graves.visuals.marker.soul-lantern-material",
+                "SOUL_LANTERN", Material.SOUL_LANTERN);
+            displays.add(this.spawnItemDisplay(location.clone().add(0.5, 0.31, 0.19), lantern, 0.3F, false));
+        }
+        if (!displays.isEmpty()) this.graveDisplays.put(grave.id(), displays);
     }
 
-    private void removeNameDisplay(final String graveId) {
-        TextDisplay display = this.graveDisplays.remove(graveId);
-        if (display != null && display.isValid()) display.remove();
+    private TextDisplay spawnTitleDisplay(final Grave grave, final Location location) {
+        double height = this.configFile.yaml().getDouble("graves.visuals.marker.title-height",
+            this.configFile.yaml().getDouble("graves.name-display.height", 1.58));
+        String title = this.configFile.yaml().getString("graves.visuals.marker.title",
+            this.configFile.yaml().getString("graves.name-display.text", "{player}"));
+        Component text = Component.text(this.formatGraveText(title, grave), NamedTextColor.GRAY);
+        return location.getWorld().spawn(location.clone().add(0.5, height, 0.5), TextDisplay.class, entity -> {
+            entity.text(text);
+            entity.setAlignment(TextDisplay.TextAlignment.CENTER);
+            entity.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
+            entity.setBillboard(Display.Billboard.CENTER);
+            entity.setBrightness(new Display.Brightness(10, 10));
+            entity.setLineWidth(120);
+            entity.setSeeThrough(false);
+            entity.setShadowed(true);
+            entity.setTextOpacity((byte) 230);
+            float scale = (float) this.configFile.yaml().getDouble("graves.visuals.marker.title-scale", 0.5D);
+            entity.setTransformation(new Transformation(
+                new Vector3f(),
+                new AxisAngle4f(0.0F, 0.0F, 1.0F, 0.0F),
+                new Vector3f(scale, scale, scale),
+                new AxisAngle4f(0.0F, 0.0F, 1.0F, 0.0F)
+            ));
+            this.prepareDisplay(entity, false);
+        });
+    }
+
+    private BlockDisplay spawnBlockDisplay(
+        final Location location,
+        final Material material,
+        final Vector3f scale,
+        final float yawDegrees
+    ) {
+        return location.getWorld().spawn(location, BlockDisplay.class, entity -> {
+            entity.setBlock(material.createBlockData());
+            entity.setBrightness(new Display.Brightness(12, 15));
+            entity.setTransformation(new Transformation(
+                new Vector3f(),
+                new AxisAngle4f((float) Math.toRadians(yawDegrees), 0.0F, 1.0F, 0.0F),
+                scale,
+                new AxisAngle4f(0.0F, 0.0F, 1.0F, 0.0F)
+            ));
+            this.prepareDisplay(entity, true, Display.Billboard.FIXED);
+        });
+    }
+
+    private ItemDisplay spawnItemDisplay(
+        final Location location,
+        final Material material,
+        final float scale,
+        final boolean glowing
+    ) {
+        return location.getWorld().spawn(location, ItemDisplay.class, entity -> {
+            entity.setItemStack(new ItemStack(material));
+            entity.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.FIXED);
+            entity.setBrightness(new Display.Brightness(15, 15));
+            entity.setGlowing(glowing);
+            entity.setTransformation(new Transformation(
+                new Vector3f(),
+                new AxisAngle4f(0.0F, 0.0F, 1.0F, 0.0F),
+                new Vector3f(scale, scale, scale),
+                new AxisAngle4f(0.0F, 0.0F, 1.0F, 0.0F)
+            ));
+            this.prepareDisplay(entity, true, Display.Billboard.CENTER);
+        });
+    }
+
+    private void prepareDisplay(final Display display, final boolean smallViewRange) {
+        this.prepareDisplay(display, smallViewRange, Display.Billboard.CENTER);
+    }
+
+    private void prepareDisplay(final Display display, final boolean smallViewRange, final Display.Billboard billboard) {
+        display.setBillboard(billboard);
+        display.setInvulnerable(true);
+        display.setPersistent(false);
+        display.setViewRange(smallViewRange ? 18.0F : 32.0F);
+        display.setGravity(false);
+    }
+
+    private Material blockMarkerMaterial(final String path, final String preferred, final Material fallback) {
+        Material material = this.markerMaterial(path, preferred, fallback);
+        return material.isBlock() ? material : fallback;
+    }
+
+    private Material itemMarkerMaterial(final String path, final String preferred, final Material fallback) {
+        return this.markerMaterial(path, preferred, fallback);
+    }
+
+    private Material markerMaterial(final String path, final String preferred, final Material fallback) {
+        String configured = this.configFile.yaml().getString(path, preferred);
+        Material material = configured == null ? null : Material.matchMaterial(configured);
+        if (material == null) material = Material.matchMaterial(preferred);
+        return material == null ? fallback : material;
+    }
+
+    private String formatGraveText(final String text, final Grave grave) {
+        return text.replace("{player}", grave.ownerName()).replace("{id}", grave.id());
+    }
+
+    private void removeGraveDisplays(final String graveId) {
+        List<Display> displays = this.graveDisplays.remove(graveId);
+        if (displays == null) return;
+        for (Display display : displays) if (display.isValid()) display.remove();
+    }
+
+    private void clearGraveDisplays() {
+        for (List<Display> displays : this.graveDisplays.values()) {
+            for (Display display : displays) if (display.isValid()) display.remove();
+        }
+        this.graveDisplays.clear();
     }
 
     private void restoreMarkers() {
-        for (TextDisplay display : this.graveDisplays.values()) if (display.isValid()) display.remove();
-        this.graveDisplays.clear();
+        this.clearGraveDisplays();
         this.graveBlocks.clear();
         for (Grave grave : this.repository.all()) {
-            if (!grave.hasMarker()) continue;
-            Location location = grave.location();
-            if (location != null) {
-                if (location.getBlock().getType().isAir()) location.getBlock().setType(Material.CHEST, false);
-                if (location.getBlock().getState() instanceof Chest chest) {
-                    chest.customName(Component.text("Grave (" + grave.ownerName() + ")"));
-                    chest.update(true);
-                }
-                this.graveBlocks.put(this.blockKey(location), grave.id());
-                this.placeNameDisplay(grave);
-            }
+            this.restoreMarker(grave);
         }
+    }
+
+    private void restoreMarker(final Grave grave) {
+        if (!grave.hasMarker()) return;
+        Location location = grave.location();
+        if (location == null) return;
+        this.graveBlocks.put(this.blockKey(location), grave.id());
+        int chunkX = location.getBlockX() >> 4;
+        int chunkZ = location.getBlockZ() >> 4;
+        if (!location.getWorld().isChunkLoaded(chunkX, chunkZ)) return;
+        Material markerType = location.getBlock().getType();
+        if (markerType.isAir() || markerType == Material.CHEST) {
+            location.getBlock().setType(Material.BARRIER, false);
+        }
+        this.placeGraveDisplays(grave);
+    }
+
+    @EventHandler
+    public void onChunkLoad(final ChunkLoadEvent event) {
+        if (!this.enabled()) return;
+        String worldName = event.getChunk().getWorld().getName();
+        int chunkX = event.getChunk().getX();
+        int chunkZ = event.getChunk().getZ();
+        for (Grave grave : this.repository.all()) {
+            if (this.isGraveInChunk(grave, worldName, chunkX, chunkZ)) this.restoreMarker(grave);
+        }
+    }
+
+    @EventHandler
+    public void onChunkUnload(final ChunkUnloadEvent event) {
+        if (!this.enabled()) return;
+        String worldName = event.getChunk().getWorld().getName();
+        int chunkX = event.getChunk().getX();
+        int chunkZ = event.getChunk().getZ();
+        for (Grave grave : this.repository.all()) {
+            if (this.isGraveInChunk(grave, worldName, chunkX, chunkZ)) this.removeGraveDisplays(grave.id());
+        }
+    }
+
+    private boolean isGraveInChunk(final Grave grave, final String worldName, final int chunkX, final int chunkZ) {
+        return grave.hasMarker() && grave.world().equals(worldName)
+            && (grave.x() >> 4) == chunkX && (grave.z() >> 4) == chunkZ;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onInteract(final PlayerInteractEvent event) {
         if (!this.enabled()) return;
+        if (event.getHand() != EquipmentSlot.HAND) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null) return;
         String id = this.graveBlocks.get(this.blockKey(event.getClickedBlock().getLocation()));
         if (id == null) return;
@@ -575,11 +785,12 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     }
 
     private void cleanupMarker(final Grave grave) {
-        this.removeNameDisplay(grave.id());
+        this.removeGraveDisplays(grave.id());
         Location location = grave.location();
         if (location == null) return;
         this.graveBlocks.remove(this.blockKey(location));
-        if (grave.hasMarker() && location.getBlock().getType() == Material.CHEST) {
+        Material markerType = location.getBlock().getType();
+        if (grave.hasMarker() && (markerType == Material.BARRIER || markerType == Material.CHEST)) {
             location.getBlock().setType(Material.AIR, false);
         }
     }
@@ -674,10 +885,11 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
     private void playGraveEffect(final Grave grave) {
         Location location = grave.location();
         if (location == null || !this.configFile.yaml().getBoolean("graves.visuals.effects", true)) return;
-        Location center = location.clone().add(0.5, 1.05, 0.5);
-        location.getWorld().spawnParticle(Particle.END_ROD, center, 18, 0.35, 0.45, 0.35, 0.01);
-        location.getWorld().spawnParticle(Particle.SOUL, center, 10, 0.25, 0.25, 0.25, 0.01);
-        location.getWorld().playSound(center, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 0.85F);
+        Location center = location.clone().add(0.5, 0.8, 0.5);
+        World world = location.getWorld();
+        world.spawnParticle(Particle.SOUL, center, 12, 0.22, 0.35, 0.22, 0.01);
+        world.spawnParticle(Particle.END_ROD, center, 7, 0.18, 0.3, 0.18, 0.005);
+        world.playSound(center, Sound.BLOCK_SOUL_SAND_PLACE, 0.45F, 0.85F);
     }
 
     private void highlightGrave(final Player viewer, final Grave grave) {
@@ -696,9 +908,21 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
                     return;
                 }
                 Location center = location.clone().add(0.5, 1.15, 0.5);
-                viewer.spawnParticle(Particle.END_ROD, center, 14, 0.38, 0.5, 0.38, 0.01);
-                viewer.spawnParticle(Particle.SOUL, center, 8, 0.25, 0.35, 0.25, 0.01);
-                if (this.elapsed == 0) viewer.playSound(center, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.2F);
+                Particle.DustOptions cyan = new Particle.DustOptions(Color.fromRGB(95, 205, 220), 1.05F);
+                double spin = Math.toRadians(this.elapsed * 10.0D);
+                for (int index = 0; index < 12; index++) {
+                    double angle = spin + Math.toRadians(index * 30.0D);
+                    double radius = 0.68D;
+                    double height = 0.15D + ((this.elapsed + index * 3) % 30) / 30.0D * 1.2D;
+                    Location point = location.clone().add(
+                        0.5 + Math.cos(angle) * radius,
+                        height,
+                        0.5 + Math.sin(angle) * radius
+                    );
+                    viewer.spawnParticle(Particle.DUST, point, 1, 0.0, 0.0, 0.0, 0.0, cyan);
+                }
+                viewer.spawnParticle(Particle.SOUL, center, 4, 0.15, 0.28, 0.15, 0.01);
+                if (this.elapsed == 0) viewer.playSound(center, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.45F, 1.1F);
                 this.elapsed += interval;
             }
         }.runTaskTimer(this.plugin, 0L, interval);
@@ -742,9 +966,9 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             }
             if (args.length == 2) return CommandSuggestions.filter(List.of("grave", "keep", "drop"), args[1]);
         } else {
+            if (!sender.hasPermission("emsichill.grave.admin")) return Collections.emptyList();
             if (args.length == 1) {
-                List<String> actions = new ArrayList<>(List.of("list", "locate", "recover"));
-                if (sender.hasPermission("emsichill.grave.admin")) actions.add("admin");
+                List<String> actions = new ArrayList<>(List.of("list", "locate", "recover", "admin"));
                 return CommandSuggestions.filter(actions, args[0]);
             }
             if (args.length == 2 && (args[0].equalsIgnoreCase("locate") || args[0].equalsIgnoreCase("recover"))) {

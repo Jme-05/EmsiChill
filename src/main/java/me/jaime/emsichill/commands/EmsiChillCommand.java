@@ -301,13 +301,22 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean changeLanguage(final CommandSender sender, final String value) {
-        if (!sender.hasPermission("emsichill.admin.language")) {
-            this.messages.send(sender, "general.no-permission");
-            return true;
-        }
         String language = normalizeLanguage(value);
         if (language == null) {
             this.messages.send(sender, "language.invalid");
+            return true;
+        }
+        if (sender instanceof Player player) {
+            if (!this.messages.setPlayerLanguage(player, language)) {
+                this.messages.send(sender, "general.save-error");
+                return true;
+            }
+            this.audit.log("PLAYER_LANGUAGE_CHANGE", "actor=" + sender.getName() + " language=" + language);
+            this.messages.send(sender, "language.changed", "{language}", this.languageName(sender, language));
+            return true;
+        }
+        if (!sender.hasPermission("emsichill.admin.language")) {
+            this.messages.send(sender, "general.no-permission");
             return true;
         }
         this.plugin.settings().set("language", language);
@@ -316,8 +325,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         this.plugin.reloadPlugin();
-        this.audit.log("LANGUAGE_CHANGE", "actor=" + sender.getName() + " language=" + language);
-        this.messages.send(sender, "language.changed", "{language}", this.languageName(language));
+        this.audit.log("GLOBAL_LANGUAGE_CHANGE", "actor=" + sender.getName() + " language=" + language);
+        this.messages.send(sender, "language.changed-global", "{language}", this.languageName(sender, language));
         return true;
     }
 
@@ -329,8 +338,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         };
     }
 
-    private String languageName(final String language) {
-        return language.equals("es") ? this.messages.plain("language.spanish") : this.messages.plain("language.english");
+    private String languageName(final CommandSender sender, final String language) {
+        return language.equals("es") ? this.messages.plain(sender, "language.spanish") : this.messages.plain(sender, "language.english");
     }
 
     private boolean reload(final CommandSender sender) {
@@ -552,14 +561,15 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         int shown = 0;
         for (CommandDoc entry : this.documentation.entriesForCategory(category)) {
             if (!this.canViewHelpEntry(sender, entry)) continue;
-            this.messages.sendText(sender, "&e" + entry.command() + " &7- " + entry.description());
+            this.messages.sendText(sender, "&f" + entry.command() + " &8- &7" + entry.description());
             shown++;
         }
         if (shown == 0) this.messages.send(sender, "general.no-permission");
     }
 
     private List<String> visibleHelpCategories(final CommandSender sender) {
-        List<String> categories = new ArrayList<>(List.of("auth", "teleport", "skin", "region", "grave", "social"));
+        List<String> categories = new ArrayList<>(List.of("auth", "teleport", "skin", "region", "social"));
+        if (this.canViewHelpCategory(sender, "grave")) categories.add("grave");
         if (this.canViewHelpCategory(sender, "staff")) categories.add("staff");
         if (this.canViewHelpCategory(sender, "admin")) categories.add("admin");
         return categories;
@@ -567,6 +577,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
 
     private boolean canViewHelpCategory(final CommandSender sender, final String category) {
         return switch (category.toLowerCase(Locale.ROOT)) {
+            case "grave" -> sender.hasPermission("emsichill.grave.admin");
             case "staff" -> this.hasAnyPermission(sender, "emsichill.staffchat", "emsichill.vanish",
                 "emsichill.vanish.see", "emsichill.staffmode", "emsichill.invsee.view",
                 "emsichill.enderchestsee.view", "emsichill.freeze", "emsichill.mute",
@@ -586,8 +597,10 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean canViewHelpEntry(final CommandSender sender, final CommandDoc entry) {
-        if (!entry.category().equalsIgnoreCase("staff") && !entry.category().equalsIgnoreCase("admin")) return true;
+        if (!entry.category().equalsIgnoreCase("staff") && !entry.category().equalsIgnoreCase("admin")
+            && !entry.category().equalsIgnoreCase("grave")) return true;
         String command = entry.command().toLowerCase(Locale.ROOT);
+        if (entry.category().equalsIgnoreCase("grave")) return sender.hasPermission("emsichill.grave.admin");
         if (command.startsWith("/staffchat")) return sender.hasPermission("emsichill.staffchat");
         if (command.startsWith("/vanishlist")) return sender.hasPermission("emsichill.vanish.see");
         if (command.startsWith("/vanish")) return sender.hasPermission("emsichill.vanish");
@@ -605,7 +618,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (command.startsWith("/auth")) return sender.hasPermission("emsichill.auth.admin");
         if (command.startsWith("/grave")) return sender.hasPermission("emsichill.grave.admin");
         if (command.startsWith("/deathcontrol")) return sender.hasPermission("emsichill.deathcontrol.admin");
-        if (command.startsWith("/emsichill language")) return sender.hasPermission("emsichill.admin.language");
+        if (command.startsWith("/emsichill language")) return sender instanceof Player
+            || sender.hasPermission("emsichill.admin.language");
         if (command.startsWith("/emsichill homes")) return sender.hasPermission("emsichill.homes.admin");
         if (command.startsWith("/emsichill rtp")) return sender.hasPermission("emsichill.rtp.admin");
         if (command.startsWith("/emsichill update")) return sender.hasPermission("emsichill.admin.update");
@@ -629,7 +643,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("emsichill.homes.admin")) actions.add("homes");
             if (sender.hasPermission("emsichill.rtp.admin")) actions.add("rtp");
             if (sender.hasPermission("emsichill.admin.reload")) actions.add("reload");
-            if (sender.hasPermission("emsichill.admin.language")) actions.add("language");
+            if (sender instanceof Player || sender.hasPermission("emsichill.admin.language")) actions.add("language");
             if (sender.hasPermission("emsichill.admin.maintenance")) {
                 actions.addAll(List.of("status", "inspect", "backup", "migrate"));
             }
@@ -651,7 +665,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             }
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("language")
-            && sender.hasPermission("emsichill.admin.language")) {
+            && (sender instanceof Player || sender.hasPermission("emsichill.admin.language"))) {
             return CommandSuggestions.filter(List.of("english", "spanish"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("help")) {

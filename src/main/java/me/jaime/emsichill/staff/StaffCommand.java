@@ -108,12 +108,12 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
             this.plugin.messages().send(sender, "general.only-players");
             return true;
         }
-        if (args.length != 1) {
+        if (args.length > 1) {
             this.plugin.messages().send(sender,
                 type == InspectionService.Type.INVENTORY ? "staff.invsee-usage" : "staff.enderchestsee-usage");
             return true;
         }
-        Player target = this.findOnline(args[0]);
+        Player target = args.length == 0 ? viewer : this.findOnline(args[0]);
         if (target == null) {
             this.plugin.messages().send(sender, "staff.player-not-found");
             return true;
@@ -121,8 +121,6 @@ public final class StaffCommand implements CommandExecutor, TabCompleter {
         InspectionService.OpenResult result = this.inspections.open(viewer, target, type);
         if (result == InspectionService.OpenResult.NO_PERMISSION) return this.noPermission(sender);
         String mode = result == InspectionService.OpenResult.OPENED_EDITABLE ? "editable" : "read-only";
-        this.plugin.messages().send(sender, "staff.inspection-opened-" + mode,
-            "{player}", target.getName());
         this.plugin.audit().log("STAFF_INSPECTION", "actor=" + sender.getName() + " target=" + target.getName()
             + " type=" + type.name() + " mode=" + mode);
         return true;
