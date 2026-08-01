@@ -24,6 +24,7 @@ import me.jaime.emsichill.home.HomeManager;
 import me.jaime.emsichill.maintenance.MaintenanceService;
 import me.jaime.emsichill.playerinfo.PlayerInfoManager;
 import me.jaime.emsichill.region.RegionManager;
+import me.jaime.emsichill.resourcepack.ResourcePackManager;
 import me.jaime.emsichill.staff.StaffService;
 import me.jaime.emsichill.staff.ModerationService;
 import me.jaime.emsichill.storage.DataStore;
@@ -57,6 +58,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
     private final RegionManager regions;
     private final GraveManager graves;
     private final UpdateService updates;
+    private final ResourcePackManager resourcePacks;
     private final CommandDocumentation documentation;
 
     public EmsiChillCommand(
@@ -72,6 +74,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         final RegionManager regions,
         final GraveManager graves,
         final UpdateService updates,
+        final ResourcePackManager resourcePacks,
         final CommandDocumentation documentation
     ) {
         this.plugin = plugin;
@@ -89,6 +92,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.regions = regions;
         this.graves = graves;
         this.updates = updates;
+        this.resourcePacks = resourcePacks;
         this.documentation = documentation;
     }
 
@@ -102,6 +106,12 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("language")) {
             return this.changeLanguage(sender, args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("rp") && args[1].equalsIgnoreCase("reload")) {
+            return this.reloadResourcePacks(sender);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("rp") && args[1].equalsIgnoreCase("push")) {
+            return this.pushResourcePacks(sender);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("update") && args[1].equalsIgnoreCase("check")) {
             return this.checkUpdates(sender);
@@ -327,6 +337,69 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         this.plugin.reloadPlugin();
         this.audit.log("GLOBAL_LANGUAGE_CHANGE", "actor=" + sender.getName() + " language=" + language);
         this.messages.send(sender, "language.changed-global", "{language}", this.languageName(sender, language));
+        return true;
+    }
+
+    private boolean reloadResourcePacks(final CommandSender sender) {
+        if (!sender.hasPermission("emsichill.resourcepack.admin")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        if (!this.plugin.moduleEnabled("resource-packs")) {
+            this.plugin.settings().set("modules.resource-packs", true);
+            if (!this.plugin.saveSettings()) {
+                this.messages.send(sender, "general.save-error");
+                return true;
+            }
+        }
+        this.messages.send(sender, "resource-pack.reloading");
+        this.resourcePacks.reloadLocalPacks().whenComplete((result, failure) -> {
+            if (failure != null || result == null) {
+                this.plugin.getLogger().warning("Local resource-pack reload failed: "
+                    + (failure == null ? "empty result" : failure.getMessage()));
+                this.messages.send(sender, "resource-pack.failed");
+                return;
+            }
+            switch (result.status()) {
+                case LOADED -> {
+                    this.messages.send(sender, "resource-pack.loaded",
+                        "{sources}", Integer.toString(result.sources()));
+                    this.audit.log("RESOURCE_PACK_RELOAD", "actor=" + sender.getName()
+                        + " sources=" + result.sources() + " hashes=" + result.sha1());
+                }
+                case EMPTY -> this.messages.send(sender, "resource-pack.empty");
+                case IN_PROGRESS -> this.messages.send(sender, "resource-pack.in-progress");
+                case DISABLED -> this.messages.send(sender, "general.module-disabled");
+                case FAILED -> {
+                    this.plugin.getLogger().warning("Local resource-pack reload failed: " + result.error());
+                    this.messages.send(sender, "resource-pack.failed");
+                }
+            }
+        });
+        return true;
+    }
+
+    private boolean pushResourcePacks(final CommandSender sender) {
+        if (!sender.hasPermission("emsichill.resourcepack.admin")) {
+            this.messages.send(sender, "general.no-permission");
+            return true;
+        }
+        ResourcePackManager.PushResult result = this.resourcePacks.pushOnline();
+        switch (result.status()) {
+            case SENT -> {
+                this.messages.send(sender, "resource-pack.pushed",
+                    "{sources}", Integer.toString(result.packs()),
+                    "{players}", Integer.toString(result.players()));
+                this.audit.log("RESOURCE_PACK_PUSH", "actor=" + sender.getName()
+                    + " sources=" + result.packs() + " players=" + result.players());
+            }
+            case EMPTY -> this.messages.send(sender, "resource-pack.empty");
+            case DISABLED -> this.messages.send(sender, "general.module-disabled");
+            case FAILED -> {
+                this.plugin.getLogger().warning("Local resource-pack push failed: " + result.error());
+                this.messages.send(sender, "resource-pack.failed");
+            }
+        }
         return true;
     }
 
@@ -586,7 +659,8 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 "emsichill.auth.admin", "emsichill.grave.admin");
             case "admin" -> this.hasAnyPermission(sender, "emsichill.admin.reload", "emsichill.admin.maintenance",
                 "emsichill.admin.update", "emsichill.admin.language", "emsichill.homes.admin",
-                "emsichill.rtp.admin", "emsichill.deathcontrol.admin", "emsichill.auth.admin");
+                "emsichill.rtp.admin", "emsichill.deathcontrol.admin", "emsichill.auth.admin",
+                "emsichill.resourcepack.admin");
             default -> true;
         };
     }
@@ -623,6 +697,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (command.startsWith("/emsichill homes")) return sender.hasPermission("emsichill.homes.admin");
         if (command.startsWith("/emsichill rtp")) return sender.hasPermission("emsichill.rtp.admin");
         if (command.startsWith("/emsichill update")) return sender.hasPermission("emsichill.admin.update");
+        if (command.startsWith("/emsichill rp")) return sender.hasPermission("emsichill.resourcepack.admin");
         if (command.startsWith("/emsichill reload")) return sender.hasPermission("emsichill.admin.reload");
         if (command.startsWith("/emsichill status") || command.startsWith("/emsichill inspect")
             || command.startsWith("/emsichill backup") || command.startsWith("/emsichill migrate")) {
@@ -648,6 +723,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 actions.addAll(List.of("status", "inspect", "backup", "migrate"));
             }
             if (sender.hasPermission("emsichill.admin.update")) actions.add("update");
+            if (sender.hasPermission("emsichill.resourcepack.admin")) actions.add("rp");
             actions.add("help");
             return CommandSuggestions.filter(actions, args[0]);
         }
@@ -667,6 +743,10 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("language")
             && (sender instanceof Player || sender.hasPermission("emsichill.admin.language"))) {
             return CommandSuggestions.filter(List.of("english", "spanish"), args[1]);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("rp")
+            && sender.hasPermission("emsichill.resourcepack.admin")) {
+            return CommandSuggestions.filter(List.of("reload", "push"), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("help")) {
             List<String> categories = new ArrayList<>(List.of("categories"));

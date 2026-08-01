@@ -1,151 +1,121 @@
 <div align="center">
 
 <p>
-  <img src="assets/icon.png" alt="EmsiChill icon" width="150">
+  <img src="assets/icon.png" alt="EmsiChill icon" width="144">
 </p>
 
 # EmsiChill
 
-**Modular suite for Paper servers**
+**A modular all-in-one suite for Paper servers**
 
-Authentication, skins, homes, teleports, regions, graves, poses, resource packs, player info and staff tools in one plugin.
+Authentication, skins, homes, teleports, regions, graves, social tools, local resource packs and server administration in one plugin.
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper_API-26.2-blue?style=flat-square)
-![Version](https://img.shields.io/badge/version-5.2.1-brightgreen?style=flat-square)
+![Version](https://img.shields.io/badge/version-5.2.2-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT--0-lightgrey?style=flat-square)
 
 </div>
 
 ---
 
-## What is EmsiChill
+## Overview
 
-EmsiChill is a modular **Paper** plugin that bundles common survival and semi-survival server features into one JAR. It is designed for small and medium servers that want authentication, teleports, regions, graves, staff tools and simple player data without stacking many separate plugins.
+EmsiChill is built for small and medium survival or semi-survival servers that want a consistent set of features without installing a separate plugin for every task. Modules can be enabled independently, while commands, messages and administration stay under one project.
 
-Every major feature is a module. You can enable or disable modules from `plugins/EmsiChill/config.yml` without deleting saved module data.
+English is the default language. Every player can select English or Spanish without changing the language used by anyone else. Command names always remain in English.
 
 ## Requirements
 
-| Requirement | Version |
+| Requirement | Supported version |
 |---|---|
 | Java | `25` |
 | Server | `Paper` |
-| Paper API | `26.2` |
+| Minecraft / Paper API | `26.2` |
 
-Spigot, Bukkit and forks that do not follow Paper behavior are not guaranteed to work.
+Spigot, Bukkit, Sponge, Folia, BungeeCord, Waterfall and Velocity are not supported targets. EmsiChill is a Paper server plugin, not a proxy plugin.
 
-## Main Features
+## Installation
 
-- **Authentication**: register, login, password changes and optional temporary sessions.
-- **Skins**: premium skins, favorites, history, random skins and `/skull`.
-- **Homes and teleport**: `/home`, `/sethome`, TPA, `/back` and safe RTP.
-- **Regions**: claims with members, co-owners, upgrades, settings and grief protection.
-- **Graves**: protected item recovery, temporary privacy, expiration and persistent headstone markers.
-- **Social tools**: `/sit`, `/crawl`, `/stand`, `/whereami`, `/seen` and playtime tracking.
-- **Resource packs**: automatic pack sending with direct URLs and SHA-1 validation.
-- **Staff tools**: vanish, staffmode, staffchat, editable inventory inspection, freeze, mute and warn.
-- **Maintenance**: reload, status, inspect, backup, migration, EmsiChill updates and Paper build notices.
+1. Stop the Paper server.
+2. Put `EmsiChill-5.2.2.jar` inside `plugins/`.
+3. Start the server and wait for `plugins/EmsiChill/` to be generated.
+4. Review `plugins/EmsiChill/config.yml` and the module configurations.
+5. Run `/emsichill inspect` to check the installation.
 
-## Quick Install
+When replacing the JAR, always perform a full server restart. `/reload` and `/emsichill reload` do not safely replace running Java code.
 
-1. Download the `.jar` from Releases.
-2. Stop the server.
-3. Put the `.jar` inside `plugins/`.
-4. Start the server to generate `plugins/EmsiChill/`.
-5. Review the generated configuration before opening the server publicly.
-6. Run `/emsichill inspect` to catch basic data or configuration problems.
+## Modules
 
-For an existing installation, create a backup first:
+| Module | What it provides |
+|---|---|
+| Authentication | Registration, login, password changes, login protection and optional temporary sessions. |
+| Skins | Premium-account skins, random skins, favorites, history, reset and player heads. |
+| Homes | Named homes, configurable limits and administration of offline-player homes. |
+| Teleport | TPA, `/back`, safe random teleport, delays, cooldowns and request controls. |
+| Player information | Playtime, leaderboard and last-seen information. |
+| Regions | Claims, members, co-owners, ownership transfer, upgrades, settings and border previews. |
+| Graves | Protected death storage, privacy time, expiration, recovery and persistent headstone displays. |
+| Social | Sitting, crawling, standing and coordinate sharing. |
+| Staff | Staff chat, vanish, staff mode, inventory inspection, freezing, mutes and warnings. |
+| Resource packs | Local pack discovery, automatic packaging, hashing, hosting, caching and connection-stage loading. |
+| Maintenance | Status, inspection, backups, data migration and EmsiChill/Paper update checks. |
 
-```mcfunction
-/emsichill backup
+Modules are controlled in `plugins/EmsiChill/config.yml`:
+
+```yaml
+modules:
+  homes: true
+  authentication: true
+  skins: true
+  teleport: true
+  player-info: true
+  staff: true
+  regions: true
+  graves: true
+  social: true
+  resource-packs: true
 ```
 
-## Configuration
+Disabling a module keeps its saved data. Use `/emsichill reload` after ordinary YAML changes and restart the server after changing the JAR or runtime-level settings.
 
-Configuration lives inside `plugins/EmsiChill/`.
+## Languages
 
-Important files:
-
-- `config.yml`: default fallback language, prefix, active modules, audit log and update settings.
-- `player-languages.yml`: per-player language preferences.
-- `messages_en.yml` / `messages_es.yml`: visible plugin messages.
-- `AuthenticationManager/config.yml`: registration, login, sessions and pre-login blocking.
-- `Skin/config.yml`: cache, cooldowns, favorites, history and random skins.
-- `Teleport/config.yml`: TPA, `/back`, RTP, delays and cancellation rules.
-- `Home/config.yml`: default home limit and permission-based limits.
-- `Regions/config.yml`: claims, radii, upgrades, settings and limits.
-- `Graves/config.yml`: death mode, graves, privacy, expiration and visual markers.
-- `Staff/config.yml`: staffchat, vanish, staffmode and moderation history.
-- `ResourcePacks/config.yml`: packs sent on join, URL, SHA-1 and required/optional mode.
-
-After changing YAML files, reload with:
-
-```mcfunction
-/emsichill reload
-```
-
-To switch your personal plugin language:
+Players select their own message language with:
 
 ```mcfunction
 /emsichill language english
 /emsichill language spanish
 ```
 
-Each player can choose their own language. Restart the server when replacing the JAR, updating Paper or changing critical runtime settings.
+Preferences are stored by UUID in `player-languages.yml`. English and Spanish players can therefore use the same server simultaneously. Console or authorized administration tools can change the global fallback with `emsichill.admin.language`.
 
-## Version 5.2.1 Behavior
+## Graves
 
-Version `5.2.1` includes the current changes introduced after `5.1.5`.
+When grave mode is active, EmsiChill stores inventory contents, armor, offhand and experience after death. A compact headstone marks the location without exposing a visible chest.
 
-### Languages
-
-- English is the default fallback language and Spanish is included.
-- `/emsichill language english` and `/emsichill language spanish` save a preference for the player who runs the command.
-- Preferences are stored by UUID in `player-languages.yml`, so different players can use different languages simultaneously.
-- Command names and arguments always remain in English regardless of the selected message language.
-- Console and authorized administration tools can still change the global fallback language with `emsichill.admin.language`.
-
-### Graves
-
-When grave mode is active, EmsiChill stores the player's inventory, armor, offhand and experience. The items remain in plugin data until the grave is collected, recovered by an administrator or expires according to `Graves/config.yml`.
-
-Graves use an upright stone headstone instead of a visible chest. The protected interaction block is invisible, while display entities provide the base, stepped headstone, plaque, small owner name and soul-lantern accent.
-
-| Interaction | Result |
+| Action | Result |
 |---|---|
-| Right-click | Opens the grave inventory. |
-| Shift + right-click | Collects the grave directly. Overflow is dropped safely beside the player. |
-| Another player during privacy time | Access is denied and the remaining private time is shown once. |
-| Administrator with `emsichill.grave.admin` | Can access and manage other players' graves. |
+| Right-click the headstone | Opens the grave inventory. |
+| Shift + right-click | Collects the grave; overflow drops safely nearby. |
+| Interact during another player's privacy time | Denies access and shows the remaining time once. |
+| Use grave administration permission | Locates, inspects or recovers another player's graves. |
 
-The visible marker is rebuilt whenever its chunk loads. Existing graves therefore remain visible after server restarts and after leaving and returning to an unloaded area. The plugin removes display entities when the chunk unloads to avoid duplicates and does not keep grave chunks forcibly loaded.
+Headstone displays are restored when their chunks load after a restart. Grave chunks are not kept loaded permanently. `/grave` and `/graves` are administrative commands; regular players recover their own items through the headstone.
 
-`/grave` and `/graves` are administrative commands. Players without `emsichill.grave.admin` cannot execute them and do not receive them in command completion or `/emsichill help`. Regular players recover their items by interacting with their headstone.
+## Inventory Inspection
 
-### Inventory Inspection
+- `/invsee [player]` displays storage, hotbar, armor and offhand in a separated 54-slot interface.
+- `/enderchestsee [player]` and `/ecsee [player]` open an Ender Chest.
+- Omitting the player targets the administrator running the command.
+- Self `/invsee` is read-only to prevent duplication from editing a mirrored inventory.
+- Viewing and editing use separate permissions.
+- Controlled shift-click transfers work in both directions.
+- Unsafe swaps, drops, creative cloning and collect-to-cursor actions are blocked.
 
-- `/invsee [player]` shows main storage, hotbar, armor and offhand in one separated 54-slot view.
-- `/enderchestsee [player]`, or `/ecsee [player]`, opens the selected Ender Chest.
-- Omitting the player name targets the administrator who ran the command.
-- Self `/invsee` is read-only to prevent duplication caused by editing a mirrored copy of the same inventory.
-- Editing another player requires the matching `modify` permission.
-- Controlled shift-click transfers work in both directions without moving items into separator slots.
-- Unsafe number-key swaps, offhand swaps, drops, creative cloning and collect-to-cursor actions are blocked.
-- Opening an inspection no longer sends a redundant confirmation message to chat.
+## Commands
 
-Relevant permissions:
-
-| Permission | Default | Purpose |
-|---|---|---|
-| `emsichill.invsee.view` | OP | Opens `/invsee`. |
-| `emsichill.invsee.modify` | OP | Modifies another player's inspected inventory. |
-| `emsichill.enderchestsee.view` | OP | Opens `/enderchestsee` and `/ecsee`. |
-| `emsichill.enderchestsee.modify` | OP | Modifies another player's Ender Chest. |
-| `emsichill.grave.admin` | OP | Shows and enables `/grave` and `/graves`, including access to other graves. |
-
-Permission plugins may deliberately grant these nodes to trusted non-OP users. Without an explicit grant, they remain OP-only.
+The following reference is generated from `plugin.yml`, which is also the source used by `/emsichill help`.
 
 <!-- EMSICHILL_COMMANDS_START -->
 
@@ -242,6 +212,8 @@ Permission plugins may deliberately grant these nodes to trusted non-OP users. W
 | `/deathcontrol default <grave\|keep\|drop>` | Changes the default death mode. |
 | `/deathcontrol <player> <grave\|keep\|drop>` | Changes a player's death mode. |
 | `/auth reload` | Reloads the authentication module. |
+| `/emsichill rp reload` | Rebuilds local resource packs for the next player connection. |
+| `/emsichill rp push` | Forces the active packs onto online players and may interrupt their game. |
 | `/emsichill update check` | Checks for a new Release without installing it. |
 | `/emsichill update changes <version>` | Shows a short in-game summary of Release notes. |
 | `/emsichill update install <version>` | Downloads, validates and stages a Release when installs are enabled. |
@@ -258,109 +230,161 @@ Permission plugins may deliberately grant these nodes to trusted non-OP users. W
 
 <!-- EMSICHILL_COMMANDS_END -->
 
-## Resource Packs
+## Permissions
 
-EmsiChill can send one or several Java resource packs when a player joins. Every entry requires a direct `.zip` URL and the SHA-1 hash of the exact final file.
+Commands intended for normal players are enabled by default through these nodes:
 
-Example:
+```text
+emsichill.skin
+emsichill.skull
+emsichill.home
+emsichill.sethome
+emsichill.delhome
+emsichill.tpa
+emsichill.back
+emsichill.rtp
+emsichill.playtime
+emsichill.seen
+emsichill.region.use
+emsichill.region.claim
+emsichill.pose
+emsichill.whereami
+```
+
+Optional limit and delay nodes are disabled by default:
+
+| Permission | Purpose |
+|---|---|
+| `emsichill.homes.3` | Raises the personal home limit to three. |
+| `emsichill.homes.5` | Raises the personal home limit to five. |
+| `emsichill.teleport.bypassdelay` | Skips configured teleport delays. |
+
+Administrative nodes default to operators:
+
+| Area | Permissions |
+|---|---|
+| EmsiChill | `emsichill.admin.reload`, `emsichill.admin.language`, `emsichill.admin.maintenance`, `emsichill.admin.update` |
+| Resource packs | `emsichill.resourcepack.admin` |
+| Authentication | `emsichill.auth.admin` |
+| Skins | `emsichill.skin.others`, `emsichill.skin.bypasscooldown`, `emsichill.skin.favorites.unlimited` |
+| Homes and teleport | `emsichill.homes.unlimited`, `emsichill.homes.admin`, `emsichill.homes.others`, `emsichill.back.others`, `emsichill.rtp.bypasscooldown`, `emsichill.rtp.admin` |
+| Staff chat and visibility | `emsichill.staffchat`, `emsichill.vanish`, `emsichill.vanish.others`, `emsichill.vanish.see`, `emsichill.staffmode`, `emsichill.staffmode.others` |
+| Inventory inspection | `emsichill.invsee.view`, `emsichill.invsee.modify`, `emsichill.enderchestsee.view`, `emsichill.enderchestsee.modify` |
+| Moderation | `emsichill.freeze`, `emsichill.mute`, `emsichill.unmute`, `emsichill.warn`, `emsichill.warnings` |
+| Regions | `emsichill.region.admin`, `emsichill.region.unlimited` |
+| Death management | `emsichill.grave.admin`, `emsichill.deathcontrol.admin` |
+
+Players without administrative permission do not receive protected commands through tab completion or EmsiChill help. A permissions plugin can grant individual nodes to trusted non-OP users.
+
+## Local Resource Packs
+
+Place every Java resource pack directly inside:
+
+```text
+plugins/EmsiChill/ResourcePacks/
+```
+
+Each source can be a `.zip` file or an unpacked folder. `pack.mcmeta` must be at its root or inside one immediate wrapper folder. For example, BetterModel works in this form:
+
+```text
+ResourcePacks/
+|-- BetterModel/
+|   `-- resourcepack/
+|       |-- pack.mcmeta
+|       |-- pack.png
+|       `-- assets/
+|-- MyPack.zip
+|-- config.yml
+`-- .generated/
+```
+
+EmsiChill processes sources alphabetically and keeps each pack independent. Prefix names with `01-`, `02-` and so on when stack order matters. Generated client files are stored in `.generated/` and should not be edited manually.
+
+### Resource-pack workflow
+
+| Command | Behavior |
+|---|---|
+| `/emsichill rp reload` | Rebuilds the local pack list. Connected players are not interrupted; changes apply when they reconnect. |
+| `/emsichill rp push` | Forces the active pack list onto connected players. Minecraft may display its full-screen reload view. |
+
+On a normal connection, Paper sends all packs in one request before the world appears. Unchanged packs are reused from the Minecraft client cache, while new or modified packs are downloaded. Minecraft owns its permission prompt and full-screen reload interface; the plugin cannot resize those client screens.
+
+Main settings in `ResourcePacks/config.yml`:
 
 ```yaml
-send-delay-ticks: 40
+send-during-configuration: true
+send-delay-ticks: 20
 clear-existing: false
-log-status: true
-send-only-new-or-changed: false
+log-status: false
 
-packs:
-  - id: main
-    enabled: true
-    name: "Server Pack"
-    url: "https://example.com/resource-pack.zip"
-    sha1: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    required: false
-    prompt: "This server uses a custom resource pack."
+pack:
+  required: true
+  prompt: ""
+  maximum-uncompressed-megabytes: 512
+
+hosting:
+  enabled: true
+  bind-address: "0.0.0.0"
+  port: 8165
+  public-base-url: "auto"
 ```
 
-Get the SHA-1 on Windows PowerShell with:
+Port `8165` must be reachable through the firewall and router for Internet players. With `public-base-url: "auto"`, EmsiChill uses the hostname the player used to connect. A reverse proxy may expose `/emsichill-packs/` through a public HTTPS address instead.
 
-```powershell
-Get-FileHash "C:\path\resource-pack.zip" -Algorithm SHA1
-```
+This module sends Java Edition packs. Bedrock players joining through Geyser require a separate Bedrock-compatible pack and conversion/distribution setup.
 
-Copy only the hexadecimal value from the `Hash` column into `sha1`. If the `.zip` changes, calculate a new SHA-1.
+## Configuration Files
 
-Keep `send-only-new-or-changed: false` when packs must be active on every connection. Minecraft may cache a downloaded pack but still needs the server to send it again to activate it for a new session. Setting this option to `true` skips packs whose ID and SHA-1 were already recorded as successfully loaded, sending only new or changed packs.
+| File | Purpose |
+|---|---|
+| `config.yml` | Language fallback, modules, audit logging and update settings. |
+| `messages_en.yml`, `messages_es.yml` | Visible English and Spanish messages. |
+| `player-languages.yml` | Per-player language preferences. |
+| `AuthenticationManager/config.yml` | Registration, login, sessions and login restrictions. |
+| `Skin/config.yml` | Skin cache, cooldown, favorites and history. |
+| `Home/config.yml` | Default and permission-based home limits. |
+| `Teleport/config.yml` | TPA, `/back`, RTP, delays and cooldowns. |
+| `PlayerInfo/config.yml` | Playtime and player-information behavior. |
+| `Regions/config.yml` | Claim limits, sizes, upgrades and protection settings. |
+| `Graves/config.yml` | Death mode, privacy, expiration and headstone visuals. |
+| `Social/config.yml` | Pose and social settings. |
+| `Staff/config.yml` | Staff chat, vanish, staff mode and moderation behavior. |
+| `ResourcePacks/config.yml` | Local pack processing and internal HTTP hosting. |
 
-## Paper/Minecraft Updates
+## Updates And Maintenance
 
-EmsiChill can automatically check whether PaperMC has published a newer Paper build for Minecraft. When it finds one, it notifies the console and admins with `emsichill.admin.update`.
+EmsiChill checks GitHub releases and PaperMC builds when their update sections are enabled. Downloads are staged for a safe restart; the running plugin or Paper JAR is never replaced in memory.
 
-For safety, the plugin **does not replace the running server JAR**. It downloads the new `paper-*.jar`, validates size and SHA-256, and stages it in a folder so an administrator can apply it on the next restart.
-
-Recommended flow:
+Recommended maintenance commands:
 
 ```mcfunction
+/emsichill status
+/emsichill inspect
+/emsichill backup
+/emsichill update check
 /emsichill update paper check
-/emsichill update paper download <version> <build>
 ```
 
-After downloading:
+Paper downloads are verified and placed in `server-updates/`. Stop the server before replacing its current Paper JAR.
 
-1. Stop the server.
-2. Open the `server-updates/` folder.
-3. Replace the current server JAR with the downloaded `paper-*.jar`.
-4. Start the server again.
-5. Check the console and run `/emsichill inspect`.
+## Stored Data And Safety
 
-Main configuration in `plugins/EmsiChill/config.yml`:
+- Account passwords are stored as salted hashes, not plain text.
+- YAML data writes use backup and recovery safeguards.
+- Authentication sessions, homes, regions, graves, moderation records and player statistics persist across restarts.
+- `/region delete` requires `confirm`.
+- Self inventory inspection remains read-only.
+- Administrative command suggestions are permission-filtered.
+- `/emsichill backup` should be run before major updates or configuration migrations.
 
-```yaml
-updates:
-  paper:
-    enabled: true
-    project: paper
-    include-experimental-builds: false
-    automatic:
-      enabled: true
-      interval-minutes: 30
-      notify-console: true
-      notify-admins: true
-    download:
-      enabled: true
-      directory: server-updates
-      max-download-megabytes: 120
+## Build From Source
+
+```powershell
+mvn clean package
 ```
 
-`include-experimental-builds: false` only accepts stable builds. Setting it to `true` also allows beta or experimental builds, which is not recommended for public servers.
-
-## Saved Data
-
-EmsiChill stores local YAML data inside `plugins/EmsiChill/`.
-
-Examples:
-
-- registered accounts and auth sessions;
-- selected skins, favorites and history;
-- homes, cooldowns and teleport preferences;
-- regions, members, owners and settings;
-- active graves;
-- sanctions, mutes, warnings and staffmode;
-- playtime, first seen and last seen.
-
-Passwords are not stored as plain text. The auth module uses salted hashes for safer credential storage.
-
-## Important Notes
-
-- Modules disabled from `config.yml` should not keep active commands or listeners running.
-- Resource packs need direct `.zip` URLs and the real SHA-1 hash of the final file.
-- `/invsee` opens inventory, armor and offhand; editing another player requires `emsichill.invsee.modify`.
-- `/grave` and its `/graves` alias require `emsichill.grave.admin`; regular players recover items by interacting with the grave.
-- Grave visuals are restored when their chunks load after a restart; the chunks are not kept loaded permanently.
-- `/region delete` requires `confirm` to avoid accidental deletion.
-- `/emsichill reload` does not replace a full restart when changing the JAR or updating Paper.
-- Review permissions before opening a public server.
+The release JAR is created as `target/EmsiChill-5.2.2.jar`. The build also regenerates the command tables in this README and runs the automated test suite.
 
 ## License
 
-EmsiChill uses the **MIT No Attribution (MIT-0)** license.
-
-See [`LICENSE`](LICENSE) for the full terms.
+EmsiChill is licensed under the **MIT No Attribution (MIT-0)** license. See [`LICENSE`](LICENSE).

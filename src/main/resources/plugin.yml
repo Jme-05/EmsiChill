@@ -201,6 +201,9 @@ permissions:
   emsichill.admin.update:
     description: Allows checking, ignoring and preparing new EmsiChill releases and Paper builds
     default: op
+  emsichill.resourcepack.admin:
+    description: Allows rebuilding and sending local server resource packs
+    default: op
   emsichill.home:
     description: Allows using /home and /homes
     default: true
@@ -407,6 +410,8 @@ documentation:
     - {section: configuration, category: admin, command: "/deathcontrol default <grave|keep|drop>", description: "Changes the default death mode."}
     - {section: configuration, category: admin, command: "/deathcontrol <player> <grave|keep|drop>", description: "Changes a player's death mode."}
     - {section: configuration, category: admin, command: "/auth reload", description: "Reloads the authentication module."}
+    - {section: configuration, category: admin, command: "/emsichill rp reload", description: "Rebuilds local resource packs for the next player connection."}
+    - {section: configuration, category: admin, command: "/emsichill rp push", description: "Forces the active packs onto online players and may interrupt their game."}
     - {section: configuration, category: admin, command: "/emsichill update check", description: "Checks for a new Release without installing it."}
     - {section: configuration, category: admin, command: "/emsichill update changes <version>", description: "Shows a short in-game summary of Release notes."}
     - {section: configuration, category: admin, command: "/emsichill update install <version>", description: "Downloads, validates and stages a Release when installs are enabled."}

@@ -138,7 +138,7 @@ public final class Main extends JavaPlugin {
         EmsiChillCommand adminCommand = new EmsiChillCommand(this, maintenance, this.authenticationManager,
             this.skinCommand, this.teleportManager, this.homeManager, this.playerInfoManager, this.staffService,
             this.moderationService, this.regionManager, this.graveManager, this.updateService,
-            this.commandDocumentation);
+            this.resourcePackManager, this.commandDocumentation);
         this.register("emsichill", adminCommand, adminCommand);
     }
 
@@ -164,6 +164,7 @@ public final class Main extends JavaPlugin {
         if (this.moduleEnabled("staff")) this.staffService.start();
         if (this.moduleEnabled("graves")) this.graveManager.start();
         if (this.moduleEnabled("social")) this.socialManager.start();
+        if (this.moduleEnabled("resource-packs")) this.resourcePackManager.start();
         this.updateNotifier.start();
     }
 
@@ -181,6 +182,7 @@ public final class Main extends JavaPlugin {
         if (this.regionManager != null) this.regionManager.stop();
         if (this.graveManager != null) this.graveManager.stop();
         if (this.socialManager != null) this.socialManager.stop();
+        if (this.resourcePackManager != null) this.resourcePackManager.stop();
         if (this.updateNotifier != null) this.updateNotifier.stop();
         if (this.dataStore != null) this.dataStore.close();
         getLogger().info("EmsiChill disabled successfully.");
@@ -235,6 +237,7 @@ public final class Main extends JavaPlugin {
         boolean regionsEnabled = this.moduleEnabled("regions");
         boolean gravesEnabled = this.moduleEnabled("graves");
         boolean socialEnabled = this.moduleEnabled("social");
+        boolean resourcePacksEnabled = this.moduleEnabled("resource-packs");
 
         this.settingsFile.reload();
         this.messages.reload();
@@ -274,5 +277,8 @@ public final class Main extends JavaPlugin {
 
         if (socialEnabled && !this.moduleEnabled("social")) this.socialManager.stop();
         else if (!socialEnabled && this.moduleEnabled("social")) this.socialManager.start();
+
+        if (resourcePacksEnabled && !this.moduleEnabled("resource-packs")) this.resourcePackManager.stop();
+        else if (!resourcePacksEnabled && this.moduleEnabled("resource-packs")) this.resourcePackManager.start();
     }
 }

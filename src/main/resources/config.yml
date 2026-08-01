@@ -11,7 +11,7 @@ modules:
   regions: true
   graves: true
   social: true
-  resource-packs: false
+  resource-packs: true
 
 audit-log:
   enabled: false

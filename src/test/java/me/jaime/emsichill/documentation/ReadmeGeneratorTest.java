@@ -32,6 +32,7 @@ class ReadmeGeneratorTest {
         assertTrue(generatedReadme.contains("/region delete <name> confirm"));
         assertTrue(generatedReadme.contains("/emsichill update check"));
         assertTrue(generatedReadme.contains("/emsichill update install <version>"));
+        assertTrue(generatedReadme.contains("/emsichill rp push"));
         assertTrue(generatedReadme.contains("/emsichill language <english\\|spanish>"));
     }
 

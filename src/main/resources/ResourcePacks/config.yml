@@ -1,30 +1,37 @@
-# Use /emsichill reload to apply changes.
-# This module only sends packs on join. Minecraft requires direct .zip URLs.
+_meta:
+  config-version: 3
 
-# Wait 2 seconds after the player joins before sending packs.
-send-delay-ticks: 40
+# Put .zip files or unpacked pack folders directly inside plugins/EmsiChill/ResourcePacks/.
+# Every source must contain pack.mcmeta. Packs stay independent and are sent alphabetically.
+# Prefix names with 01-, 02-, and so on when their order matters.
+# Run /emsichill rp reload after a change. Use /emsichill rp push only to update online players immediately.
 
-# If another plugin sent packs first, EmsiChill can clear them before sending its own.
+# Send packs before the world appears so Minecraft applies them during the connection screen.
+send-during-configuration: true
+
+# Fallback delay used only when the connection-stage API is unavailable or disabled.
+send-delay-ticks: 20
+
+# Keep this false for a quieter join. Enable only if another plugin leaves conflicting server packs active.
 clear-existing: false
 
-# Logs whether the player accepts, downloads, loads, rejects or fails each pack.
-log-status: true
+# Successful cache/download states stay quiet. Failures are always logged.
+log-status: false
 
-# When enabled, EmsiChill does not resend packs the player already loaded with the same SHA-1.
-# Warning: if a pack is not resent, Minecraft may not activate it on the new connection.
-# Keep this false if you want packs to remain active every time a player joins.
-send-only-new-or-changed: false
+pack:
+  # Players who decline a required pack are disconnected by Minecraft.
+  required: true
+  # Leave blank for Minecraft's compact default prompt.
+  prompt: ""
+  # Protects the server from oversized folders and malicious compressed files.
+  maximum-uncompressed-megabytes: 512
 
-# Define one or more packs. Each sha1 must be the SHA-1 hash of the final .zip file.
-# Windows: Get-FileHash "C:\path\resource-pack.zip" -Algorithm SHA1
-packs: []
-
-# Example:
-# packs:
-#   - id: main
-#     enabled: true
-#     name: "Server Pack"
-#     url: "https://example.com/resource-pack.zip"
-#     sha1: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-#     required: false
-#     prompt: "This server uses a custom resource pack."
+hosting:
+  enabled: true
+  # Listen on every network interface. Change this only when using a reverse proxy.
+  bind-address: "0.0.0.0"
+  # This TCP port must be allowed through the firewall/router for internet players.
+  port: 8165
+  # auto uses the hostname each player used to join, with the port above.
+  # For a proxy/CDN, use a complete base URL such as https://packs.example.com.
+  public-base-url: "auto"

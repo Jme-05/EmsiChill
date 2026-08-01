@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 21
+  text-revision: 24
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -27,6 +27,14 @@ language:
   changed: "&aTu idioma ahora es {language}."
   changed-global: "&aIdioma global cambiado a {language}. La configuración y los mensajes fueron recargados."
   invalid: "&cIdioma inválido. Usa &fenglish &co &fspanish&c."
+
+resource-pack:
+  reloading: "&7Reconstruyendo los paquetes de recursos locales..."
+  loaded: "&7Paquetes listos: &f{sources}&7 paquete(s). Los cambios se aplicarán cuando los jugadores vuelvan a entrar."
+  pushed: "&7Se enviaron &f{sources}&7 paquete(s) a &f{players}&7 jugador(es) conectado(s)."
+  empty: "&eNo se encontró ningún paquete local en plugins/EmsiChill/ResourcePacks/."
+  in-progress: "&eYa hay una recarga de paquetes en curso."
+  failed: "&cNo se pudo cargar el paquete de recursos local. Revisa la consola."
 
 auth:
   login-locked: "&cDemasiados intentos. Espera {seconds} segundos antes de volver a intentarlo."
