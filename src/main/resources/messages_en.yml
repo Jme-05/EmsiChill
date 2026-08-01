@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 6
+  text-revision: 7
 
 general:
   no-permission: "&cYou do not have permission."
@@ -26,12 +26,20 @@ language:
   changed-global: "&aGlobal fallback language changed to {language}. Configuration and messages were reloaded."
   invalid: "&cInvalid language. Use &fenglish &cor &fspanish&c."
 resource-pack:
-  reloading: "&7Rebuilding local resource packs..."
+  reloading: "&7Preparing resource packs..."
   loaded: "&7Resource packs ready: &f{sources}&7 pack(s). Changes apply when players reconnect."
   pushed: "&7Sent &f{sources}&7 pack(s) to &f{players}&7 online player(s)."
   empty: "&eNo local pack was found in plugins/EmsiChill/ResourcePacks/."
   in-progress: "&eA resource-pack reload is already running."
-  failed: "&cThe local resource pack could not be loaded. Check the console."
+  failed: "&cThe resource packs could not be prepared. Check the console."
+  progress-preparing: "&bPreparing resource packs &f{percent}%"
+  progress-building: "&bBuilding resource packs &f{percent}%"
+  progress-hosting: "&bPreparing pack downloads &f{percent}%"
+  progress-activating: "&bActivating resource packs &f{percent}%"
+  progress-complete: "&aResource packs ready"
+  progress-empty: "&eNo resource packs found"
+  progress-busy: "&eA resource-pack reload is already running"
+  progress-failed: "&cResource-pack preparation failed"
 auth:
   login-locked: "&cToo many attempts. Wait {seconds} seconds before trying again."
   already-registered: "&cThis account is registered. Use /login <password>."

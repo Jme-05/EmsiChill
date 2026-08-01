@@ -18,7 +18,7 @@ import com.sun.net.httpserver.HttpServer;
 final class LocalPackHttpServer implements AutoCloseable {
     static final String PATH_PREFIX = "/emsichill-packs/";
 
-    private HttpServer server;
+    private volatile HttpServer server;
     private ExecutorService executor;
     private volatile Map<String, LocalResourcePackBuilder.BuildResult> activePacks = Map.of();
 

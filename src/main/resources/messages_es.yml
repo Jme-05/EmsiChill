@@ -1,5 +1,5 @@
 _meta:
-  text-revision: 24
+  text-revision: 25
 
 general:
   no-permission: "&cNo tienes permiso."
@@ -29,12 +29,20 @@ language:
   invalid: "&cIdioma inválido. Usa &fenglish &co &fspanish&c."
 
 resource-pack:
-  reloading: "&7Reconstruyendo los paquetes de recursos locales..."
+  reloading: "&7Preparando los paquetes de recursos..."
   loaded: "&7Paquetes listos: &f{sources}&7 paquete(s). Los cambios se aplicarán cuando los jugadores vuelvan a entrar."
   pushed: "&7Se enviaron &f{sources}&7 paquete(s) a &f{players}&7 jugador(es) conectado(s)."
   empty: "&eNo se encontró ningún paquete local en plugins/EmsiChill/ResourcePacks/."
   in-progress: "&eYa hay una recarga de paquetes en curso."
-  failed: "&cNo se pudo cargar el paquete de recursos local. Revisa la consola."
+  failed: "&cNo se pudieron preparar los paquetes de recursos. Revisa la consola."
+  progress-preparing: "&bPreparando paquetes de recursos &f{percent}%"
+  progress-building: "&bConstruyendo paquetes de recursos &f{percent}%"
+  progress-hosting: "&bPreparando las descargas &f{percent}%"
+  progress-activating: "&bActivando paquetes de recursos &f{percent}%"
+  progress-complete: "&aPaquetes de recursos listos"
+  progress-empty: "&eNo se encontraron paquetes de recursos"
+  progress-busy: "&eYa hay una recarga de paquetes en curso"
+  progress-failed: "&cFalló la preparación de los paquetes"
 
 auth:
   login-locked: "&cDemasiados intentos. Espera {seconds} segundos antes de volver a intentarlo."

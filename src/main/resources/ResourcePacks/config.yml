@@ -1,10 +1,11 @@
 _meta:
-  config-version: 3
+  config-version: 5
 
 # Put .zip files or unpacked pack folders directly inside plugins/EmsiChill/ResourcePacks/.
 # Every source must contain pack.mcmeta. Packs stay independent and are sent alphabetically.
 # Prefix names with 01-, 02-, and so on when their order matters.
-# Run /emsichill rp reload after a change. Use /emsichill rp push only to update online players immediately.
+# Run /emsichill rp reload after changing this file or a pack source.
+# Use /emsichill rp push only to update online players immediately.
 
 # Send packs before the world appears so Minecraft applies them during the connection screen.
 send-during-configuration: true
@@ -28,10 +29,21 @@ pack:
 
 hosting:
   enabled: true
-  # Listen on every network interface. Change this only when using a reverse proxy.
+
+  # local: serves packs from this Minecraft server and requires the port below to be public.
+  # remote: uploads generated packs to MCPacks over HTTPS; no extra server port is required.
+  # auto: tries local hosting first and uses MCPacks only when the local port cannot be opened.
+  # remote and auto may publish your generated pack files to a third-party service.
+  mode: "auto"
+
+  # These settings apply to local and auto hosting.
   bind-address: "0.0.0.0"
-  # This TCP port must be allowed through the firewall/router for internet players.
   port: 8165
-  # auto uses the hostname each player used to join, with the port above.
-  # For a proxy/CDN, use a complete base URL such as https://packs.example.com.
+  # auto here means the hostname used by the player, not hosting.mode: auto.
   public-base-url: "auto"
+
+  # These settings apply to remote hosting and the remote fallback in auto mode.
+  remote:
+    api-base-url: "https://mcpacks.dev/api/v1/"
+    timeout-seconds: 180
+    maximum-upload-megabytes: 250

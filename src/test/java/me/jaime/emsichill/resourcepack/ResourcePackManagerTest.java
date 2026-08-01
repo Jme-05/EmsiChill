@@ -3,8 +3,10 @@ package me.jaime.emsichill.resourcepack;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -64,6 +66,34 @@ class ResourcePackManagerTest {
     }
 
     @Test
+    void findsThePackRootInsideNestedPanelFolders() throws Exception {
+        Path source = this.temporaryDirectory.resolve("BetterModel");
+        Path packRoot = source.resolve("uploaded/BetterModel/resourcepack");
+        Files.createDirectories(packRoot.resolve("assets/example"));
+        Files.writeString(packRoot.resolve("pack.mcmeta"),
+            "{\"pack\":{\"pack_format\":1,\"description\":\"Nested\"}}", StandardCharsets.UTF_8);
+        Files.writeString(packRoot.resolve("assets/example/value.txt"), "nested", StandardCharsets.UTF_8);
+
+        LocalResourcePackBuilder.BuildResult result = LocalResourcePackBuilder.build(
+            this.temporaryDirectory, 16L * 1024L * 1024L).getFirst();
+
+        try (ZipFile zip = new ZipFile(result.file().toFile())) {
+            assertNotNull(zip.getEntry("pack.mcmeta"));
+            assertNotNull(zip.getEntry("assets/example/value.txt"));
+        }
+    }
+
+    @Test
+    void rejectsAFolderContainingMoreThanOnePackRoot() throws Exception {
+        Path source = this.temporaryDirectory.resolve("Mixed");
+        this.writeNestedPack(source.resolve("first"), "first");
+        this.writeNestedPack(source.resolve("second"), "second");
+
+        assertThrows(IOException.class, () -> LocalResourcePackBuilder.build(
+            this.temporaryDirectory, 16L * 1024L * 1024L));
+    }
+
+    @Test
     void servesOnlyActiveGeneratedPacks() throws Exception {
         this.createPack("server", "served");
         LocalResourcePackBuilder.BuildResult pack = LocalResourcePackBuilder.build(
@@ -105,9 +135,13 @@ class ResourcePackManagerTest {
 
     private void createPack(final String name, final String value) throws Exception {
         Path source = this.temporaryDirectory.resolve(name);
+        this.writeNestedPack(source, value);
+    }
+
+    private void writeNestedPack(final Path source, final String value) throws Exception {
         Files.createDirectories(source.resolve("assets/example"));
         Files.writeString(source.resolve("pack.mcmeta"),
-            "{\"pack\":{\"pack_format\":1,\"description\":\"" + name + "\"}}",
+            "{\"pack\":{\"pack_format\":1,\"description\":\"" + source.getFileName() + "\"}}",
             StandardCharsets.UTF_8);
         Files.writeString(source.resolve("assets/example/value.txt"), value, StandardCharsets.UTF_8);
     }

@@ -106,9 +106,12 @@ final class LocalResourcePackBuilder {
 
     private static Path directoryPackRoot(final Path source) throws IOException {
         if (Files.isRegularFile(source.resolve("pack.mcmeta"))) return source;
-        try (Stream<Path> stream = Files.list(source)) {
-            List<Path> candidates = stream.filter(Files::isDirectory)
-                .filter(path -> Files.isRegularFile(path.resolve("pack.mcmeta")))
+        try (Stream<Path> stream = Files.walk(source)) {
+            List<Path> candidates = stream.filter(Files::isRegularFile)
+                .filter(path -> path.getFileName().toString().equals("pack.mcmeta"))
+                .map(Path::getParent)
+                .distinct()
+                .limit(2)
                 .toList();
             return candidates.size() == 1 ? candidates.getFirst() : null;
         }

@@ -8,7 +8,7 @@
 
 **A modular all-in-one suite for Paper servers**
 
-Authentication, skins, homes, teleports, regions, graves, social tools, local resource packs and server administration in one plugin.
+Authentication, skins, homes, teleports, regions, graves, social tools, automatically hosted resource packs and server administration in one plugin.
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square)
 ![Paper](https://img.shields.io/badge/Paper_API-26.2-blue?style=flat-square)
@@ -58,7 +58,7 @@ When replacing the JAR, always perform a full server restart. `/reload` and `/em
 | Graves | Protected death storage, privacy time, expiration, recovery and persistent headstone displays. |
 | Social | Sitting, crawling, standing and coordinate sharing. |
 | Staff | Staff chat, vanish, staff mode, inventory inspection, freezing, mutes and warnings. |
-| Resource packs | Local pack discovery, automatic packaging, hashing, hosting, caching and connection-stage loading. |
+| Resource packs | Folder/ZIP discovery, automatic packaging, SHA-1 caching, local/remote hosting and connection-stage loading. |
 | Maintenance | Status, inspection, backups, data migration and EmsiChill/Paper update checks. |
 
 Modules are controlled in `plugins/EmsiChill/config.yml`:
@@ -102,6 +102,8 @@ When grave mode is active, EmsiChill stores inventory contents, armor, offhand a
 | Use grave administration permission | Locates, inspects or recovers another player's graves. |
 
 Headstone displays are restored when their chunks load after a restart. Grave chunks are not kept loaded permanently. `/grave` and `/graves` are administrative commands; regular players recover their own items through the headstone.
+
+Deaths in open air search downward for safe ground within the configured horizontal radius. If no supported position exists, EmsiChill creates a protected floating marker or falls back near the world spawn. Inventory drops are suppressed only after the complete grave payload has been written successfully; if persistence fails, vanilla drops remain enabled instead of deleting the player's items.
 
 ## Inventory Inspection
 
@@ -212,7 +214,7 @@ The following reference is generated from `plugin.yml`, which is also the source
 | `/deathcontrol default <grave\|keep\|drop>` | Changes the default death mode. |
 | `/deathcontrol <player> <grave\|keep\|drop>` | Changes a player's death mode. |
 | `/auth reload` | Reloads the authentication module. |
-| `/emsichill rp reload` | Rebuilds local resource packs for the next player connection. |
+| `/emsichill rp reload` | Reloads, rebuilds and hosts resource packs for the next player connection. |
 | `/emsichill rp push` | Forces the active packs onto online players and may interrupt their game. |
 | `/emsichill update check` | Checks for a new Release without installing it. |
 | `/emsichill update changes <version>` | Shows a short in-game summary of Release notes. |
@@ -276,40 +278,80 @@ Administrative nodes default to operators:
 
 Players without administrative permission do not receive protected commands through tab completion or EmsiChill help. A permissions plugin can grant individual nodes to trusted non-OP users.
 
-## Local Resource Packs
+## Resource Packs
 
-Place every Java resource pack directly inside:
+EmsiChill manages Java Edition resource packs directly from the plugin folder. No download URL or manually calculated SHA-1 is required.
+
+### Pack sources
+
+Place every pack directly inside:
 
 ```text
 plugins/EmsiChill/ResourcePacks/
 ```
 
-Each source can be a `.zip` file or an unpacked folder. `pack.mcmeta` must be at its root or inside one immediate wrapper folder. For example, BetterModel works in this form:
+Each direct child is treated as an independent source and may be either an unpacked folder or a `.zip` file. EmsiChill searches inside wrapper folders added by hosting panels and uses the single directory containing `pack.mcmeta` as the pack root.
 
 ```text
 ResourcePacks/
-|-- BetterModel/
+|-- 01-BetterModel/
 |   `-- resourcepack/
 |       |-- pack.mcmeta
 |       |-- pack.png
 |       `-- assets/
-|-- MyPack.zip
+|-- 02-ServerTextures.zip
 |-- config.yml
 `-- .generated/
 ```
 
-EmsiChill processes sources alphabetically and keeps each pack independent. Prefix names with `01-`, `02-` and so on when stack order matters. Generated client files are stored in `.generated/` and should not be edited manually.
+The rules are intentionally strict:
 
-### Resource-pack workflow
+- A source must contain exactly one `pack.mcmeta`.
+- Nested wrapper folders are accepted.
+- Two pack roots inside one source are rejected instead of being merged accidentally.
+- Sources are processed alphabetically and remain separate on the client.
+- Prefixes such as `01-`, `02-` and `03-` control stack order.
+- `.generated/` contains built packs and hosting metadata; do not edit it manually.
+
+### Automatic loading
+
+EmsiChill prepares and sends the active pack stack automatically:
+
+1. Folder sources are packaged into deterministic `.zip` files.
+2. Every generated file receives a SHA-1 content hash.
+3. `hosting.mode: "auto"` tries the internal HTTP server first.
+4. If the Minecraft host blocks additional ports, EmsiChill automatically uploads the packs through HTTPS.
+5. Paper sends the complete stack during the connection stage, before the player sees the world.
+6. Minecraft downloads new or modified packs and reuses unchanged files from its client cache.
+
+Players do not need to run a command. With `pack.required: true`, declining the server pack prevents the connection. Minecraft controls its own first-use permission prompt and loading screen; a server plugin cannot silently bypass or resize those client interfaces.
+
+### Administration
 
 | Command | Behavior |
 |---|---|
-| `/emsichill rp reload` | Rebuilds the local pack list. Connected players are not interrupted; changes apply when they reconnect. |
-| `/emsichill rp push` | Forces the active pack list onto connected players. Minecraft may display its full-screen reload view. |
+| `/emsichill rp reload` | Reloads `ResourcePacks/config.yml`, rebuilds sources and prepares hosting asynchronously. In-game administrators see a live progress bar; online players are not interrupted and the new stack applies when they reconnect. |
+| `/emsichill rp push` | Immediately sends the prepared stack to online players. Minecraft may show its full-screen reload interface. |
 
-On a normal connection, Paper sends all packs in one request before the world appears. Unchanged packs are reused from the Minecraft client cache, while new or modified packs are downloaded. Minecraft owns its permission prompt and full-screen reload interface; the plugin cannot resize those client screens.
+Use `reload` after adding, replacing or removing a source. Use `push` only when connected players must receive that change immediately. Players joining later receive it automatically.
 
-Main settings in `ResourcePacks/config.yml`:
+### Hosting modes
+
+| Mode | Behavior | Typical use |
+|---|---|---|
+| `auto` | Tries local hosting and falls back to remote HTTPS when the port cannot open. | Recommended default for every host. |
+| `local` | Uses only EmsiChill's internal HTTP server. Failure to bind the configured port stops pack preparation. | Home servers, VPSs and dedicated servers with port control. |
+| `remote` | Skips the internal port and always uses remote HTTPS hosting. | Shared hosts where extra ports are known to be unavailable. |
+
+In `auto` mode, `Permission denied` from the local port is handled as a normal fallback rather than a failed reload. Remote packs are uploaded to [MCPacks](https://mcpacks.dev/). The returned UUID and HTTPS URL are stored in `.generated/remote-hosting.properties` by SHA-1, so restarting or running `reload` does not upload an unchanged pack again. Only new or modified content receives a new upload and download.
+
+The first remote upload can take longer than later reloads. Wait for the console to report that the packs are ready before joining or using `push`.
+
+Remote hosting publishes generated pack files to a third-party service. Do not use it for content that must remain private. MCPacks accepts files up to 250 MB. Local hosting keeps files on your server, but its configured port must be reachable by every Java client connecting over the Internet.
+
+### Configuration
+
+Default `ResourcePacks/config.yml`:
 
 ```yaml
 send-during-configuration: true
@@ -324,14 +366,20 @@ pack:
 
 hosting:
   enabled: true
+  mode: "auto"
   bind-address: "0.0.0.0"
   port: 8165
   public-base-url: "auto"
+
+  remote:
+    api-base-url: "https://mcpacks.dev/api/v1/"
+    timeout-seconds: 180
+    maximum-upload-megabytes: 250
 ```
 
-Port `8165` must be reachable through the firewall and router for Internet players. With `public-base-url: "auto"`, EmsiChill uses the hostname the player used to connect. A reverse proxy may expose `/emsichill-packs/` through a public HTTPS address instead.
+`send-during-configuration: true` provides the cleanest normal join because Paper applies the stack before spawning the player. `send-delay-ticks` is only the fallback delay for connections where configuration-stage delivery is unavailable. `clear-existing` should remain `false` unless another plugin leaves conflicting server packs active.
 
-This module sends Java Edition packs. Bedrock players joining through Geyser require a separate Bedrock-compatible pack and conversion/distribution setup.
+This module distributes Java Edition packs. Bedrock players joining through Geyser require a Bedrock-compatible pack and a separate conversion/distribution setup.
 
 ## Configuration Files
 
@@ -349,7 +397,7 @@ This module sends Java Edition packs. Bedrock players joining through Geyser req
 | `Graves/config.yml` | Death mode, privacy, expiration and headstone visuals. |
 | `Social/config.yml` | Pose and social settings. |
 | `Staff/config.yml` | Staff chat, vanish, staff mode and moderation behavior. |
-| `ResourcePacks/config.yml` | Local pack processing and internal HTTP hosting. |
+| `ResourcePacks/config.yml` | Pack processing plus local, remote or automatic hosting. |
 
 ## Updates And Maintenance
 

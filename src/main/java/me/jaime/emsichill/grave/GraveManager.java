@@ -205,13 +205,6 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
             if (item != null && !item.getType().isAir()) items.add(item.clone());
         }
         int experience = Math.max(0, player.getTotalExperience());
-        event.setKeepInventory(false);
-        event.setKeepLevel(false);
-        event.getDrops().clear();
-        event.setDroppedExp(0);
-        event.setNewExp(0);
-        event.setNewLevel(0);
-        event.setNewTotalExp(0);
         if (items.isEmpty() && experience == 0) return;
 
         Location deathLocation = player.getLocation().clone();
@@ -223,53 +216,43 @@ public final class GraveManager implements CommandExecutor, TabCompleter, Listen
         Grave grave = new Grave(id, player.getUniqueId(), player.getName(), marker == null ? deathLocation : marker,
             items, experience, now, now + lifetime, now + privateTime, marker != null);
         this.repository.put(grave);
-        if (marker != null) {
-            this.placeMarker(grave);
-            this.playGraveEffect(grave);
-            this.plugin.rememberGraveBackLocation(player, marker);
+        if (!this.repository.saveNow()) {
+            this.repository.remove(grave.id());
+            this.plugin.getLogger().severe("Could not persist grave " + grave.id() + " for " + player.getName()
+                + "; preserving vanilla death drops instead.");
+            this.plugin.messages().send(player, "general.save-error");
+            return;
         }
-        this.repository.save();
+
+        // Suppress vanilla loss only after the complete recovery payload is safely on disk.
+        event.setKeepInventory(false);
+        event.setKeepLevel(false);
+        event.getDrops().clear();
+        event.setDroppedExp(0);
+        event.setNewExp(0);
+        event.setNewLevel(0);
+        event.setNewTotalExp(0);
+        if (marker != null) {
+            try {
+                this.placeMarker(grave);
+                this.playGraveEffect(grave);
+                this.plugin.rememberGraveBackLocation(player, marker);
+            } catch (RuntimeException exception) {
+                this.plugin.getLogger().warning("Grave " + grave.id() + " was saved, but its marker could not be "
+                    + "displayed: " + exception.getMessage());
+            }
+        }
         this.plugin.messages().send(player, "grave.created", "{id}", id, "{world}", grave.world(),
             "{x}", Integer.toString(grave.x()), "{y}", Integer.toString(grave.y()), "{z}", Integer.toString(grave.z()));
     }
 
     // Finds a nearby empty block for the protected interaction point.
     private Location findMarkerLocation(final Location origin) {
-        World world = origin.getWorld();
-        if (world == null) return null;
         int maximumRadius = Math.max(1, Math.min(16,
             this.configFile.yaml().getInt("graves.marker-search-radius", 6)));
         int verticalRadius = Math.max(1, Math.min(8,
             this.configFile.yaml().getInt("graves.marker-vertical-radius", 4)));
-        for (int radius = 0; radius <= maximumRadius; radius++) {
-            for (int x = -radius; x <= radius; x++) {
-                for (int z = -radius; z <= radius; z++) {
-                    int bx = origin.getBlockX() + x; int bz = origin.getBlockZ() + z;
-                    for (int distance = 0; distance <= verticalRadius; distance++) {
-                        int[] offsets = distance == 0 ? new int[] {0} : new int[] {distance, -distance};
-                        for (int yOffset : offsets) {
-                            int by = origin.getBlockY() + yOffset;
-                            if (by <= world.getMinHeight() || by >= world.getMaxHeight() - 1) continue;
-                            Block target = world.getBlockAt(bx, by, bz);
-                            if (this.canPlaceMarker(target)) return target.getLocation();
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean canPlaceMarker(final Block target) {
-        Block above = target.getRelative(0, 1, 0);
-        Block head = target.getRelative(0, 2, 0);
-        Block floor = target.getRelative(0, -1, 0);
-        Material floorType = floor.getType();
-        return target.isPassable() && !target.isLiquid() && above.isPassable() && !above.isLiquid()
-            && head.isPassable() && !head.isLiquid()
-            && floorType.isSolid() && floorType != Material.MAGMA_BLOCK && floorType != Material.CACTUS
-            && floorType != Material.CAMPFIRE && floorType != Material.SOUL_CAMPFIRE
-            && target.getWorld().getWorldBorder().isInside(target.getLocation());
+        return GraveMarkerLocator.find(origin, maximumRadius, verticalRadius);
     }
 
     private void placeMarker(final Grave grave) {

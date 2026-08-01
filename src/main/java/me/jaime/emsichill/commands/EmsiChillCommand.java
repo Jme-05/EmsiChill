@@ -352,30 +352,47 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
         }
-        this.messages.send(sender, "resource-pack.reloading");
-        this.resourcePacks.reloadLocalPacks().whenComplete((result, failure) -> {
-            if (failure != null || result == null) {
-                this.plugin.getLogger().warning("Local resource-pack reload failed: "
-                    + (failure == null ? "empty result" : failure.getMessage()));
-                this.messages.send(sender, "resource-pack.failed");
-                return;
-            }
-            switch (result.status()) {
-                case LOADED -> {
-                    this.messages.send(sender, "resource-pack.loaded",
-                        "{sources}", Integer.toString(result.sources()));
-                    this.audit.log("RESOURCE_PACK_RELOAD", "actor=" + sender.getName()
-                        + " sources=" + result.sources() + " hashes=" + result.sha1());
-                }
-                case EMPTY -> this.messages.send(sender, "resource-pack.empty");
-                case IN_PROGRESS -> this.messages.send(sender, "resource-pack.in-progress");
-                case DISABLED -> this.messages.send(sender, "general.module-disabled");
-                case FAILED -> {
-                    this.plugin.getLogger().warning("Local resource-pack reload failed: " + result.error());
+        ResourcePackReloadProgress progress = sender instanceof Player player
+            ? new ResourcePackReloadProgress(this.plugin, player)
+            : null;
+        if (progress == null) this.messages.send(sender, "resource-pack.reloading");
+        else progress.start();
+        this.resourcePacks.reloadConfiguredPacks(progress == null ? null : progress::phase)
+            .whenComplete((result, failure) -> {
+                if (failure != null || result == null) {
+                    this.plugin.getLogger().warning("Resource-pack reload failed: "
+                        + (failure == null ? "empty result" : failure.getMessage()));
+                    if (progress != null) progress.fail();
                     this.messages.send(sender, "resource-pack.failed");
+                    return;
                 }
-            }
-        });
+                switch (result.status()) {
+                    case LOADED -> {
+                        if (progress != null) progress.complete();
+                        this.messages.send(sender, "resource-pack.loaded",
+                            "{sources}", Integer.toString(result.sources()));
+                        this.audit.log("RESOURCE_PACK_RELOAD", "actor=" + sender.getName()
+                            + " sources=" + result.sources() + " hashes=" + result.sha1());
+                    }
+                    case EMPTY -> {
+                        if (progress != null) progress.empty();
+                        this.messages.send(sender, "resource-pack.empty");
+                    }
+                    case IN_PROGRESS -> {
+                        if (progress != null) progress.busy();
+                        this.messages.send(sender, "resource-pack.in-progress");
+                    }
+                    case DISABLED -> {
+                        if (progress != null) progress.fail();
+                        this.messages.send(sender, "general.module-disabled");
+                    }
+                    case FAILED -> {
+                        if (progress != null) progress.fail();
+                        this.plugin.getLogger().warning("Resource-pack reload failed: " + result.error());
+                        this.messages.send(sender, "resource-pack.failed");
+                    }
+                }
+            });
         return true;
     }
 
@@ -396,7 +413,7 @@ public final class EmsiChillCommand implements CommandExecutor, TabCompleter {
             case EMPTY -> this.messages.send(sender, "resource-pack.empty");
             case DISABLED -> this.messages.send(sender, "general.module-disabled");
             case FAILED -> {
-                this.plugin.getLogger().warning("Local resource-pack push failed: " + result.error());
+                this.plugin.getLogger().warning("Resource-pack push failed: " + result.error());
                 this.messages.send(sender, "resource-pack.failed");
             }
         }

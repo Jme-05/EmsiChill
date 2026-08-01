@@ -5,14 +5,17 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import io.papermc.paper.connection.PlayerConfigurationConnection;
@@ -35,7 +38,8 @@ import me.jaime.emsichill.config.ConfigFile;
 
 /** Builds, hosts and sends locally managed server resource packs. */
 public final class ResourcePackManager implements Listener {
-    private static final int CONFIG_VERSION = 3;
+    private static final int CONFIG_VERSION = 5;
+    private static final String DEFAULT_REMOTE_API = "https://mcpacks.dev/api/v1/";
 
     private final Main plugin;
     private final LocalPackHttpServer httpServer = new LocalPackHttpServer();
@@ -44,6 +48,8 @@ public final class ResourcePackManager implements Listener {
     private final Set<UUID> obsoletePackIds = ConcurrentHashMap.newKeySet();
     private ConfigFile configFile;
     private volatile List<LocalResourcePackBuilder.BuildResult> activePacks = List.of();
+    private volatile Map<String, String> remotePackUrls = Map.of();
+    private RemotePackUploader remoteUploader;
     private long sendDelayTicks;
     private long maximumUncompressedBytes;
     private boolean clearExisting;
@@ -51,6 +57,7 @@ public final class ResourcePackManager implements Listener {
     private boolean required;
     private boolean sendDuringConfiguration;
     private boolean hostingEnabled;
+    private HostingMode hostingMode;
     private String prompt;
     private String bindAddress;
     private String publicBaseUrl;
@@ -91,6 +98,15 @@ public final class ResourcePackManager implements Listener {
         if (!this.configFile.yaml().isSet("send-during-configuration")) {
             this.configFile.yaml().set("send-during-configuration", true);
         }
+        if (!this.configFile.yaml().isSet("hosting.mode")
+            || (version < 5 && this.configFile.yaml().getString("hosting.mode", "local").equalsIgnoreCase("local"))) {
+            this.configFile.yaml().set("hosting.mode", "auto");
+        }
+        if (!this.configFile.yaml().isSet("hosting.remote.api-base-url")) {
+            this.configFile.yaml().set("hosting.remote.api-base-url", DEFAULT_REMOTE_API);
+            this.configFile.yaml().set("hosting.remote.timeout-seconds", 180);
+            this.configFile.yaml().set("hosting.remote.maximum-upload-megabytes", 250);
+        }
         this.configFile.yaml().set("_meta.config-version", CONFIG_VERSION);
         this.configFile.save();
     }
@@ -106,34 +122,49 @@ public final class ResourcePackManager implements Listener {
             Math.min(2048L, this.configFile.yaml().getLong("pack.maximum-uncompressed-megabytes", 512L)));
         this.maximumUncompressedBytes = megabytes * 1024L * 1024L;
         this.hostingEnabled = this.configFile.yaml().getBoolean("hosting.enabled", true);
+        this.hostingMode = HostingMode.parse(this.configFile.yaml().getString("hosting.mode", "auto"));
         this.bindAddress = this.configFile.yaml().getString("hosting.bind-address", "0.0.0.0");
         int configuredPort = this.configFile.yaml().getInt("hosting.port", 8165);
         this.httpPort = configuredPort > 0 && configuredPort <= 65535 ? configuredPort : 8165;
         String configuredPublicUrl = this.configFile.yaml().getString("hosting.public-base-url", "auto");
         this.publicBaseUrl = validPublicBaseUrl(configuredPublicUrl) ? stripTrailingSlash(configuredPublicUrl) : "auto";
+        String configuredRemoteApi = this.configFile.yaml().getString("hosting.remote.api-base-url",
+            DEFAULT_REMOTE_API);
+        URI remoteApi = validPublicBaseUrl(configuredRemoteApi) ? URI.create(configuredRemoteApi)
+            : URI.create(DEFAULT_REMOTE_API);
+        int remoteTimeout = Math.max(15,
+            Math.min(600, this.configFile.yaml().getInt("hosting.remote.timeout-seconds", 180)));
+        long remoteMegabytes = Math.max(1L,
+            Math.min(250L, this.configFile.yaml().getLong("hosting.remote.maximum-upload-megabytes", 250L)));
+        Path cache = this.plugin.getDataFolder().toPath().resolve("ResourcePacks/.generated/remote-hosting.properties");
+        this.remoteUploader = new RemotePackUploader(remoteApi, Duration.ofSeconds(remoteTimeout), cache,
+            remoteMegabytes * 1024L * 1024L, "EmsiChill/" + this.plugin.getPluginMeta().getVersion());
     }
 
     public void start() {
         if (this.running) return;
         this.running = true;
         this.startHttpServer();
-        try {
-            List<LocalResourcePackBuilder.BuildResult> built = this.buildLocalPacks();
-            this.activate(built);
-            if (built.isEmpty()) {
+        this.reloadLocalPacks().whenComplete((result, failure) -> {
+            if (failure != null || result == null || result.status() == ReloadStatus.FAILED) {
+                String detail = failure == null ? (result == null ? "empty result" : result.error())
+                    : failure.getMessage();
+                this.plugin.getLogger().warning("Could not prepare local resource packs: " + detail);
+            } else if (result.status() == ReloadStatus.EMPTY) {
                 this.plugin.getLogger().info("No local resource packs were found in ResourcePacks/.");
-            } else {
-                this.plugin.getLogger().info(built.size() + " local resource pack(s) ready.");
+            } else if (result.status() == ReloadStatus.LOADED) {
+                String effectiveMode = this.remotePackUrls.isEmpty() ? "local" : "remote";
+                this.plugin.getLogger().info(result.sources() + " local resource pack(s) ready using "
+                    + effectiveMode + " hosting.");
             }
-        } catch (IOException exception) {
-            this.plugin.getLogger().warning("Could not build the local resource pack: " + exception.getMessage());
-        }
+        });
     }
 
     public void stop() {
         this.running = false;
         this.httpServer.close();
         this.activePacks = List.of();
+        this.remotePackUrls = Map.of();
         this.sentDuringConfiguration.clear();
         this.obsoletePackIds.clear();
         this.reloadInProgress.set(false);
@@ -141,7 +172,7 @@ public final class ResourcePackManager implements Listener {
 
     private void startHttpServer() {
         this.hostingError = null;
-        if (!this.hostingEnabled || !this.running) return;
+        if (!this.hostingEnabled || !this.running || this.hostingMode == HostingMode.REMOTE) return;
         try {
             this.httpServer.start(this.bindAddress, this.httpPort);
             this.httpServer.setActivePacks(this.activePacks);
@@ -149,34 +180,65 @@ public final class ResourcePackManager implements Listener {
                 + ":" + this.httpPort + ".");
         } catch (IOException | IllegalArgumentException exception) {
             this.hostingError = exception.getMessage();
-            this.plugin.getLogger().warning("Could not start the local resource-pack server: "
-                + exception.getMessage());
+            if (this.hostingMode == HostingMode.AUTO) {
+                this.plugin.getLogger().info("Local resource-pack hosting is unavailable; "
+                    + "auto mode will use remote HTTPS hosting.");
+            } else {
+                this.plugin.getLogger().warning("Could not start the local resource-pack server: "
+                    + exception.getMessage());
+            }
         }
     }
 
     public CompletableFuture<ReloadResult> reloadLocalPacks() {
+        return this.reloadLocalPacks(false);
+    }
+
+    public CompletableFuture<ReloadResult> reloadConfiguredPacks() {
+        return this.reloadLocalPacks(true);
+    }
+
+    public CompletableFuture<ReloadResult> reloadConfiguredPacks(final Consumer<ReloadPhase> progress) {
+        return this.reloadLocalPacks(true, progress);
+    }
+
+    private CompletableFuture<ReloadResult> reloadLocalPacks(final boolean reloadConfig) {
+        return this.reloadLocalPacks(reloadConfig, ignored -> { });
+    }
+
+    private CompletableFuture<ReloadResult> reloadLocalPacks(
+        final boolean reloadConfig,
+        final Consumer<ReloadPhase> progress
+    ) {
         if (!this.enabled()) {
             return CompletableFuture.completedFuture(new ReloadResult(
                 ReloadStatus.DISABLED, 0, 0, null, 0L, "resource-pack module is disabled"));
-        }
-        if (!this.running) {
-            this.running = true;
-            this.startHttpServer();
         }
         if (!this.reloadInProgress.compareAndSet(false, true)) {
             return CompletableFuture.completedFuture(new ReloadResult(
                 ReloadStatus.IN_PROGRESS, 0, 0, null, 0L, null));
         }
+        notifyProgress(progress, ReloadPhase.PREPARING);
+        if (reloadConfig) this.reloadConfiguration();
+        if (!this.running) {
+            this.running = true;
+            this.startHttpServer();
+        }
         CompletableFuture<ReloadResult> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
             List<LocalResourcePackBuilder.BuildResult> built = List.of();
+            Map<String, String> hostedUrls = Map.of();
             IOException failure = null;
             try {
+                notifyProgress(progress, ReloadPhase.BUILDING);
                 built = this.buildLocalPacks();
+                notifyProgress(progress, ReloadPhase.HOSTING);
+                hostedUrls = this.prepareHosting(built);
             } catch (IOException exception) {
                 failure = exception;
             }
             List<LocalResourcePackBuilder.BuildResult> result = built;
+            Map<String, String> resultUrls = hostedUrls;
             IOException error = failure;
             Bukkit.getScheduler().runTask(this.plugin, () -> {
                 try {
@@ -185,17 +247,12 @@ public final class ResourcePackManager implements Listener {
                             error.getMessage()));
                         return;
                     }
+                    notifyProgress(progress, ReloadPhase.ACTIVATING);
                     List<LocalResourcePackBuilder.BuildResult> previous = this.activePacks;
-                    this.activate(result);
+                    this.activate(result, resultUrls);
                     this.rememberObsoletePacks(previous, result);
                     if (result.isEmpty()) {
                         future.complete(new ReloadResult(ReloadStatus.EMPTY, 0, 0, null, 0L, null));
-                        return;
-                    }
-                    if (!this.httpServer.running()) this.startHttpServer();
-                    if (!this.httpServer.running()) {
-                        future.complete(new ReloadResult(ReloadStatus.FAILED, result.size(), 0,
-                            hashes(result), totalBytes(result), this.hostingFailure()));
                         return;
                     }
                     future.complete(new ReloadResult(ReloadStatus.LOADED, result.size(), 0,
@@ -208,12 +265,21 @@ public final class ResourcePackManager implements Listener {
         return future;
     }
 
+    private static void notifyProgress(final Consumer<ReloadPhase> progress, final ReloadPhase phase) {
+        if (progress == null) return;
+        try {
+            progress.accept(phase);
+        } catch (RuntimeException ignored) {
+            // A visual progress listener must never interrupt pack preparation.
+        }
+    }
+
     public PushResult pushOnline() {
         if (!this.enabled()) return new PushResult(PushStatus.DISABLED, 0, 0, "resource-pack module is disabled");
         List<LocalResourcePackBuilder.BuildResult> packs = this.activePacks;
         if (packs.isEmpty()) return new PushResult(PushStatus.EMPTY, 0, 0, null);
-        if (!this.httpServer.running()) this.startHttpServer();
-        if (!this.httpServer.running()) {
+        if (!this.hostingReady(packs)) this.startHttpServer();
+        if (!this.hostingReady(packs)) {
             return new PushResult(PushStatus.FAILED, packs.size(), 0, this.hostingFailure());
         }
         int sent = 0;
@@ -230,8 +296,22 @@ public final class ResourcePackManager implements Listener {
         return LocalResourcePackBuilder.build(directory, this.maximumUncompressedBytes);
     }
 
-    private void activate(final List<LocalResourcePackBuilder.BuildResult> packs) {
+    private Map<String, String> prepareHosting(final List<LocalResourcePackBuilder.BuildResult> packs)
+        throws IOException {
+        if (packs.isEmpty()) return Map.of();
+        if (!this.hostingEnabled) throw new IOException("resource-pack hosting is disabled");
+        if (this.hostingMode == HostingMode.LOCAL) {
+            if (!this.httpServer.running()) throw new IOException(this.hostingFailure());
+            return Map.of();
+        }
+        if (this.hostingMode == HostingMode.AUTO && this.httpServer.running()) return Map.of();
+        return this.remoteUploader.host(packs);
+    }
+
+    private void activate(final List<LocalResourcePackBuilder.BuildResult> packs,
+                          final Map<String, String> hostedUrls) {
         this.activePacks = List.copyOf(packs);
+        this.remotePackUrls = Map.copyOf(hostedUrls);
         this.httpServer.setActivePacks(this.activePacks);
     }
 
@@ -287,7 +367,7 @@ public final class ResourcePackManager implements Listener {
     private boolean sendPacks(final Audience audience, final InetSocketAddress virtualHost,
                               final String playerName, final boolean includeCallback) {
         List<LocalResourcePackBuilder.BuildResult> packs = this.activePacks;
-        if (!this.enabled() || packs.isEmpty() || !this.httpServer.running()) return false;
+        if (!this.enabled() || packs.isEmpty() || !this.hostingReady(packs)) return false;
         try {
             List<ResourcePackInfo> packInfo = packs.stream()
                 .map(pack -> ResourcePackInfo.resourcePackInfo(packId("local:" + pack.sourceName()),
@@ -344,6 +424,8 @@ public final class ResourcePackManager implements Listener {
     }
 
     private String packUrl(final InetSocketAddress virtualHost, final String sha1) {
+        String remoteUrl = this.remotePackUrls.get(sha1);
+        if (remoteUrl != null) return remoteUrl;
         String base = this.publicBaseUrl;
         if (base.equalsIgnoreCase("auto")) {
             String host = virtualHost == null ? "127.0.0.1" : virtualHost.getHostString();
@@ -406,8 +488,14 @@ public final class ResourcePackManager implements Listener {
     }
 
     private String hostingFailure() {
-        if (!this.hostingEnabled) return "local HTTP hosting is disabled";
+        if (!this.hostingEnabled) return "resource-pack hosting is disabled";
+        if (this.hostingMode == HostingMode.REMOTE) return "remote resource-pack hosting is unavailable";
         return this.hostingError == null ? "local HTTP hosting is unavailable" : this.hostingError;
+    }
+
+    private boolean hostingReady(final List<LocalResourcePackBuilder.BuildResult> packs) {
+        if (this.httpServer.running()) return true;
+        return !packs.isEmpty() && packs.stream().allMatch(pack -> this.remotePackUrls.containsKey(pack.sha1Hex()));
     }
 
     private boolean enabled() {
@@ -422,11 +510,33 @@ public final class ResourcePackManager implements Listener {
         FAILED
     }
 
+    public enum ReloadPhase {
+        PREPARING,
+        BUILDING,
+        HOSTING,
+        ACTIVATING
+    }
+
     public enum PushStatus {
         SENT,
         EMPTY,
         DISABLED,
         FAILED
+    }
+
+    private enum HostingMode {
+        LOCAL,
+        REMOTE,
+        AUTO;
+
+        private static HostingMode parse(final String value) {
+            if (value == null) return AUTO;
+            try {
+                return valueOf(value.trim().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException exception) {
+                return AUTO;
+            }
+        }
     }
 
     public record ReloadResult(
